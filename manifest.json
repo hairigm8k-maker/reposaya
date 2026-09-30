@@ -1,0 +1,41 @@
+{
+    "name": "hairiamri.buzz",
+    "short_name": "hairiamri",
+    "description": "Kursus percuma, program agent, servis digital & landing page RM99",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#111111",
+    "theme_color": "#111111",
+    "scope": "/",
+    "lang": "ms",
+    "categories": ["business", "education", "productivity"],
+    "icons": [
+        {
+            "src": "assets/logoUtama/logoUtama.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/logoUtama/logoUtama.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Daftar Kursus",
+            "short_name": "Kursus",
+            "url": "/daftar.html",
+            "icons": [{ "src": "assets/logoUtama/logoUtama.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Jadi Agent",
+            "short_name": "Agent",
+            "url": "/#agent",
+            "icons": [{ "src": "assets/logoUtama/logoUtama.png", "sizes": "192x192" }]
+        }
+    ]
+}
