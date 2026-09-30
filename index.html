@@ -410,12 +410,6 @@ function setLang(lang) {
     fbBtn.textContent = lang === 'en' ? 'Send Feedback' : 'Hantar Maklum Balas';
   }
 
-  // Update button feedback text
-  const fbBtn = document.getElementById('fbBtn');
-  if (fbBtn && !fbBtn.disabled) {
-    fbBtn.textContent = lang === 'en' ? 'Send Feedback' : 'Hantar Maklum Balas';
-  }
-
   // Update placeholder text
   document.querySelectorAll('[data-bm-placeholder][data-en-placeholder]').forEach(el => {
     el.placeholder = el.dataset[lang + 'Placeholder'];
