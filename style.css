@@ -65,21 +65,6 @@ body { background-color: #ffffff; color: #1a1a1a; }
   color: #1a1a1a;
 }
 
-.hero-big .outline {
-  color: #ffffff;
-  font-style: italic;
-  -webkit-text-stroke: 0;
-  text-shadow:
-    -2px -2px 0 #1a1a1a,
-    2px -2px 0 #1a1a1a,
-    -2px 2px 0 #1a1a1a,
-    2px 2px 0 #1a1a1a,
-    0 -2px 0 #1a1a1a,
-    0 2px 0 #1a1a1a,
-    -2px 0 0 #1a1a1a,
-    2px 0 0 #1a1a1a;
-}
-
 .hero-bottom {
   display: flex;
   justify-content: space-between;
@@ -140,20 +125,6 @@ body { background-color: #ffffff; color: #1a1a1a; }
 
   .hero-editorial { padding: 30px 20px 20px; min-height: 65vh; }
   .hero-big span { font-size: 58px; letter-spacing: -2.5px; }
-  .hero-big .outline {
-  color: #ffffff;
-  font-style: italic;
-  -webkit-text-stroke: 0;
-  text-shadow:
-    -2px -2px 0 #1a1a1a,
-    2px -2px 0 #1a1a1a,
-    -2px 2px 0 #1a1a1a,
-    2px 2px 0 #1a1a1a,
-    0 -2px 0 #1a1a1a,
-    0 2px 0 #1a1a1a,
-    -2px 0 0 #1a1a1a,
-    2px 0 0 #1a1a1a;
-}
   .price-value { font-size: 42px; }
   .order-btn { padding: 12px 22px; font-size: 13px; }
 }
@@ -2228,4 +2199,289 @@ body.push-open .push-drawer {
   font-size: 12px;
   color: #666;
   letter-spacing: 0.2px;
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET (768px+)
+   Scale up semua element untuk tablet
+   ============================================================ */
+@media (min-width: 768px) {
+  /* Hide bottom nav — desktop dah ada screen besar */
+  .bottom-nav { display: none; }
+  body { padding-bottom: 0; }
+
+  /* Navbar */
+  .main-nav { height: 80px; padding: 20px 40px; }
+  .logo-img { height: 42px; }
+  .hamburger span { width: 30px; height: 3px; }
+  .search-box { padding: 14px 22px; }
+  .search-icon { width: 22px; height: 22px; }
+  .search-box input { font-size: 16px; }
+  .time-display { font-size: 18px; }
+  .date-display { font-size: 13px; }
+  .datetime-widget { margin-right: 20px; padding-right: 20px; }
+  .profile-icon, .arrow-icon { width: 32px !important; height: 32px !important; }
+  .lang-btn { font-size: 16px; }
+
+  /* Hero */
+  .hero-editorial { padding: 80px 40px 100px; }
+  .hero-big span { font-size: 120px; letter-spacing: -5px; }
+  .hero-feature-img { width: 200px; left: -50px; top: 60px; }
+  .price-value { font-size: 90px; }
+  .price-prefix { font-size: 14px; letter-spacing: 4px; }
+  .price-svg { max-width: 520px; }
+  .price-svg-text { font-size: 68px; }
+  .sticker-hero { width: 140px; top: 30px; right: 20px; }
+  .sticker-pakej { width: 160px; right: 20%; }
+
+  /* Kredibiliti */
+  .section-kredibiliti { padding: 80px 40px; }
+  .kredibiliti-text { font-size: 42px; max-width: 700px; }
+
+  /* Bantu */
+  .section-bantu { padding: 80px 40px; }
+  .bantu-title { font-size: 36px; max-width: 700px; }
+  .bantu-list { max-width: 520px; gap: 18px; }
+  .bantu-list li { font-size: 18px; }
+  .bantu-list .check { width: 28px; height: 28px; }
+  .bantu-list .check svg { width: 16px; height: 16px; }
+
+  /* Video */
+  .section-video { padding: 0 40px; }
+  .hero-video-bg { max-width: 900px; height: 500px; }
+  .video-hr { margin: 0 0 80px 0; }
+
+  /* Pakej */
+  .section-pakej { padding: 100px 40px 100px; }
+  .pakej-title { font-size: 40px; padding: 16px 40px; }
+  .pakej-list { max-width: 600px; gap: 18px; }
+  .pakej-list li { font-size: 18px; }
+  .pakej-check { width: 28px; height: 28px; }
+  .pakej-check svg { width: 16px; height: 16px; }
+  .pakej-note { font-size: 16px; }
+  .pakej-cta { padding: 20px 56px; font-size: 18px; }
+  .pakej-publish { font-size: 16px; }
+  .google-logo { max-width: 240px; }
+
+  /* Feedback */
+  .section-feedback { padding: 100px 40px; }
+  .feedback-title { font-size: 36px; }
+  .feedback-sub { font-size: 18px; }
+  .feedback-form { max-width: 560px; }
+  .feedback-form label { font-size: 15px; }
+  .feedback-form input[type="text"],
+  .feedback-form input[type="email"],
+  .feedback-form textarea { font-size: 16px; padding: 16px 20px; }
+  .feedback-submit { font-size: 17px; padding: 20px; }
+  .fb-msg { font-size: 15px; }
+  .fb-tick { width: 34px; height: 34px; }
+
+  /* Footer */
+  .site-footer { padding: 80px 40px 40px; }
+  .footer-inner { max-width: 700px; }
+  .footer-logo { max-width: 200px; }
+  .footer-desc { font-size: 15px; max-width: 480px; }
+  .footer-links { gap: 16px 28px; }
+  .footer-links a { font-size: 15px; }
+  .footer-social-btn { width: 52px; height: 52px; }
+  .footer-social-btn svg { width: 24px; height: 24px; }
+  .footer-bottom p { font-size: 14px; }
+
+  /* Drawer */
+  .push-drawer { width: 380px; max-width: 380px; }
+  .push-head { padding: 28px 28px 24px; }
+  .push-logo { height: 36px; }
+  .push-nav { padding: 20px 16px; }
+  .push-nav a { font-size: 18px; padding: 18px 20px; }
+  .push-faq-toggle { font-size: 17px; padding: 18px 20px; }
+  .push-faq-content summary { font-size: 15px; }
+  .push-faq-content details p { font-size: 14px; }
+  .push-social { padding: 24px 20px 28px; gap: 14px; }
+  .social-btn { width: 50px; height: 50px; }
+  .social-btn svg { width: 24px; height: 24px; }
+  .push-logo-footer img { max-width: 220px; }
+
+  /* Share modal */
+  .share-modal { max-width: 600px; padding: 20px 32px 32px; }
+  .share-title { font-size: 20px; }
+  .share-icon-circle { width: 64px; height: 64px; }
+  .share-icon-circle svg { width: 32px; height: 32px; }
+  .share-icon span { font-size: 13px; }
+  .share-cancel { font-size: 17px; padding: 20px; }
+
+  /* WhatsApp float */
+  .wa-float { bottom: 32px; right: 32px; gap: 12px; }
+  .wa-circle { width: 66px; height: 66px; }
+  .wa-icon { width: 34px; height: 34px; }
+  .wa-text { font-size: 15px; padding: 10px 18px; }
+
+  /* Marquee */
+  .promo-item { font-size: 15px; padding-right: 80px; }
+}
+
+/* ============================================================
+   RESPONSIVE — DESKTOP (1024px+)
+   Scale up lagi untuk desktop
+   ============================================================ */
+@media (min-width: 1024px) {
+  /* Navbar */
+  .main-nav { height: 90px; padding: 24px 60px; }
+  .logo-img { height: 48px; }
+  .hamburger span { width: 34px; height: 3.5px; }
+  .search-box { padding: 16px 26px; max-width: 500px; }
+  .search-box input { font-size: 17px; }
+  .time-display { font-size: 20px; }
+  .date-display { font-size: 14px; }
+  .profile-icon, .arrow-icon { width: 36px !important; height: 36px !important; }
+  .lang-btn { font-size: 18px; }
+
+  /* Hero */
+  .hero-editorial { padding: 120px 60px 140px; }
+  .hero-big span { font-size: 160px; letter-spacing: -7px; }
+  .hero-feature-img { width: 260px; left: -80px; top: 80px; }
+  .price-value { font-size: 120px; }
+  .price-prefix { font-size: 16px; }
+  .price-svg { max-width: 680px; }
+  .price-svg-text { font-size: 90px; }
+  .sticker-hero { width: 180px; top: 40px; right: 40px; }
+  .sticker-pakej { width: 200px; right: 25%; }
+
+  /* Kredibiliti */
+  .section-kredibiliti { padding: 120px 60px; }
+  .kredibiliti-text { font-size: 56px; max-width: 900px; }
+
+  /* Bantu */
+  .section-bantu { padding: 120px 60px; }
+  .bantu-title { font-size: 48px; max-width: 900px; }
+  .bantu-list { max-width: 640px; }
+  .bantu-list li { font-size: 20px; }
+
+  /* Video */
+  .section-video { padding: 0 60px; }
+  .hero-video-bg { max-width: 1100px; height: 600px; }
+  .video-hr { margin: 0 0 100px 0; }
+
+  /* Pakej */
+  .section-pakej { padding: 120px 60px; }
+  .pakej-title { font-size: 52px; padding: 20px 56px; }
+  .pakej-list { max-width: 720px; }
+  .pakej-list li { font-size: 20px; }
+  .pakej-cta { padding: 22px 64px; font-size: 20px; }
+  .pakej-publish { font-size: 18px; }
+  .google-logo { max-width: 280px; }
+
+  /* Feedback */
+  .section-feedback { padding: 120px 60px; }
+  .feedback-title { font-size: 44px; }
+  .feedback-sub { font-size: 20px; }
+  .feedback-form { max-width: 640px; }
+
+  /* Footer */
+  .site-footer { padding: 100px 60px 50px; }
+  .footer-inner { max-width: 800px; }
+  .footer-logo { max-width: 240px; }
+  .footer-desc { font-size: 17px; max-width: 600px; }
+  .footer-links a { font-size: 17px; }
+
+  /* Drawer */
+  .push-drawer { width: 440px; max-width: 440px; }
+
+  /* WhatsApp float */
+  .wa-circle { width: 76px; height: 76px; }
+  .wa-icon { width: 40px; height: 40px; }
+  .wa-text { font-size: 17px; padding: 12px 22px; }
+
+  /* Marquee */
+  .promo-item { font-size: 17px; padding-right: 100px; padding-top: 6px; padding-bottom: 6px; }
+}
+
+/* ============================================================
+   RESPONSIVE — LARGE DESKTOP (1440px+)
+   ============================================================ */
+@media (min-width: 1440px) {
+  .main-nav { padding: 24px 100px; }
+  .hero-editorial { padding: 140px 100px 160px; }
+  .hero-big span { font-size: 180px; letter-spacing: -8px; }
+  .hero-feature-img { width: 300px; left: -100px; }
+  .price-value { font-size: 140px; }
+  .price-svg-text { font-size: 110px; }
+  .kredibiliti-text { font-size: 64px; }
+  .bantu-title { font-size: 56px; }
+  .pakej-title { font-size: 60px; }
+  .feedback-title { font-size: 52px; }
+}
+
+.hero-big .outline {
+  color: #ffffff;
+  font-style: italic;
+  -webkit-text-stroke: 0;
+  text-shadow:
+    -2px -2px 0 #1a1a1a,
+    2px -2px 0 #1a1a1a,
+    -2px 2px 0 #1a1a1a,
+    2px 2px 0 #1a1a1a,
+    0 -2px 0 #1a1a1a,
+    0 2px 0 #1a1a1a,
+    -2px 0 0 #1a1a1a,
+    2px 0 0 #1a1a1a;
+}
+
+/* Desktop hero image — featureImg1.png */
+
+
+
+
+
+
+/* ============================================================
+   HERO FEATURE IMG — Ketengah pada desktop
+   ============================================================ */
+@media (min-width: 768px) {
+  .hero-editorial {
+    position: relative;
+    padding-left: 280px;
+  }
+  
+  .hero-feature-img {
+    position: absolute;
+    left: 40px !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+    width: 220px !important;
+  }
+  
+  .hero-big {
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .hero-bottom {
+    justify-content: flex-start;
+  }
+  
+  .price-badge {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-editorial {
+    padding-left: 400px;
+  }
+  
+  .hero-feature-img {
+    left: 80px !important;
+    width: 300px !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  .hero-editorial {
+    padding-left: 480px;
+  }
+  
+  .hero-feature-img {
+    left: 120px !important;
+    width: 340px !important;
+  }
 }
