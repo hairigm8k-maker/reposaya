@@ -446,6 +446,7 @@ function setLang(lang) {
   <nav class="push-nav">
     <a href="#home" onclick="closePush()" data-bm="Utama" data-en="Home">Utama</a>
     <a href="#pakej" onclick="closePush()" data-bm="Pakej &amp; Harga" data-en="Packages &amp; Pricing">Pakej &amp; Harga</a>
+    <a href="blog.html" data-bm="Blog" data-en="Blog">Blog</a>
     <a href="terma.html" data-bm="Terma &amp; Syarat" data-en="Terms &amp; Conditions">Terma &amp; Syarat</a>
     <a href="https://wa.me/60172131814" target="_blank" onclick="closePush()" data-bm="Hubungi Kami" data-en="Contact Us">Hubungi Kami</a>
   </nav>
@@ -496,6 +497,17 @@ function setLang(lang) {
   <a href="/" class="push-logo-footer">
     <img src="assets/logoUtama/logoUtama.png" alt="hairiamri.buzz">
   </a>
+
+  <div class="push-contact">
+    <a href="tel:+60172131814" class="push-contact-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>+60 17-213 1814</span>
+    </a>
+    <a href="mailto:feedback@hairiamri.buzz" class="push-contact-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>feedback@hairiamri.buzz</span>
+    </a>
+  </div>
 </div>
 <div class="push-overlay" id="pushOverlay" onclick="closePush()"></div>
 
@@ -694,6 +706,25 @@ async function submitFeedback(e) {
 }
 </script>
 
+
+
+<section class="section-blog-teaser">
+  <div class="teaser-head">
+    <h2 data-bm="Artikel Terkini" data-en="Latest Articles">Artikel Terkini</h2>
+    <a href="blog.html" class="teaser-link" data-bm="Lihat semua →" data-en="View all →">Lihat semua →</a>
+  </div>
+
+  <a href="blog.html" class="teaser-card">
+    <div class="teaser-img">
+      <img src="assets/artikel1.jpg" alt="Artikel">
+    </div>
+    <div class="teaser-body">
+      <h3 data-bm="Kenapa Bisnes Kecil Perlu Landing Page?" data-en="Why Small Businesses Need a Landing Page?">Kenapa Bisnes Kecil Perlu Landing Page?</h3>
+      <p data-bm="Landing page bukan sekadar website. Ia alat jualan yang boleh tingkatkan conversion bisnes anda." data-en="A landing page is not just a website. It's a sales tool that boosts conversion.">Landing page bukan sekadar website. Ia alat jualan yang boleh tingkatkan conversion bisnes anda.</p>
+      <span class="teaser-read" data-bm="Baca artikel →" data-en="Read article →">Baca artikel →</span>
+    </div>
+  </a>
+</section>
 <footer class="site-footer">
   <div class="footer-inner">
 
@@ -705,7 +736,8 @@ async function submitFeedback(e) {
     <div class="footer-links">
       <a href="#home" data-bm="Utama" data-en="Home">Utama</a>
       <a href="#pakej" data-bm="Pakej &amp; Harga" data-en="Packages &amp; Pricing">Pakej &amp; Harga</a>
-      <a href="terma.html" data-bm="Terma &amp; Syarat" data-en="Terms &amp; Conditions">Terma &amp; Syarat</a>
+      <a href="blog.html" data-bm="Blog" data-en="Blog">Blog</a>
+    <a href="terma.html" data-bm="Terma &amp; Syarat" data-en="Terms &amp; Conditions">Terma &amp; Syarat</a>
       <a href="#feedback" data-bm="Maklum Balas" data-en="Feedback">Maklum Balas</a>
     </div>
 
