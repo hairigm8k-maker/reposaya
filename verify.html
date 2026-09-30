@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengesahan Email - hairiamri.buzz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 45px 30px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: cardIn 0.5s ease-out;
+        }
+        @keyframes cardIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+        
+        .icon-wrap {
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            margin: 0 auto 22px;
+            font-size: 38px;
+        }
+        .icon-loading { background: #e0e7ff; }
+        .icon-success { background: linear-gradient(135deg, #48bb78, #38a169); color:#fff; }
+        .icon-error { background: #fee2e2; color: #e53e3e; }
+
+        h1 { font-size: 22px; font-weight: 800; color: #1a202c; margin-bottom: 10px; }
+        p { font-size: 14px; color: #718096; line-height: 1.6; margin-bottom: 20px; }
+        
+        .btn {
+            display: inline-block;
+            background: #E31E24; color:#fff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(227,30,36,0.3);
+        }
+        .btn:hover { background: #c4161c; }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #e0e7ff;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="icon-wrap icon-loading">
+            <div class="spinner"></div>
+        </div>
+        <h1>Sedang Mengesahkan...</h1>
+        <p>Sila tunggu sebentar.</p>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyDSmS57JpaW5KFoWI3OFgTB7_afAr5SWXJ3wLoozRE6QhxKO-PyaKDvs7JgCKOPynFEg/exec';
+        const card = document.getElementById('card');
+
+        function showSuccess(email) {
+            card.innerHTML = `
+                <div class="icon-wrap icon-success">✓</div>
+                <h1>Email Disahkan!</h1>
+                <p>Email <strong>${email}</strong> telah berjaya disahkan. Terima kasih!</p>
+                <a href="index.html" class="btn">Kembali ke Utama</a>
+            `;
+        }
+
+        function showError(msg) {
+            card.innerHTML = `
+                <div class="icon-wrap icon-error">✕</div>
+                <h1>Pengesahan Gagal</h1>
+                <p>${msg}</p>
+                <a href="index.html" class="btn">Kembali ke Utama</a>
+            `;
+        }
+
+        async function verify() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                showError('Link tidak sah. Sila pastikan anda klik link dalam email yang betul.');
+                return;
+            }
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'check-token', token: token })
+                });
+                const data = await res.json();
+
+                if (data.ok) {
+                    showSuccess(data.email || 'anda');
+                } else {
+                    showError(data.message);
+                }
+            } catch (err) {
+                showError('Ralat sambungan. Sila cuba lagi.');
+                console.error(err);
+            }
+        }
+
+        verify();
+    </script>
+</body>
+</html>

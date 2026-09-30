@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - hairiamri.buzz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body {
+            min-height:100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display:flex; justify-content:center; align-items:center;
+            padding:20px;
+        }
+        .card {
+            background:#fff; border-radius:24px; padding:40px 30px;
+            max-width:420px; width:100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: cardIn 0.5s ease-out;
+        }
+        @keyframes cardIn { from { opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+        .icon-wrap {
+            width:70px; height:70px; border-radius:50%;
+            background: linear-gradient(135deg, #E31E24 0%, #c4161c 100%);
+            display:flex; justify-content:center; align-items:center;
+            margin:0 auto 20px; font-size:32px; color:#fff;
+            box-shadow: 0 10px 25px rgba(227,30,36,0.4);
+        }
+        h1 { font-size:22px; font-weight:800; color:#1a202c; text-align:center; margin-bottom:8px; }
+        .subtitle { font-size:14px; color:#718096; text-align:center; margin-bottom:28px; line-height:1.5; }
+
+        label { display:block; font-size:13px; font-weight:600; color:#4a5568; margin-bottom:8px; }
+        .input-field {
+            width:100%; padding:14px 16px;
+            border:2px solid #e2e8f0; border-radius:12px;
+            font-size:15px; background:#f8fafc;
+            transition:0.2s; font-family:inherit;
+        }
+        .input-field:focus {
+            outline:none; border-color:#E31E24; background:#fff;
+            box-shadow: 0 0 0 4px rgba(227,30,36,0.1);
+        }
+        .btn-submit {
+            width:100%; padding:15px;
+            background: #E31E24; color:#fff;
+            border:none; border-radius:12px;
+            font-size:15px; font-weight:700;
+            cursor:pointer; margin-top:22px;
+            transition:0.3s;
+            box-shadow: 0 8px 20px rgba(227,30,36,0.35);
+            font-family:inherit;
+        }
+        .btn-submit:hover { background:#c4161c; transform:translateY(-2px); }
+        .btn-submit:disabled { opacity:0.6; cursor:not-allowed; }
+
+        .msg { text-align:center; margin-top:15px; font-size:13px; min-height:18px; }
+        .msg.error { color:#e53e3e; }
+        .msg.success { color:#38a169; }
+
+        .spinner {
+            display:inline-block; width:14px; height:14px;
+            border:2px solid rgba(255,255,255,0.3);
+            border-top-color:#fff; border-radius:50%;
+            animation: spin 0.6s linear infinite;
+            margin-right:8px; vertical-align:-2px;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="icon-wrap">✉️</div>
+        <h1>Sahkan Email Anda</h1>
+        <p class="subtitle">Masukkan email. Kami akan hantar link pengesahan.</p>
+        
+        <label>Alamat Email</label>
+        <input type="email" id="emailInput" class="input-field" placeholder="nama@contoh.com" autocomplete="email">
+        <button onclick="hantarLink()" class="btn-submit" id="btnHantar">Hantar Link Pengesahan</button>
+        <p id="msg" class="msg"></p>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyDSmS57JpaW5KFoWI3OFgTB7_afAr5SWXJ3wLoozRE6QhxKO-PyaKDvs7JgCKOPynFEg/exec';
+
+        async function hantarLink() {
+            const email = document.getElementById('emailInput').value.trim();
+            const msg = document.getElementById('msg');
+            const btn = document.getElementById('btnHantar');
+            const card = document.getElementById('card');
+
+            if (!email || !email.includes('@')) {
+                msg.textContent = 'Sila masukkan email yang sah';
+                msg.className = 'msg error';
+                return;
+            }
+
+            btn.innerHTML = '<span class="spinner"></span>Menghantar...';
+            btn.disabled = true;
+            msg.textContent = '';
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'send-verify', email: email })
+                });
+                const data = await res.json();
+
+                if (data.ok) {
+                    card.innerHTML = `
+                        <div class="icon-wrap" style="background: linear-gradient(135deg, #48bb78, #38a169);">✓</div>
+                        <h1>Semak Email Anda</h1>
+                        <p class="subtitle">Kami telah hantar link pengesahan ke:<br><strong>${email}</strong></p>
+                        <p style="font-size:13px; color:#718096; margin-top:15px; line-height:1.6;">
+                            Klik link dalam email untuk mengesahkan akaun anda. Link sah selama 24 jam.
+                        </p>
+                        <button onclick="location.reload()" class="btn-submit" style="margin-top:25px; background:#f5f5f5; color:#333; box-shadow:none;">Hantar ke Email Lain</button>
+                    `;
+                } else {
+                    msg.textContent = data.message;
+                    msg.className = 'msg error';
+                    btn.textContent = 'Hantar Link Pengesahan';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                msg.textContent = 'Ralat sambungan. Cuba lagi.';
+                msg.className = 'msg error';
+                btn.textContent = 'Hantar Link Pengesahan';
+                btn.disabled = false;
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
