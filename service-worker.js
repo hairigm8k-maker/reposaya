@@ -12,7 +12,6 @@ const PRECACHE = [
     '/style.css',
     '/manifest.json',
     '/daftar.html',
-    '/login.html',
     '/verify.html',
     '/assets/logoUtama/logoUtama.png'
 ];
