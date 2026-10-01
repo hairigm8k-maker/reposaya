@@ -681,65 +681,6 @@ gsap.to('.pakej-99', {
 </section>
 
 
-<script>
-async function submitFeedback(e) {
-  e.preventDefault();
-  const name = document.getElementById('fbName').value.trim();
-  const email = document.getElementById('fbEmail').value.trim();
-  const message = document.getElementById('fbMessage').value.trim();
-  const btn = document.getElementById('fbBtn');
-  const msg = document.getElementById('fbMsg');
-
-  if (!name || !email || !message) {
-    msg.textContent = 'Sila isi semua ruangan';
-    msg.style.color = '#e53e3e';
-    return;
-  }
-
-  btn.textContent = 'Menghantar...';
-  btn.disabled = true;
-  msg.innerHTML = '';
-
-  try {
-    const res = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        access_key: '0cbf079a-aaff-4313-9739-a7a096f099dd',
-        subject: 'Maklum Balas Baru - ' + name,
-        from_name: 'hairiamri.buzz Feedback',
-        name: name,
-        email: email,
-        message: message
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      msg.innerHTML = '<div class="fb-success"><svg class="fb-tick" viewBox="0 0 52 52"><circle class="fb-tick-circle" cx="26" cy="26" r="24" fill="none"/><path class="fb-tick-check" fill="none" d="M14 27l8 8 16-16"/></svg><span>Maklum balas berjaya dihantar. Terima kasih!</span></div>';
-      document.getElementById('feedbackForm').reset();
-    } else {
-      msg.textContent = data.message || 'Gagal hantar. Cuba lagi.';
-      msg.style.color = '#e53e3e';
-    }
-  } catch (err) {
-    msg.textContent = 'Ralat sambungan. Cuba lagi.';
-    msg.style.color = '#e53e3e';
-    console.error(err);
-  }
-
-  const lang = document.documentElement.dataset.currentLang || 'bm';
-  btn.textContent = lang === 'en' ? 'Send Feedback' : 'Hantar Maklum Balas';
-  btn.disabled = false;
-}
-</script>
-
-
-
 <section class="section-blog-teaser">
   <div class="teaser-head">
     <h2 data-bm="Artikel Terkini" data-en="Latest Articles">Artikel Terkini</h2>
@@ -855,6 +796,53 @@ window.addEventListener('DOMContentLoaded', () => {
     if (alert) alert.style.display = 'none';
   }
 });
+</script>
+
+<script>
+const FEEDBACK_API = 'https://script.google.com/macros/s/AKfycbyDSmS57JpaW5KFoWI3OFgTB7_afAr5SWXJ3wLoozRE6QhxKO-PyaKDvs7JgCKOPynFEg/exec';
+
+async function submitFeedback(e) {
+  e.preventDefault();
+  const name = document.getElementById('fbName').value.trim();
+  const email = document.getElementById('fbEmail').value.trim();
+  const message = document.getElementById('fbMessage').value.trim();
+  const btn = document.getElementById('fbBtn');
+  const msg = document.getElementById('fbMsg');
+
+  if (!name || !email || !message) {
+    msg.textContent = 'Sila isi semua ruangan';
+    msg.style.color = '#e53e3e';
+    return;
+  }
+
+  btn.textContent = 'Menghantar...';
+  btn.disabled = true;
+  msg.innerHTML = '';
+
+  try {
+    const res = await fetch(FEEDBACK_API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'send-feedback', name, email, message })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      msg.innerHTML = '<div class="fb-success"><svg class="fb-tick" viewBox="0 0 52 52"><circle class="fb-tick-circle" cx="26" cy="26" r="24" fill="none"/><path class="fb-tick-check" fill="none" d="M14 27l8 8 16-16"/></svg><span>Maklum balas berjaya dihantar. Terima kasih!</span></div>';
+      document.getElementById('feedbackForm').reset();
+    } else {
+      msg.textContent = data.message;
+      msg.style.color = '#e53e3e';
+    }
+  } catch (err) {
+    msg.textContent = 'Ralat sambungan. Cuba lagi.';
+    msg.style.color = '#e53e3e';
+    console.error(err);
+  }
+
+  const lang = document.documentElement.dataset.currentLang || 'bm';
+  btn.textContent = lang === 'en' ? 'Send Feedback' : 'Hantar Maklum Balas';
+  btn.disabled = false;
+}
 </script>
 </body>
 </html>
