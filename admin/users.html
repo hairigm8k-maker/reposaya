@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
+<script src="/admin/admin.js"></script>
 </head>
 <body class="admin-body">
 <div id="adminLayout"></div>
@@ -16,14 +17,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { renderLayout, icon, timeAgo, formatDate, showToast } from './admin.js';
-
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-document.getElementById('adminLayout').innerHTML = renderLayout('users', 'Pengguna');
+document.getElementById('adminLayout').innerHTML = window.renderAdminLayout('users', 'Pengguna');
 
 let allUsers = [];
 let search = '';
@@ -60,14 +59,14 @@ function renderUsers() {
     <div class="admin-toolbar">
       <input type="text" id="searchInput" class="admin-search-input" placeholder="🔍 Cari nama atau email..." value="${search}">
     </div>
-    ${filtered.length === 0 ? `<div class="admin-empty">${icon('users')}<h3>Takde pengguna</h3></div>` : filtered.map(u => `
+    ${filtered.length === 0 ? `<div class="admin-empty">${window.adminIcon('users')}<h3>Takde pengguna</h3></div>` : filtered.map(u => `
       <div class="admin-item">
         <div class="admin-item-info">
           <h3>${u.name || 'Tanpa Nama'}</h3>
           <div class="admin-item-meta">
             <span>${u.email || ''}</span>
             <span>${u.phone || ''}</span>
-            <span>${timeAgo(u.createdAt)}</span>
+            <span>${window.timeAgo(u.createdAt)}</span>
             ${u.verified ? '<span class="admin-badge-status admin-badge-verified">Verified</span>' : '<span class="admin-badge-status admin-badge-pending">Pending</span>'}
           </div>
         </div>

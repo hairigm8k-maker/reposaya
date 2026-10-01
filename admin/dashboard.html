@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
+<script src="/admin/admin.js"></script>
 </head>
 <body class="admin-body">
 <div id="adminLayout"></div>
@@ -18,14 +19,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { renderLayout, icon, timeAgo, showToast } from './admin.js';
-
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-document.getElementById('adminLayout').innerHTML = renderLayout('dashboard', 'Dashboard');
+document.getElementById('adminLayout').innerHTML = window.renderAdminLayout('dashboard', 'Dashboard');
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = 'index.html'; return; }
@@ -117,7 +116,7 @@ async function loadDashboard() {
 
       ${latestArticles.length === 0 ? `
         <div class="admin-empty">
-          ${icon('file-text')}
+          ${window.adminIcon('file-text')}
           <h3>Belum ada artikel</h3>
           <p>Klik "+ Artikel Baru" untuk mula.</p>
         </div>
@@ -127,7 +126,7 @@ async function loadDashboard() {
             <h3>${a.title || 'Tanpa Tajuk'}</h3>
             <div class="admin-item-meta">
               <span class="admin-badge-status ${a.published ? 'admin-badge-published' : 'admin-badge-draft'}">${a.published ? 'Published' : 'Draft'}</span>
-              <span>${timeAgo(a.date)}</span>
+              <span>${window.timeAgo(a.date)}</span>
               <span>${(a.lang || 'bm').toUpperCase()}</span>
             </div>
           </div>
@@ -144,7 +143,7 @@ async function loadDashboard() {
 
       ${latestFeedback.length === 0 ? `
         <div class="admin-empty">
-          ${icon('message-circle')}
+          ${window.adminIcon('message-circle')}
           <h3>Belum ada feedback</h3>
           <p>Feedback dari user akan muncul di sini.</p>
         </div>
@@ -153,7 +152,7 @@ async function loadDashboard() {
           <div class="admin-item-info">
             <h3>${f.name || 'Anonim'} <span style="font-weight:400;color:#888;font-size:12px;">· ${f.email || ''}</span></h3>
             <div class="admin-item-meta">
-              <span>${timeAgo(f.date)}</span>
+              <span>${window.timeAgo(f.date)}</span>
               ${f.read ? '<span class="admin-badge-status admin-badge-read">Dibaca</span>' : '<span class="admin-badge-status admin-badge-unread">Baru</span>'}
             </div>
             <p style="font-size:13px;color:#666;margin-top:8px;line-height:1.5;">${(f.message || '').substring(0, 120)}${(f.message||'').length > 120 ? '...' : ''}</p>

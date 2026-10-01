@@ -1,10 +1,10 @@
 // ============================================
-// HAIRIAMRI ADMIN — Shared Layout & Helpers
+// HAIRIAMRI ADMIN — Shared Layout (Classic Script)
 // ============================================
 
-const ADMIN_NAV = [
+window.ADMIN_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: 'grid', href: 'dashboard.html' },
-  { id: 'articles', label: 'Artikel', icon: 'file-text', href: 'dashboard.html#articles' },
+  { id: 'articles', label: 'Artikel', icon: 'file-text', href: 'articles.html' },
   { id: 'sections', label: 'Sections', icon: 'layout', href: 'sections.html' },
   { id: 'feedback', label: 'Feedback', icon: 'message-circle', href: 'feedback.html' },
   { id: 'media', label: 'Media', icon: 'image', href: 'media.html' },
@@ -13,7 +13,7 @@ const ADMIN_NAV = [
   { id: 'settings', label: 'Settings', icon: 'settings', href: 'settings.html' },
 ];
 
-const ADMIN_ICONS = {
+window.ADMIN_ICONS = {
   'grid': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
   'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
   'layout': '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
@@ -26,22 +26,21 @@ const ADMIN_ICONS = {
   'external': '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
 };
 
-export function icon(name) {
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ADMIN_ICONS[name] || ''}</svg>`;
-}
+window.adminIcon = function(name) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${window.ADMIN_ICONS[name] || ''}</svg>`;
+};
 
-export function renderLayout(activePage, pageTitle) {
-  // Topbar + Sidebar + Bottom nav (mobile)
-  const navHTML = ADMIN_NAV.map(item => `
+window.renderAdminLayout = function(activePage, pageTitle) {
+  const navHTML = window.ADMIN_NAV.map(item => `
     <a href="${item.href}" class="admin-nav-item ${item.id === activePage ? 'active' : ''}">
-      ${icon(item.icon)}
+      ${window.adminIcon(item.icon)}
       <span>${item.label}</span>
     </a>
   `).join('');
 
-  const bottomNavHTML = ADMIN_NAV.slice(0, 5).map(item => `
+  const bottomNavHTML = window.ADMIN_NAV.slice(0, 5).map(item => `
     <a href="${item.href}" class="admin-bottom-item ${item.id === activePage ? 'active' : ''}">
-      ${icon(item.icon)}
+      ${window.adminIcon(item.icon)}
       <span>${item.label}</span>
     </a>
   `).join('');
@@ -62,7 +61,7 @@ export function renderLayout(activePage, pageTitle) {
           </div>
         </div>
         <button id="adminLogoutBtn" class="admin-logout-btn">
-          ${icon('log-out')}
+          ${window.adminIcon('log-out')}
           <span>Log Keluar</span>
         </button>
       </div>
@@ -70,12 +69,12 @@ export function renderLayout(activePage, pageTitle) {
 
     <header class="admin-topbar">
       <button class="admin-menu-toggle" id="adminMenuToggle">
-        ${icon('grid')}
+        ${window.adminIcon('grid')}
       </button>
       <h1 class="admin-page-title">${pageTitle || 'Admin'}</h1>
       <div class="admin-topbar-actions">
         <a href="/index.html" target="_blank" class="admin-topbar-link">
-          ${icon('external')}
+          ${window.adminIcon('external')}
           <span>Lihat Website</span>
         </a>
       </div>
@@ -85,29 +84,46 @@ export function renderLayout(activePage, pageTitle) {
       ${bottomNavHTML}
     </nav>
   `;
-}
+};
 
-export function showToast(message, type = 'success') {
-  let toast = document.getElementById('adminToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'adminToast';
-    toast.className = 'admin-toast';
-    document.body.appendChild(toast);
-  }
-  const icons = {
-    success: '✓',
-    error: '✕',
-    info: 'ℹ',
-    warning: '⚠'
+window.adminSetup = function(user, signOutFn) {
+  const uName = document.getElementById('adminUserName');
+  const uEmail = document.getElementById('adminUserEmail');
+  const uAvatar = document.getElementById('adminAvatar');
+  const logoutBtn = document.getElementById('adminLogoutBtn');
+  const menuToggle = document.getElementById('adminMenuToggle');
+  const overlay = document.getElementById('adminOverlay');
+
+  if (uName) uName.textContent = user.displayName || 'Admin';
+  if (uEmail) uEmail.textContent = user.email || '—';
+  if (uAvatar) uAvatar.textContent = ((user.displayName || 'A').charAt(0) || 'A').toUpperCase();
+  if (logoutBtn && signOutFn) logoutBtn.onclick = signOutFn;
+  if (menuToggle) menuToggle.onclick = () => {
+    document.getElementById('adminSidebar').classList.toggle('open');
+    if (overlay) overlay.classList.toggle('show');
   };
-  toast.innerHTML = `<span class="admin-toast-icon">${icons[type] || '✓'}</span><span>${message}</span>`;
-  toast.className = `admin-toast admin-toast-${type} show`;
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove('show'), 3500);
-}
+  if (overlay) overlay.onclick = () => {
+    document.getElementById('adminSidebar').classList.remove('open');
+    overlay.classList.remove('show');
+  };
+};
 
-export function timeAgo(timestamp) {
+window.adminToast = function(msg, type) {
+  let t = document.getElementById('adminToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'adminToast';
+    t.className = 'admin-toast';
+    document.body.appendChild(t);
+  }
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  t.innerHTML = `<span class="admin-toast-icon">${icons[type]||'✓'}</span><span>${msg}</span>`;
+  t.className = `admin-toast admin-toast-${type||'info'} show`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+};
+
+window.timeAgo = function(timestamp) {
   if (!timestamp) return '—';
   const diff = Date.now() - timestamp;
   const mins = Math.floor(diff / 60000);
@@ -120,11 +136,6 @@ export function timeAgo(timestamp) {
   const months = Math.floor(days / 30);
   if (months < 12) return `${months} bulan lalu`;
   return `${Math.floor(months / 12)} tahun lalu`;
-}
+};
 
-export function formatDate(timestamp) {
-  if (!timestamp) return '—';
-  return new Date(timestamp).toLocaleDateString('ms-MY', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  });
-}
+console.log('[ADMIN] admin.js loaded');

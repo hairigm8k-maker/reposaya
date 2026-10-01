@@ -18,6 +18,7 @@
   #saveBtn { padding:12px 24px; background:#E31E24; color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
   #saveBtn:disabled { opacity:0.6; cursor:not-allowed; }
 </style>
+<script src="/admin/admin.js"></script>
 </head>
 <body class="admin-body">
 <div id="adminLayout"></div>
@@ -204,7 +205,7 @@ const ICONS = {
   'external': '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
 };
 
-function icon(name) {
+function window.adminIcon(name) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`;
 }
 
@@ -228,7 +229,7 @@ async function boot() {
     // Render layout
     const navHTML = ADMIN_NAV.map(item => `
       <a href="${item.href}" class="admin-nav-item ${item.id === 'sections' ? 'active' : ''}">
-        ${icon(item.icon)}<span>${item.label}</span>
+        ${window.adminIcon(item.icon)}<span>${item.label}</span>
       </a>
     `).join('');
 
@@ -247,14 +248,14 @@ async function boot() {
               <div class="admin-user-email" id="adminUserEmail">—</div>
             </div>
           </div>
-          <button id="adminLogoutBtn" class="admin-logout-btn">${icon('log-out')}<span>Log Keluar</span></button>
+          <button id="adminLogoutBtn" class="admin-logout-btn">${window.adminIcon('log-out')}<span>Log Keluar</span></button>
         </div>
       </aside>
       <header class="admin-topbar">
-        <button class="admin-menu-toggle" id="adminMenuToggle">${icon('grid')}</button>
+        <button class="admin-menu-toggle" id="adminMenuToggle">${window.adminIcon('grid')}</button>
         <h1 class="admin-page-title">Sections Editor</h1>
         <div class="admin-topbar-actions">
-          <a href="/index.html" target="_blank" class="admin-topbar-link">${icon('external')}<span>Lihat Website</span></a>
+          <a href="/index.html" target="_blank" class="admin-topbar-link">${window.adminIcon('external')}<span>Lihat Website</span></a>
         </div>
       </header>
       <div class="admin-overlay" id="adminOverlay"></div>
@@ -407,7 +408,7 @@ function collectForm() {
   cache[currentLang] = data;
 }
 
-function showToast(msg, type) {
+function window.adminToast(msg, type) {
   let t = document.getElementById('adminToast');
   if (!t) {
     t = document.createElement('div');
@@ -431,9 +432,9 @@ window.__saveAll = async function() {
     const { getDatabase, ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
     await set(ref(db, 'sections/bm'), cache.bm);
     await set(ref(db, 'sections/en'), cache.en);
-    showToast('✅ Semua section disimpan!', 'success');
+    window.adminToast('✅ Semua section disimpan!', 'success');
   } catch (err) {
-    showToast('Ralat: ' + err.message, 'error');
+    window.adminToast('Ralat: ' + err.message, 'error');
   }
   btn.disabled = false;
   btn.textContent = '💾 Simpan Semua';
@@ -466,9 +467,9 @@ window.__restoreDefault = async function() {
     // Re-render form dengan nilai default
     renderForm();
     
-    showToast('✅ Sections berjaya di-restore ke default!', 'success');
+    window.adminToast('✅ Sections berjaya di-restore ke default!', 'success');
   } catch (err) {
-    showToast('Ralat: ' + err.message, 'error');
+    window.adminToast('Ralat: ' + err.message, 'error');
   }
   
   btn.disabled = false;
@@ -496,9 +497,9 @@ window.__restoreDefault = async function() {
     // Re-render form dengan nilai default
     renderForm();
     
-    showToast('✅ Sections berjaya di-restore ke default!', 'success');
+    window.adminToast('✅ Sections berjaya di-restore ke default!', 'success');
   } catch (err) {
-    showToast('Ralat: ' + err.message, 'error');
+    window.adminToast('Ralat: ' + err.message, 'error');
   }
   
   btn.disabled = false;
