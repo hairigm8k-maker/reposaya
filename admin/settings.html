@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div>
+      <h1>Settings</h1>
+      <p><a href="dashboard.html" style="color:#888;text-decoration:none;font-size:13px;">← Balik Dashboard</a></p>
+    </div>
+    <button id="saveBtn" class="btn-primary">Simpan</button>
+  </div>
+
+  <form class="edit-form">
+    <label>Nama Website</label>
+    <input type="text" id="siteName" placeholder="hairiamri.buzz">
+
+    <label>WhatsApp (tanpa +, contoh: 60172131814)</label>
+    <input type="text" id="whatsapp" placeholder="60172131814">
+
+    <label>Email</label>
+    <input type="email" id="email" placeholder="feedback@hairiamri.buzz">
+
+    <label>Facebook URL</label>
+    <input type="url" id="facebook" placeholder="https://www.facebook.com/share/xxx">
+
+    <label>TikTok URL</label>
+    <input type="url" id="tiktok" placeholder="https://www.tiktok.com/@username">
+
+    <label>Hero Headline</label>
+    <input type="text" id="heroTitle" placeholder="NAK BUAT LANDING PAGE?">
+
+    <label>Hero Price</label>
+    <input type="text" id="heroPrice" placeholder="RM99 SAHAJA">
+
+    <label>Alert Bar Text</label>
+    <textarea id="alertBar" rows="2" placeholder="Website ini baru dilancarkan..."></textarea>
+  </form>
+
+  <p id="msg" class="msg"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+onAuthStateChanged(auth, async (u) => {
+  if (!u) { window.location.href = 'index.html'; return; }
+  const snap = await get(ref(db, 'settings'));
+  const s = snap.val() || {};
+  document.getElementById('siteName').value = s.siteName || '';
+  document.getElementById('whatsapp').value = s.whatsapp || '';
+  document.getElementById('email').value = s.email || '';
+  document.getElementById('facebook').value = (s.social && s.social.facebook) || '';
+  document.getElementById('tiktok').value = (s.social && s.social.tiktok) || '';
+  document.getElementById('heroTitle').value = s.heroTitle || '';
+  document.getElementById('heroPrice').value = s.heroPrice || '';
+  document.getElementById('alertBar').value = s.alertBar || '';
+});
+
+document.getElementById('saveBtn').onclick = async () => {
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+
+  const data = {
+    siteName: document.getElementById('siteName').value.trim(),
+    whatsapp: document.getElementById('whatsapp').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    social: {
+      facebook: document.getElementById('facebook').value.trim(),
+      tiktok: document.getElementById('tiktok').value.trim()
+    },
+    heroTitle: document.getElementById('heroTitle').value.trim(),
+    heroPrice: document.getElementById('heroPrice').value.trim(),
+    alertBar: document.getElementById('alertBar').value.trim(),
+    lastUpdated: Date.now()
+  };
+
+  try {
+    await set(ref(db, 'settings'), data);
+    msg.textContent = '✅ Settings disimpan!';
+    msg.style.color = '#38a169';
+  } catch (err) {
+    msg.textContent = 'Ralat: ' + err.message;
+    msg.style.color = '#e53e3e';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Simpan';
+};
+</script>
+</body>
+</html>

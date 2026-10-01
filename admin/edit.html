@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Artikel — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div>
+      <h1 id="pageTitle">Artikel Baru</h1>
+      <p><a href="dashboard.html" style="color:#888;text-decoration:none;font-size:13px;">← Balik Dashboard</a></p>
+    </div>
+    <div>
+      <button id="saveBtn" class="btn-primary">Simpan</button>
+    </div>
+  </div>
+
+  <!-- AI TOOLBAR -->
+  <div class="ai-toolbar">
+    <button type="button" class="ai-btn" onclick="openAIWriter()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+      AI Tulis Artikel
+    </button>
+    <button type="button" class="ai-btn" onclick="aiImprove()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Baiki Content
+    </button>
+    <button type="button" class="ai-btn" onclick="aiSEO()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Auto SEO
+    </button>
+    <button type="button" class="ai-btn" onclick="aiTitles()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Suggest Tajuk
+    </button>
+  </div>
+
+  <form id="articleForm" class="edit-form">
+    <input type="hidden" id="articleId">
+
+    <label>Tajuk</label>
+    <input type="text" id="title" required placeholder="Contoh: Kenapa Bisnes Kecil Perlu Landing Page?">
+    <div id="titleSuggestions" class="ai-suggestions"></div>
+
+    <label>Slug (URL)</label>
+    <input type="text" id="slug" required placeholder="kenapa-bisnes-kecil-perlu-landing-page">
+    <small>Auto-generate dari tajuk. Boleh edit manual.</small>
+
+    <label>Ringkasan (Excerpt)</label>
+    <textarea id="excerpt" rows="2" placeholder="1-2 ayat ringkasan untuk blog list"></textarea>
+
+    <label>Cover Image URL</label>
+    <input type="url" id="coverImage" placeholder="https://i.postimg.cc/xxx.jpg">
+
+    <label>Content (HTML)</label>
+    <textarea id="content" rows="18" placeholder="<p>Kandungan artikel...</p>"></textarea>
+    <small>Guna tag HTML: &lt;p&gt;, &lt;h2&gt;, &lt;h3&gt;, &lt;ul&gt;&lt;li&gt;, &lt;strong&gt;, &lt;a&gt;</small>
+
+    <div class="form-row">
+      <div>
+        <label>Bahasa</label>
+        <select id="lang">
+          <option value="bm">Bahasa Melayu</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="published">
+          <option value="true">Published</option>
+          <option value="false">Draft</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Tags (pisah dengan koma)</label>
+    <input type="text" id="tags" placeholder="landing-page, bisnes-kecil">
+
+    <label>SEO Meta Description</label>
+    <textarea id="seoDesc" rows="2" placeholder="Description untuk Google (150-160 aksara)"></textarea>
+
+    <label>SEO Keywords</label>
+    <input type="text" id="seoKeywords" placeholder="landing page murah, website bisnes">
+  </form>
+
+  <p id="msg" class="msg"></p>
+</div>
+
+<!-- AI MODAL -->
+<div class="ai-modal-overlay" id="aiModal" onclick="closeAIModal()">
+  <div class="ai-modal" onclick="event.stopPropagation()">
+    <div class="ai-modal-head">
+      <h3 id="aiModalTitle">AI</h3>
+      <button onclick="closeAIModal()" class="ai-modal-close">✕</button>
+    </div>
+    <div class="ai-modal-body" id="aiModalBody"></div>
+  </div>
+</div>
+
+<!-- AI LOADING OVERLAY -->
+<div class="ai-loading" id="aiLoading">
+  <div class="ai-loading-spinner"></div>
+  <p id="aiLoadingText">AI sedang berfikir...</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { generateArticle, improveText, generateSEO, suggestTitles } from './ai.js';
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const urlParams = new URLSearchParams(window.location.search);
+const editId = urlParams.get('id');
+
+onAuthStateChanged(auth, async (u) => {
+  if (!u) { window.location.href = 'index.html'; return; }
+  if (editId) {
+    document.getElementById('pageTitle').textContent = 'Edit Artikel';
+    const snap = await get(ref(db, 'articles/' + editId));
+    const a = snap.val();
+    if (a) {
+      document.getElementById('articleId').value = editId;
+      document.getElementById('title').value = a.title || '';
+      document.getElementById('slug').value = a.slug || '';
+      document.getElementById('excerpt').value = a.excerpt || '';
+      document.getElementById('coverImage').value = a.coverImage || '';
+      document.getElementById('content').value = a.content || '';
+      document.getElementById('lang').value = a.lang || 'bm';
+      document.getElementById('published').value = String(a.published !== false);
+      document.getElementById('tags').value = (a.tags || []).join(', ');
+      document.getElementById('seoDesc').value = (a.seo && a.seo.metaDescription) || '';
+      document.getElementById('seoKeywords').value = (a.seo && a.seo.keywords) || '';
+    }
+  }
+});
+
+// Auto slug
+document.getElementById('title').addEventListener('input', (e) => {
+  if (editId) return;
+  const slug = e.target.value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  document.getElementById('slug').value = slug;
+});
+
+// Save
+document.getElementById('saveBtn').onclick = async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+  msg.textContent = '';
+
+  const data = {
+    title: document.getElementById('title').value.trim(),
+    slug: document.getElementById('slug').value.trim(),
+    excerpt: document.getElementById('excerpt').value.trim(),
+    coverImage: document.getElementById('coverImage').value.trim(),
+    content: document.getElementById('content').value,
+    lang: document.getElementById('lang').value,
+    published: document.getElementById('published').value === 'true',
+    tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    date: Date.now(),
+    author: 'hairiamri.buzz',
+    seo: {
+      metaDescription: document.getElementById('seoDesc').value.trim(),
+      keywords: document.getElementById('seoKeywords').value.trim()
+    }
+  };
+
+  if (!data.title || !data.slug) {
+    msg.textContent = 'Tajuk dan slug wajib diisi';
+    msg.style.color = '#e53e3e';
+    btn.disabled = false;
+    btn.textContent = 'Simpan';
+    return;
+  }
+
+  try {
+    if (editId) {
+      await set(ref(db, 'articles/' + editId), data);
+      msg.textContent = '✅ Artikel dikemaskini!';
+    } else {
+      await push(ref(db, 'articles'), data);
+      msg.textContent = '✅ Artikel disimpan!';
+    }
+    msg.style.color = '#38a169';
+    setTimeout(() => window.location.href = 'dashboard.html', 1200);
+  } catch (err) {
+    msg.textContent = 'Ralat: ' + err.message;
+    msg.style.color = '#e53e3e';
+    btn.disabled = false;
+    btn.textContent = 'Simpan';
+  }
+};
+
+// ============================================
+// AI FUNCTIONS
+// ============================================
+function showLoading(text) {
+  document.getElementById('aiLoadingText').textContent = text || 'AI sedang berfikir...';
+  document.getElementById('aiLoading').classList.add('active');
+}
+function hideLoading() {
+  document.getElementById('aiLoading').classList.remove('active');
+}
+function showModal(title, html) {
+  document.getElementById('aiModalTitle').textContent = title;
+  document.getElementById('aiModalBody').innerHTML = html;
+  document.getElementById('aiModal').classList.add('active');
+}
+window.closeAIModal = () => document.getElementById('aiModal').classList.remove('active');
+
+// AI Writer — buat artikel dari topik
+window.openAIWriter = () => {
+  showModal('AI Tulis Artikel', `
+    <p style="margin-bottom:12px;color:#666;font-size:13px;">Taip topik artikel. AI akan tulis draft penuh.</p>
+    <label style="display:block;font-size:11px;font-weight:700;color:#666;margin-bottom:6px;text-transform:uppercase;">Topik</label>
+    <input type="text" id="aiTopic" placeholder="Contoh: Kenapa bisnes kecil perlu landing page" style="width:100%;padding:12px;border:1.5px solid #e5e5e5;border-radius:8px;font-size:14px;">
+    <label style="display:block;font-size:11px;font-weight:700;color:#666;margin:14px 0 6px;text-transform:uppercase;">Tone</label>
+    <select id="aiTone" style="width:100%;padding:12px;border:1.5px solid #e5e5e5;border-radius:8px;font-size:14px;">
+      <option value="professional">Professional</option>
+      <option value="friendly">Friendly</option>
+      <option value="casual">Casual</option>
+      <option value="formal">Formal</option>
+    </select>
+    <button type="button" onclick="runAIWriter()" class="ai-btn-primary" style="width:100%;margin-top:16px;padding:13px;background:#E31E24;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">Jana Artikel</button>
+  `);
+};
+
+window.runAIWriter = async () => {
+  const topic = document.getElementById('aiTopic').value.trim();
+  const tone = document.getElementById('aiTone').value;
+  const lang = document.getElementById('lang').value;
+  if (!topic) { alert('Sila masukkan topik'); return; }
+  closeAIModal();
+  showLoading('AI sedang menulis artikel...');
+  try {
+    const result = await generateArticle({ topic, lang, tone });
+    const cleanHtml = result.replace(/```html\s*|\s*```/g, '').trim();
+    document.getElementById('content').value = cleanHtml;
+    if (!document.getElementById('title').value) {
+      document.getElementById('title').value = topic;
+      const slug = topic.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+      document.getElementById('slug').value = slug;
+    }
+    hideLoading();
+    showModal('✅ Artikel Dijana', `<p style="color:#38a169;margin-bottom:12px;">Artikel berjaya dijana dan dimasukkan ke dalam content field.</p><p style="font-size:13px;color:#666;">Preview: <a href="#" onclick="closeAIModal();return false;" style="color:#E31E24;font-weight:700;">Tutup modal ni untuk tengok</a></p>`);
+  } catch (err) {
+    hideLoading();
+    alert('Ralat: ' + err.message);
+  }
+};
+
+// AI Improve
+window.aiImprove = async () => {
+  const content = document.getElementById('content').value.trim();
+  if (!content) { alert('Sila taip content dulu'); return; }
+  const lang = document.getElementById('lang').value;
+  showLoading('AI sedang baiki content...');
+  try {
+    const result = await improveText({ text: content, lang, instruction: 'improve' });
+    const clean = result.replace(/```html\s*|\s*```/g, '').trim();
+    document.getElementById('content').value = clean;
+    hideLoading();
+    alert('✅ Content dibaiki!');
+  } catch (err) {
+    hideLoading();
+    alert('Ralat: ' + err.message);
+  }
+};
+
+// AI SEO
+window.aiSEO = async () => {
+  const title = document.getElementById('title').value.trim();
+  const content = document.getElementById('content').value.trim();
+  if (!title || !content) { alert('Sila isi tajuk dan content dulu'); return; }
+  const lang = document.getElementById('lang').value;
+  showLoading('AI sedang generate SEO...');
+  try {
+    const seo = await generateSEO({ title, content, lang });
+    if (seo.metaDescription) document.getElementById('seoDesc').value = seo.metaDescription;
+    if (seo.keywords) document.getElementById('seoKeywords').value = seo.keywords;
+    if (seo.slug && !editId) document.getElementById('slug').value = seo.slug;
+    hideLoading();
+    alert('✅ SEO metadata dijana!');
+  } catch (err) {
+    hideLoading();
+    alert('Ralat: ' + err.message);
+  }
+};
+
+// AI Suggest Titles
+window.aiTitles = async () => {
+  const topic = document.getElementById('title').value.trim() || prompt('Taip topik:');
+  if (!topic) return;
+  const lang = document.getElementById('lang').value;
+  showLoading('AI sedang cadang tajuk...');
+  try {
+    const titles = await suggestTitles({ topic, lang });
+    hideLoading();
+    const html = titles.map(t => `<button type="button" class="ai-suggestion-btn" onclick="pickTitle('${t.replace(/'/g, "\\'")}')">${t}</button>`).join('');
+    showModal('Cadangan Tajuk', `<p style="margin-bottom:12px;color:#666;font-size:13px;">Klik tajuk untuk guna:</p><div style="display:flex;flex-direction:column;gap:8px;">${html}</div>`);
+  } catch (err) {
+    hideLoading();
+    alert('Ralat: ' + err.message);
+  }
+};
+
+window.pickTitle = (t) => {
+  document.getElementById('title').value = t;
+  const slug = t.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  document.getElementById('slug').value = slug;
+  closeAIModal();
+};
+</script>
+</body>
+</html>

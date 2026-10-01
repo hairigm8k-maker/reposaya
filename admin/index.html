@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Admin Login — hairiamri.buzz</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <img src="../assets/logoUtama/logoUtama.png" alt="hairiamri.buzz" class="login-logo">
+    <h1>Admin Login</h1>
+    <p class="login-sub">Hairiamri.buzz Content Manager</p>
+    <form id="loginForm">
+      <label>Email</label>
+      <input type="email" id="email" required placeholder="admin@hairiamri.buzz">
+      <label>Password</label>
+      <input type="password" id="password" required placeholder="••••••••">
+      <button type="submit" id="loginBtn">Log Masuk</button>
+      <p id="msg" class="msg"></p>
+    </form>
+    <a href="../index.html" class="back-link">← Balik ke Website</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k",
+  authDomain: "fikri-2a880.firebaseapp.com",
+  databaseURL: "https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fikri-2a880",
+  storageBucket: "fikri-2a880.firebasestorage.app",
+  messagingSenderId: "844408547984",
+  appId: "1:844408547984:web:63336207d709bb9f090615"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+  const msg = document.getElementById('msg');
+  btn.textContent = 'Log masuk...';
+  btn.disabled = true;
+  msg.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    msg.textContent = 'Berjaya! Redirect...';
+    msg.style.color = '#38a169';
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  } catch (err) {
+    let m = 'Ralat: ' + err.message;
+    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') m = 'Email atau password salah';
+    else if (err.code === 'auth/user-not-found') m = 'User tidak wujud';
+    else if (err.code === 'auth/too-many-requests') m = 'Terlalu banyak cubaan. Cuba lagi nanti.';
+    msg.textContent = m;
+    msg.style.color = '#e53e3e';
+    btn.textContent = 'Log Masuk';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
