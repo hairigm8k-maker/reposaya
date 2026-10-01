@@ -854,3 +854,39 @@ img { max-width: 100%; display: block; }
   .pg-radio-group { grid-template-columns: 1fr; }
   .pg-form-actions { flex-direction: column; }
 }
+
+/* ============================================
+   REMEMBER ME CHECKBOX
+   ============================================ */
+.pg-remember-row {
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.pg-checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #888;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  user-select: none;
+}
+
+.pg-checkbox-inline input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #E31E24;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pg-checkbox-inline span {
+  color: #aaa;
+}
+
+.pg-checkbox-inline:hover span {
+  color: #fff;
+}

@@ -35,6 +35,13 @@
       <label>Password</label>
       <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
 
+      <div class="pg-remember-row">
+        <label class="pg-checkbox-inline">
+          <input type="checkbox" id="remember" checked>
+          <span>Ingat saya</span>
+        </label>
+      </div>
+
       <button type="submit" class="pg-btn-primary pg-btn-block" id="btnLogin">Log Masuk</button>
       <p id="msg" class="pg-msg"></p>
     </form>
@@ -48,7 +55,16 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  sendPasswordResetEmail, 
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
@@ -56,10 +72,24 @@ const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// ============================================
+// AUTO-REDIRECT kalau user dah login
+// ============================================
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Dah login — terus ke dashboard
+    window.location.href = 'dashboard.html';
+  }
+});
+
+// ============================================
+// LOGIN FORM
+// ============================================
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
   const btn = document.getElementById('btnLogin');
   const msg = document.getElementById('msg');
 
@@ -68,6 +98,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   msg.textContent = '';
 
   try {
+    // Set persistence SEBELUM login
+    const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
+    await setPersistence(auth, persistence);
+
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
@@ -82,7 +116,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       const verifyData = verifySnap.val();
 
       if (verifyData) {
-        // Update user verified status
         await update(ref(db, 'playgroundUsers/' + user.uid), {
           verified: true,
           verifiedAt: verifyData.verifiedAt || Date.now()
@@ -102,7 +135,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     msg.textContent = '✅ Berjaya! Redirect...';
     msg.style.color = '#38a169';
-    setTimeout(() => window.location.href = 'dashboard.html', 800);
+    setTimeout(() => window.location.href = 'dashboard.html', 500);
   } catch (err) {
     let m = 'Ralat: ' + err.message;
     if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
@@ -117,6 +150,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
+// ============================================
+// FORGOT PASSWORD
+// ============================================
 window.forgotPassword = async () => {
   const email = prompt('Taip email anda:');
   if (!email) return;
