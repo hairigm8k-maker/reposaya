@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-body">
+<div id="adminLayout"></div>
+<main class="admin-main" id="adminMain"><p style="color:#888;font-size:13px;">Loading...</p></main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { renderLayout, icon, timeAgo } from './admin.js';
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+document.getElementById('adminLayout').innerHTML = renderLayout('analytics', 'Analytics');
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  document.getElementById('adminUserName').textContent = user.displayName || 'Admin';
+  document.getElementById('adminUserEmail').textContent = user.email;
+  document.getElementById('adminAvatar').textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+  document.getElementById('adminLogoutBtn').onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
+  document.getElementById('adminMenuToggle').onclick = () => document.getElementById('adminSidebar').classList.toggle('open');
+  await loadAnalytics();
+});
+
+async function loadAnalytics() {
+  const main = document.getElementById('adminMain');
+  try {
+    const [artSnap, fbSnap, userSnap, siteSnap] = await Promise.all([
+      get(ref(db, 'articles')), get(ref(db, 'feedback')), get(ref(db, 'playgroundUsers')), get(ref(db, 'websites'))
+    ]);
+    const articles = Object.entries(artSnap.val() || {}).map(([id,a])=>({id,...a}));
+    const feedback = Object.entries(fbSnap.val() || {}).map(([id,f])=>({id,...f}));
+    const users = Object.values(userSnap.val() || {});
+    const sites = Object.values(siteSnap.val() || {});
+
+    // Group by month
+    const monthly = {};
+    articles.forEach(a => {
+      if (!a.date) return;
+      const m = new Date(a.date).toLocaleDateString('ms-MY', { month: 'short', year: 'numeric' });
+      monthly[m] = (monthly[m] || 0) + 1;
+    });
+
+    const byLang = { bm: 0, en: 0 };
+    articles.forEach(a => { byLang[a.lang || 'bm']++; });
+
+    const byStatus = { published: 0, draft: 0 };
+    articles.forEach(a => { a.published ? byStatus.published++ : byStatus.draft++; });
+
+    main.innerHTML = `
+      <div class="admin-page-header"><div><h2>Analytics Overview</h2><p>Statistik keseluruhan platform</p></div></div>
+
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card"><div class="admin-stat-label">Total Artikel</div><div class="admin-stat-value">${articles.length}</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-label">Total Feedback</div><div class="admin-stat-value">${feedback.length}</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-label">Total User</div><div class="admin-stat-value">${users.length}</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-label">Total Website</div><div class="admin-stat-value">${sites.length}</div></div>
+      </div>
+
+      <div class="admin-card">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;">Artikel Ikut Bulan</h3>
+        ${Object.entries(monthly).length === 0 ? '<p style="color:#888;font-size:13px;">Tiada data.</p>' : `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${Object.entries(monthly).map(([m, c]) => `
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:12px;font-weight:600;color:#666;min-width:70px;">${m}</span>
+                <div style="flex:1;height:8px;background:#f5f5f5;border-radius:100px;overflow:hidden;">
+                  <div style="width:${(c/articles.length)*100}%;height:100%;background:linear-gradient(90deg,#E31E24,#c4161c);"></div>
+                </div>
+                <span style="font-size:12px;font-weight:700;color:#1a1a1a;min-width:20px;text-align:right;">${c}</span>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
+      <div class="admin-card">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;">Artikel Ikut Bahasa</h3>
+        <div style="display:flex;gap:16px;">
+          <div style="flex:1;padding:16px;background:#f9fafb;border-radius:10px;">
+            <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;">BM</div>
+            <div style="font-size:24px;font-weight:800;color:#1a1a1a;">${byLang.bm}</div>
+          </div>
+          <div style="flex:1;padding:16px;background:#f9fafb;border-radius:10px;">
+            <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;">EN</div>
+            <div style="font-size:24px;font-weight:800;color:#1a1a1a;">${byLang.en}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;">Status Artikel</h3>
+        <div style="display:flex;gap:16px;">
+          <div style="flex:1;padding:16px;background:#f0fdf4;border-radius:10px;">
+            <div style="font-size:11px;color:#065f46;font-weight:700;text-transform:uppercase;">Published</div>
+            <div style="font-size:24px;font-weight:800;color:#065f46;">${byStatus.published}</div>
+          </div>
+          <div style="flex:1;padding:16px;background:#fffbeb;border-radius:10px;">
+            <div style="font-size:11px;color:#92400e;font-weight:700;text-transform:uppercase;">Draft</div>
+            <div style="font-size:24px;font-weight:800;color:#92400e;">${byStatus.draft}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    main.innerHTML = `<div class="admin-empty"><h3>Ralat</h3><p>${err.message}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>

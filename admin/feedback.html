@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-body">
+<div id="adminLayout"></div>
+<main class="admin-main" id="adminMain">
+  <p style="color:#888;font-size:13px;">Loading...</p>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { renderLayout, icon, timeAgo, showToast } from './admin.js';
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+document.getElementById('adminLayout').innerHTML = renderLayout('feedback', 'Feedback Inbox');
+
+let allFeedback = [];
+let filterStatus = 'all';
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  document.getElementById('adminUserName').textContent = user.displayName || 'Admin';
+  document.getElementById('adminUserEmail').textContent = user.email;
+  document.getElementById('adminAvatar').textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+  document.getElementById('adminLogoutBtn').onclick = async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  };
+  document.getElementById('adminMenuToggle').onclick = () => {
+    document.getElementById('adminSidebar').classList.toggle('open');
+  };
+  loadFeedback();
+});
+
+function loadFeedback() {
+  onValue(ref(db, 'feedback'), (snap) => {
+    const data = snap.val() || {};
+    allFeedback = Object.entries(data)
+      .map(([id, f]) => ({ id, ...f }))
+      .sort((a, b) => (b.date || 0) - (a.date || 0));
+    renderFeedback();
+  });
+}
+
+function renderFeedback() {
+  const main = document.getElementById('adminMain');
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const unreadCount = allFeedback.filter(f => !f.read).length;
+
+  let filtered = allFeedback;
+  if (filterStatus === 'unread') filtered = filtered.filter(f => !f.read);
+  if (filterStatus === 'read') filtered = filtered.filter(f => f.read);
+  if (search) {
+    filtered = filtered.filter(f =>
+      (f.name || '').toLowerCase().includes(search) ||
+      (f.email || '').toLowerCase().includes(search) ||
+      (f.message || '').toLowerCase().includes(search)
+    );
+  }
+
+  main.innerHTML = `
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Feedback</div>
+        <div class="admin-stat-value">${allFeedback.length}</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Belum Dibaca</div>
+        <div class="admin-stat-value" style="color:#e53e3e;">${unreadCount}</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Dah Dibaca</div>
+        <div class="admin-stat-value" style="color:#38a169;">${allFeedback.length - unreadCount}</div>
+      </div>
+    </div>
+
+    <div class="admin-toolbar">
+      <input type="text" id="searchInput" class="admin-search-input" placeholder="🔍 Cari nama, email, atau mesej..." value="${search}">
+      <select id="filterSelect" class="admin-filter-select">
+        <option value="all" ${filterStatus==='all'?'selected':''}>Semua</option>
+        <option value="unread" ${filterStatus==='unread'?'selected':''}>Belum Dibaca</option>
+        <option value="read" ${filterStatus==='read'?'selected':''}>Dah Dibaca</option>
+      </select>
+    </div>
+
+    ${filtered.length === 0 ? `
+      <div class="admin-empty">
+        ${icon('message-circle')}
+        <h3>Takde feedback</h3>
+        <p>Feedback dari user akan muncul di sini.</p>
+      </div>
+    ` : filtered.map(f => `
+      <div class="admin-item" style="align-items:flex-start;">
+        <div class="admin-item-info">
+          <h3>${f.name || 'Anonim'} <span style="font-weight:400;color:#888;font-size:12px;">&lt;${f.email || ''}&gt;</span></h3>
+          <div class="admin-item-meta">
+            <span>${timeAgo(f.date)}</span>
+            ${f.read ? '<span class="admin-badge-status admin-badge-read">Dibaca</span>' : '<span class="admin-badge-status admin-badge-unread">Baru</span>'}
+          </div>
+          <p style="font-size:14px;color:#333;margin-top:10px;line-height:1.6;white-space:pre-wrap;">${(f.message||'').replace(/</g,'&lt;')}</p>
+        </div>
+        <div class="admin-item-actions" style="flex-direction:column;">
+          <a href="mailto:${f.email}?subject=Re: Feedback anda" class="btn-sm" style="text-decoration:none;padding:8px 14px;border-radius:8px;background:#E31E24;color:#fff;font-size:12px;font-weight:600;text-align:center;">Balas</a>
+          <button onclick="toggleRead('${f.id}', ${!f.read})" class="btn-sm" style="padding:8px 14px;border-radius:8px;background:#f5f5f5;color:#1a1a1a;font-size:12px;font-weight:600;border:none;cursor:pointer;">${f.read ? 'Tanda Baru' : 'Tanda Dibaca'}</button>
+          <button onclick="deleteFeedback('${f.id}')" class="btn-sm" style="padding:8px 14px;border-radius:8px;background:rgba(227,30,36,0.1);color:#E31E24;font-size:12px;font-weight:600;border:none;cursor:pointer;">Padam</button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+
+  document.getElementById('searchInput')?.addEventListener('input', renderFeedback);
+  document.getElementById('filterSelect')?.addEventListener('change', (e) => {
+    filterStatus = e.target.value;
+    renderFeedback();
+  });
+}
+
+window.toggleRead = async (id, read) => {
+  try {
+    await update(ref(db, 'feedback/' + id), { read });
+    showToast(read ? 'Ditanda sebagai dibaca' : 'Ditanda sebagai baru', 'success');
+  } catch (err) {
+    showToast('Ralat: ' + err.message, 'error');
+  }
+};
+
+window.deleteFeedback = async (id) => {
+  if (!confirm('Padam feedback ini?')) return;
+  try {
+    await remove(ref(db, 'feedback/' + id));
+    showToast('Feedback dipadam', 'success');
+  } catch (err) {
+    showToast('Ralat: ' + err.message, 'error');
+  }
+};
+</script>
+</body>
+</html>

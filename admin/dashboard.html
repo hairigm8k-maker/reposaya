@@ -6,94 +6,165 @@
 <title>Dashboard — Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="/admin/admin.css">
 </head>
-<body>
-<div class="admin-wrap">
-  <div class="admin-header">
-    <div>
-      <h1>Dashboard</h1>
-      <p id="userEmail">—</p>
-    </div>
-    <button id="logoutBtn" class="btn-danger">Log Keluar</button>
-  </div>
-
-  <div class="admin-nav">
-    <a href="dashboard.html" class="active">Artikel</a>
-    <a href="sections.html">Sections</a>
-    <a href="settings.html">Settings</a>
-    <a href="../index.html" target="_blank">Lihat Website ↗</a>
-  </div>
-
-  <div class="admin-actions">
-    <button onclick="newArticle()" class="btn-primary">+ Artikel Baru</button>
-  </div>
-
-  <div id="articlesList" class="articles-list">
-    <p class="loading">Loading...</p>
-  </div>
-</div>
+<body class="admin-body">
+<div id="adminLayout"></div>
+<main class="admin-main" id="adminMain">
+  <p style="color:#888;font-size:13px;">Loading dashboard...</p>
+</main>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { renderLayout, icon, timeAgo, showToast } from './admin.js';
 
-const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-let user = null;
+document.getElementById('adminLayout').innerHTML = renderLayout('dashboard', 'Dashboard');
 
-onAuthStateChanged(auth, (u) => {
-  if (!u) { window.location.href = 'index.html'; return; }
-  user = u;
-  document.getElementById('userEmail').textContent = u.email;
-  loadArticles();
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  document.getElementById('adminUserName').textContent = user.displayName || 'Admin';
+  document.getElementById('adminUserEmail').textContent = user.email;
+  document.getElementById('adminAvatar').textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+
+  document.getElementById('adminLogoutBtn').onclick = async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  };
+
+  // Mobile menu toggle
+  document.getElementById('adminMenuToggle').onclick = () => {
+    document.getElementById('adminSidebar').classList.toggle('open');
+    let ov = document.querySelector('.admin-overlay');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.className = 'admin-overlay';
+      document.body.appendChild(ov);
+      ov.onclick = () => {
+        document.getElementById('adminSidebar').classList.remove('open');
+        ov.classList.remove('show');
+      };
+    }
+    ov.classList.toggle('show');
+  };
+
+  await loadDashboard();
 });
 
-document.getElementById('logoutBtn').onclick = async () => {
-  await signOut(auth);
-  window.location.href = 'index.html';
-};
+async function loadDashboard() {
+  const main = document.getElementById('adminMain');
+  try {
+    const [articlesSnap, feedbackSnap, usersSnap, websitesSnap] = await Promise.all([
+      get(ref(db, 'articles')),
+      get(ref(db, 'feedback')),
+      get(ref(db, 'playgroundUsers')),
+      get(ref(db, 'websites'))
+    ]);
 
-function loadArticles() {
-  const list = document.getElementById('articlesList');
-  onValue(ref(db, 'articles'), (snap) => {
-    const data = snap.val();
-    if (!data) { list.innerHTML = '<p class="empty">Belum ada artikel. Klik "+ Artikel Baru" untuk mula.</p>'; return; }
+    const articles = articlesSnap.val() || {};
+    const feedback = feedbackSnap.val() || {};
+    const users = usersSnap.val() || {};
+    const websites = websitesSnap.val() || {};
 
-    const articles = Object.entries(data).map(([id, a]) => ({ id, ...a }));
-    articles.sort((a, b) => (b.date || 0) - (a.date || 0));
+    const articlesArr = Object.entries(articles).map(([id, a]) => ({ id, ...a }));
+    const feedbackArr = Object.entries(feedback).map(([id, f]) => ({ id, ...f }));
+    const usersArr = Object.values(users);
+    const websitesArr = Object.values(websites);
 
-    list.innerHTML = articles.map(a => `
-      <div class="article-item">
-        <div class="article-info">
-          <h3>${a.title || 'Tanpa Tajuk'}</h3>
-          <div class="article-meta">
-            <span class="status ${a.published ? 'published' : 'draft'}">${a.published ? 'Published' : 'Draft'}</span>
-            <span>${a.date ? new Date(a.date).toLocaleDateString('ms-MY') : '—'}</span>
-            <span class="lang-tag">${(a.lang || 'bm').toUpperCase()}</span>
-          </div>
+    const published = articlesArr.filter(a => a.published).length;
+    const drafts = articlesArr.length - published;
+    const unread = feedbackArr.filter(f => !f.read).length;
+    const verifiedUsers = usersArr.filter(u => u.verified).length;
+    const liveSites = websitesArr.filter(w => w.published).length;
+
+    const latestArticles = articlesArr.sort((a, b) => (b.date || 0) - (a.date || 0)).slice(0, 5);
+    const latestFeedback = feedbackArr.sort((a, b) => (b.date || 0) - (a.date || 0)).slice(0, 5);
+
+    main.innerHTML = `
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <div class="admin-stat-label">Artikel</div>
+          <div class="admin-stat-value">${articlesArr.length}</div>
+          <div class="admin-stat-sub">${published} published · ${drafts} draft</div>
         </div>
-        <div class="article-actions">
-          <a href="edit.html?id=${a.id}" class="btn-sm">Edit</a>
-          <button onclick="deleteArticle('${a.id}', '${(a.title || '').replace(/'/g, "\\'")}')" class="btn-sm btn-danger">Padam</button>
+        <div class="admin-stat-card">
+          <div class="admin-stat-label">Feedback</div>
+          <div class="admin-stat-value">${feedbackArr.length}</div>
+          <div class="admin-stat-sub" style="color:${unread > 0 ? '#e53e3e' : '#38a169'};">${unread > 0 ? `${unread} belum dibaca` : 'Semua dah dibaca'}</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-label">Pengguna</div>
+          <div class="admin-stat-value">${usersArr.length}</div>
+          <div class="admin-stat-sub">${verifiedUsers} verified</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-label">Website</div>
+          <div class="admin-stat-value">${websitesArr.length}</div>
+          <div class="admin-stat-sub">${liveSites} live</div>
         </div>
       </div>
-    `).join('');
-  });
+
+      <div class="admin-page-header">
+        <div><h2>Artikel Terkini</h2></div>
+        <a href="edit.html" class="btn-primary" style="text-decoration:none;">+ Artikel Baru</a>
+      </div>
+
+      ${latestArticles.length === 0 ? `
+        <div class="admin-empty">
+          ${icon('file-text')}
+          <h3>Belum ada artikel</h3>
+          <p>Klik "+ Artikel Baru" untuk mula.</p>
+        </div>
+      ` : latestArticles.map(a => `
+        <div class="admin-item">
+          <div class="admin-item-info">
+            <h3>${a.title || 'Tanpa Tajuk'}</h3>
+            <div class="admin-item-meta">
+              <span class="admin-badge-status ${a.published ? 'admin-badge-published' : 'admin-badge-draft'}">${a.published ? 'Published' : 'Draft'}</span>
+              <span>${timeAgo(a.date)}</span>
+              <span>${(a.lang || 'bm').toUpperCase()}</span>
+            </div>
+          </div>
+          <div class="admin-item-actions">
+            <a href="edit.html?id=${a.id}" class="btn-sm" style="text-decoration:none;padding:8px 14px;border-radius:8px;background:#f5f5f5;color:#1a1a1a;font-size:12px;font-weight:600;">Edit</a>
+          </div>
+        </div>
+      `).join('')}
+
+      <div class="admin-page-header" style="margin-top:32px;">
+        <div><h2>Feedback Terkini</h2></div>
+        <a href="feedback.html" class="btn-sm" style="text-decoration:none;padding:8px 14px;border-radius:8px;background:#f5f5f5;color:#1a1a1a;font-size:12px;font-weight:600;">Lihat Semua</a>
+      </div>
+
+      ${latestFeedback.length === 0 ? `
+        <div class="admin-empty">
+          ${icon('message-circle')}
+          <h3>Belum ada feedback</h3>
+          <p>Feedback dari user akan muncul di sini.</p>
+        </div>
+      ` : latestFeedback.map(f => `
+        <div class="admin-item">
+          <div class="admin-item-info">
+            <h3>${f.name || 'Anonim'} <span style="font-weight:400;color:#888;font-size:12px;">· ${f.email || ''}</span></h3>
+            <div class="admin-item-meta">
+              <span>${timeAgo(f.date)}</span>
+              ${f.read ? '<span class="admin-badge-status admin-badge-read">Dibaca</span>' : '<span class="admin-badge-status admin-badge-unread">Baru</span>'}
+            </div>
+            <p style="font-size:13px;color:#666;margin-top:8px;line-height:1.5;">${(f.message || '').substring(0, 120)}${(f.message||'').length > 120 ? '...' : ''}</p>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  } catch (err) {
+    main.innerHTML = `<div class="admin-empty"><h3>Ralat</h3><p>${err.message}</p></div>`;
+  }
 }
-
-window.newArticle = () => window.location.href = 'edit.html';
-
-window.deleteArticle = async (id, title) => {
-  if (!confirm(`Padam artikel "${title}"?`)) return;
-  try {
-    await remove(ref(db, 'articles/' + id));
-  } catch (e) { alert('Gagal padam: ' + e.message); }
-};
 </script>
 </body>
 </html>

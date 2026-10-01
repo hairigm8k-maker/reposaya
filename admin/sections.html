@@ -8,87 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
 </head>
-<body>
-<div class="admin-wrap">
-  <div class="admin-header">
-    <div>
-      <h1>Edit Sections</h1>
-      <p><a href="dashboard.html" style="color:#888;text-decoration:none;font-size:13px;">← Balik Dashboard</a></p>
-    </div>
-    <button id="saveBtn" class="btn-primary">Simpan Semua</button>
-  </div>
-
-  <div class="lang-tabs">
-    <button class="lang-tab active" data-lang="bm" onclick="switchLang('bm')">🇲🇾 BM</button>
-    <button class="lang-tab" data-lang="en" onclick="switchLang('en')">🇬🇧 EN</button>
-  </div>
-
-  <p id="msg" class="msg"></p>
-
-  <div class="section-group">
-    <h2>🔔 Alert Bar</h2>
-    <label>Alert Text</label>
-    <input type="text" id="alertBar" placeholder="Website ini baru dilancarkan...">
-  </div>
-
-  <div class="section-group">
-    <h2>🚀 Hero</h2>
-    <label>Headline Line 1</label>
-    <input type="text" id="heroLine1" placeholder="NAK BUAT">
-    <label>Headline Line 2</label>
-    <input type="text" id="heroLine2" placeholder="LANDING PAGE?">
-    <label>Harga (format: RM99 SAHAJA)</label>
-    <input type="text" id="heroPrice" placeholder="RM99 SAHAJA">
-  </div>
-
-  <div class="section-group">
-    <h2>⭐ Kredibiliti</h2>
-    <label>Ayat</label>
-    <textarea id="kredibiliti" rows="2"></textarea>
-  </div>
-
-  <div class="section-group">
-    <h2>✅ Bantu</h2>
-    <label>Tajuk (pisah baris guna "|")</label>
-    <input type="text" id="bantuTitle" placeholder="JADIKAN PERNIAGAAN ANDA|LEBIH DIPERCAYAI">
-    <label>List (satu per line)</label>
-    <textarea id="bantuItems" rows="6" placeholder="Item 1&#10;Item 2&#10;Item 3"></textarea>
-  </div>
-
-  <div class="section-group">
-    <h2>🎬 Video</h2>
-    <label>Video URL</label>
-    <input type="url" id="videoUrl" placeholder="https://... atau assets/video/videohero.mp4">
-  </div>
-
-  <div class="section-group">
-    <h2>💰 Pakej</h2>
-    <label>Tajuk</label>
-    <input type="text" id="pakejTitle" placeholder="RM99 — ALL IN">
-    <label>List (satu per line)</label>
-    <textarea id="pakejItems" rows="10"></textarea>
-    <label>Note</label>
-    <input type="text" id="pakejNote" placeholder="Tiada kos tersembunyi. Semua dalam RM99.">
-    <label>CTA Text</label>
-    <input type="text" id="pakejCtaText" placeholder="Tempah Sekarang">
-    <label>CTA URL</label>
-    <input type="url" id="pakejCtaUrl" placeholder="https://wa.me/60172131814">
-  </div>
-
-  <div class="section-group">
-    <h2>💬 Feedback</h2>
-    <label>Tajuk</label>
-    <input type="text" id="feedbackTitle" placeholder="Hantar Maklum Balas">
-    <label>Subtitle</label>
-    <input type="text" id="feedbackSub" placeholder="Pendapat anda membantu kami tingkatkan servis.">
-  </div>
-
-  <div class="section-group">
-    <h2>📰 Blog Teaser</h2>
-    <label>Tajuk</label>
-    <input type="text" id="blogTeaserTitle" placeholder="Artikel Terkini">
-  </div>
-</div>
+<body class="admin-body">
+<div id="adminLayout"></div>
+<main class="admin-main" id="adminMain">
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
