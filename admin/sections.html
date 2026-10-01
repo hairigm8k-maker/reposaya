@@ -7,105 +7,168 @@
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/admin/admin.css">
+<style>
+  .fld-label { display:block; font-size:11px; font-weight:700; color:#666; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
+  .fld-label:first-of-type { margin-top:0; }
+  .fld-input, .fld-textarea { width:100%; padding:11px 14px; border:1.5px solid #e5e5e5; border-radius:8px; font-size:14px; font-family:inherit; background:#f9fafb; transition:0.2s; box-sizing:border-box; }
+  .fld-input:focus, .fld-textarea:focus { outline:none; border-color:#E31E24; background:#fff; }
+  .fld-textarea { resize:vertical; font-family:'Courier New',monospace; font-size:13px; }
+  .lang-tab { padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; border:2px solid #e5e5e5; background:#fff; color:#1a1a1a; }
+  .lang-tab.active { border-color:#1a1a1a; background:#1a1a1a; color:#fff; }
+  #saveBtn { padding:12px 24px; background:#E31E24; color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  #saveBtn:disabled { opacity:0.6; cursor:not-allowed; }
+</style>
 </head>
 <body class="admin-body">
 <div id="adminLayout"></div>
 <main class="admin-main" id="adminMain">
-  <p style="color:#888;font-size:13px;">Loading sections...</p>
+  <div class="admin-card">
+    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 8px;">⏳ Loading...</h3>
+    <p style="color:#888;font-size:13px;">Sedang memuatkan sections. Sila tunggu.</p>
+  </div>
 </main>
 
 <script type="module">
-console.log('[SECTIONS] Script started');
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { renderLayout, showToast } from './admin.js';
-
-console.log('[SECTIONS] Imports loaded');
-
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
-const app = initializeApp(config);
-const auth = getAuth(app);
-const db = getDatabase(app);
 
-console.log('[SECTIONS] Firebase initialized');
-
-document.getElementById('adminLayout').innerHTML = renderLayout('sections', 'Sections Editor');
-console.log('[SECTIONS] Layout rendered');
-
+let auth, db, currentUser;
 let currentLang = 'bm';
 let cache = { bm: {}, en: {} };
 
 const FIELDS = ['alertBar','heroLine1','heroLine2','heroPrice','kredibiliti','bantuTitle','videoUrl','pakejTitle','pakejNote','pakejCtaText','pakejCtaUrl','feedbackTitle','feedbackSub','blogTeaserTitle'];
 const LIST_FIELDS = ['bantuItems', 'pakejItems'];
 
-// Inject form styles
-const style = document.createElement('style');
-style.textContent = `
-  .fld-label { display:block; font-size:11px; font-weight:700; color:#666; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
-  .fld-label:first-of-type { margin-top:0; }
-  .fld-input, .fld-textarea { width:100%; padding:11px 14px; border:1.5px solid #e5e5e5; border-radius:8px; font-size:14px; font-family:inherit; background:#f9fafb; transition:0.2s; box-sizing:border-box; }
-  .fld-input:focus, .fld-textarea:focus { outline:none; border-color:#E31E24; background:#fff; }
-  .fld-textarea { resize:vertical; font-family:'Courier New',monospace; font-size:13px; }
-  .lang-tab { padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
-  .lang-tab.active { border:2px solid #1a1a1a; background:#1a1a1a; color:#fff; }
-  .lang-tab:not(.active) { border:2px solid #e5e5e5; background:#fff; color:#1a1a1a; }
-`;
-document.head.appendChild(style);
+const ADMIN_NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: 'grid', href: 'dashboard.html' },
+  { id: 'articles', label: 'Artikel', icon: 'file-text', href: 'dashboard.html' },
+  { id: 'sections', label: 'Sections', icon: 'layout', href: 'sections.html' },
+  { id: 'feedback', label: 'Feedback', icon: 'message-circle', href: 'feedback.html' },
+  { id: 'media', label: 'Media', icon: 'image', href: 'media.html' },
+  { id: 'users', label: 'Pengguna', icon: 'users', href: 'users.html' },
+  { id: 'analytics', label: 'Analytics', icon: 'bar-chart', href: 'analytics.html' },
+  { id: 'settings', label: 'Settings', icon: 'settings', href: 'settings.html' },
+];
 
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ICONS = {
+  'grid': '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  'layout': '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+  'message-circle': '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  'image': '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
+  'users': '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 0 0 7.75"/>',
+  'bar-chart': '<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+  'settings': '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  'external': '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+};
+
+function icon(name) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg>`;
 }
 
-onAuthStateChanged(auth, async (user) => {
-  console.log('[SECTIONS] onAuthStateChanged:', user?.email);
-  if (!user) { window.location.href = 'index.html'; return; }
-  
-  const uName = document.getElementById('adminUserName');
-  const uEmail = document.getElementById('adminUserEmail');
-  const uAvatar = document.getElementById('adminAvatar');
-  const logoutBtn = document.getElementById('adminLogoutBtn');
-  const menuToggle = document.getElementById('adminMenuToggle');
-  
-  if (uName) uName.textContent = user.displayName || 'Admin';
-  if (uEmail) uEmail.textContent = user.email;
-  if (uAvatar) uAvatar.textContent = (user.displayName || 'A').charAt(0).toUpperCase();
-  if (logoutBtn) logoutBtn.onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
-  if (menuToggle) menuToggle.onclick = () => document.getElementById('adminSidebar').classList.toggle('open');
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-  console.log('[SECTIONS] Loading lang data...');
-  await loadLang('bm');
-  await loadLang('en');
-  console.log('[SECTIONS] Loaded:', cache);
-  renderForm();
-});
+// ============================================
+// BOOT
+// ============================================
+async function boot() {
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+    const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+    const { getDatabase, ref, get, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+
+    const app = initializeApp(config);
+    auth = getAuth(app);
+    db = getDatabase(app);
+
+    // Render layout
+    const navHTML = ADMIN_NAV.map(item => `
+      <a href="${item.href}" class="admin-nav-item ${item.id === 'sections' ? 'active' : ''}">
+        ${icon(item.icon)}<span>${item.label}</span>
+      </a>
+    `).join('');
+
+    document.getElementById('adminLayout').innerHTML = `
+      <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-head">
+          <img src="/assets/logoUtama/logoUtama.png" alt="Logo" class="admin-logo">
+          <span class="admin-badge">ADMIN</span>
+        </div>
+        <nav class="admin-nav">${navHTML}</nav>
+        <div class="admin-sidebar-foot">
+          <div class="admin-user">
+            <div class="admin-user-avatar" id="adminAvatar">A</div>
+            <div class="admin-user-info">
+              <div class="admin-user-name" id="adminUserName">—</div>
+              <div class="admin-user-email" id="adminUserEmail">—</div>
+            </div>
+          </div>
+          <button id="adminLogoutBtn" class="admin-logout-btn">${icon('log-out')}<span>Log Keluar</span></button>
+        </div>
+      </aside>
+      <header class="admin-topbar">
+        <button class="admin-menu-toggle" id="adminMenuToggle">${icon('grid')}</button>
+        <h1 class="admin-page-title">Sections Editor</h1>
+        <div class="admin-topbar-actions">
+          <a href="/index.html" target="_blank" class="admin-topbar-link">${icon('external')}<span>Lihat Website</span></a>
+        </div>
+      </header>
+      <div class="admin-overlay" id="adminOverlay"></div>
+    `;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+
+      const uName = document.getElementById('adminUserName');
+      const uEmail = document.getElementById('adminUserEmail');
+      const uAvatar = document.getElementById('adminAvatar');
+      const logoutBtn = document.getElementById('adminLogoutBtn');
+      const menuToggle = document.getElementById('adminMenuToggle');
+      const overlay = document.getElementById('adminOverlay');
+
+      if (uName) uName.textContent = user.displayName || 'Admin';
+      if (uEmail) uEmail.textContent = user.email;
+      if (uAvatar) uAvatar.textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+
+      if (logoutBtn) logoutBtn.onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
+      if (menuToggle) menuToggle.onclick = () => {
+        document.getElementById('adminSidebar').classList.toggle('open');
+        overlay.classList.toggle('show');
+      };
+      if (overlay) overlay.onclick = () => {
+        document.getElementById('adminSidebar').classList.remove('open');
+        overlay.classList.remove('show');
+      };
+
+      await loadLang('bm');
+      await loadLang('en');
+      renderForm();
+    });
+  } catch (err) {
+    document.getElementById('adminMain').innerHTML = `<div class="admin-card"><h3>Ralat Load</h3><p>${err.message}</p></div>`;
+  }
+}
 
 async function loadLang(lang) {
   try {
+    const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
     const snap = await get(ref(db, 'sections/' + lang));
     cache[lang] = snap.val() || {};
-    console.log(`[SECTIONS] ${lang}:`, cache[lang]);
   } catch (err) {
-    console.error(`[SECTIONS] Load ${lang} error:`, err);
-    showToast('Ralat load ' + lang + ': ' + err.message, 'error');
+    cache[lang] = {};
   }
 }
 
 function renderForm() {
   const main = document.getElementById('adminMain');
-  if (!main) { console.error('[SECTIONS] adminMain not found'); return; }
-  
   const data = cache[currentLang] || {};
-  console.log('[SECTIONS] Rendering form for', currentLang);
 
   main.innerHTML = `
     <div class="admin-page-header">
-      <div>
-        <h2>Sections Editor</h2>
-        <p>Edit kandungan homepage — BM & English</p>
-      </div>
-      <button id="saveBtn" type="button" style="padding:12px 24px;background:#E31E24;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Simpan Semua</button>
+      <div><h2>Sections Editor</h2><p>Edit kandungan homepage — BM & English</p></div>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:20px;">
@@ -116,125 +179,128 @@ function renderForm() {
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🔔 Alert Bar</h3>
       <label class="fld-label">Alert Text</label>
-      <input type="text" class="fld-input" id="alertBar" value="${esc(data.alertBar||'')}" placeholder="Website ini baru dilancarkan...">
+      <input type="text" class="fld-input" id="f_alertBar" value="${esc(data.alertBar)}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🚀 Hero</h3>
       <label class="fld-label">Headline Line 1</label>
-      <input type="text" class="fld-input" id="heroLine1" value="${esc(data.heroLine1||'')}" placeholder="NAK BUAT">
+      <input type="text" class="fld-input" id="f_heroLine1" value="${esc(data.heroLine1)}">
       <label class="fld-label">Headline Line 2</label>
-      <input type="text" class="fld-input" id="heroLine2" value="${esc(data.heroLine2||'')}" placeholder="LANDING PAGE?">
+      <input type="text" class="fld-input" id="f_heroLine2" value="${esc(data.heroLine2)}">
       <label class="fld-label">Harga</label>
-      <input type="text" class="fld-input" id="heroPrice" value="${esc(data.heroPrice||'')}" placeholder="RM99 SAHAJA">
+      <input type="text" class="fld-input" id="f_heroPrice" value="${esc(data.heroPrice)}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">⭐ Kredibiliti</h3>
       <label class="fld-label">Ayat</label>
-      <textarea class="fld-textarea" id="kredibiliti" rows="2">${esc(data.kredibiliti||'')}</textarea>
+      <textarea class="fld-textarea" id="f_kredibiliti" rows="2">${esc(data.kredibiliti)}</textarea>
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">✅ Bantu</h3>
       <label class="fld-label">Tajuk (pisah dengan "|")</label>
-      <input type="text" class="fld-input" id="bantuTitle" value="${esc(data.bantuTitle||'')}">
+      <input type="text" class="fld-input" id="f_bantuTitle" value="${esc(data.bantuTitle)}">
       <label class="fld-label">List (satu per baris)</label>
-      <textarea class="fld-textarea" id="bantuItems" rows="6">${(data.bantuItems||[]).join('\n')}</textarea>
+      <textarea class="fld-textarea" id="f_bantuItems" rows="6">${(data.bantuItems||[]).join('\n')}</textarea>
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🎬 Video</h3>
       <label class="fld-label">Video URL</label>
-      <input type="url" class="fld-input" id="videoUrl" value="${esc(data.videoUrl||'')}">
+      <input type="url" class="fld-input" id="f_videoUrl" value="${esc(data.videoUrl)}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💰 Pakej</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="pakejTitle" value="${esc(data.pakejTitle||'')}">
+      <input type="text" class="fld-input" id="f_pakejTitle" value="${esc(data.pakejTitle)}">
       <label class="fld-label">List (satu per baris)</label>
-      <textarea class="fld-textarea" id="pakejItems" rows="10">${(data.pakejItems||[]).join('\n')}</textarea>
+      <textarea class="fld-textarea" id="f_pakejItems" rows="10">${(data.pakejItems||[]).join('\n')}</textarea>
       <label class="fld-label">Note</label>
-      <input type="text" class="fld-input" id="pakejNote" value="${esc(data.pakejNote||'')}">
+      <input type="text" class="fld-input" id="f_pakejNote" value="${esc(data.pakejNote)}">
       <label class="fld-label">CTA Text</label>
-      <input type="text" class="fld-input" id="pakejCtaText" value="${esc(data.pakejCtaText||'')}">
+      <input type="text" class="fld-input" id="f_pakejCtaText" value="${esc(data.pakejCtaText)}">
       <label class="fld-label">CTA URL</label>
-      <input type="url" class="fld-input" id="pakejCtaUrl" value="${esc(data.pakejCtaUrl||'')}">
+      <input type="url" class="fld-input" id="f_pakejCtaUrl" value="${esc(data.pakejCtaUrl)}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💬 Feedback</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="feedbackTitle" value="${esc(data.feedbackTitle||'')}">
+      <input type="text" class="fld-input" id="f_feedbackTitle" value="${esc(data.feedbackTitle)}">
       <label class="fld-label">Subtitle</label>
-      <input type="text" class="fld-input" id="feedbackSub" value="${esc(data.feedbackSub||'')}">
+      <input type="text" class="fld-input" id="f_feedbackSub" value="${esc(data.feedbackSub)}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">📰 Blog Teaser</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="blogTeaserTitle" value="${esc(data.blogTeaserTitle||'')}">
+      <input type="text" class="fld-input" id="f_blogTeaserTitle" value="${esc(data.blogTeaserTitle)}">
+    </div>
+
+    <div style="position:sticky;bottom:20px;padding:16px 0;background:linear-gradient(180deg,transparent,#f5f6f8 30%);display:flex;justify-content:flex-end;">
+      <button type="button" id="saveBtn" onclick="window.__saveAll()">💾 Simpan Semua</button>
     </div>
   `;
 
-  // Attach listeners AFTER render
-  document.getElementById('saveBtn').addEventListener('click', saveAll);
-  document.getElementById('tabBm').addEventListener('click', () => switchLang('bm'));
-  document.getElementById('tabEn').addEventListener('click', () => switchLang('en'));
-  
-  console.log('[SECTIONS] Form rendered, button attached');
-}
-
-function switchLang(lang) {
-  collectForm();
-  currentLang = lang;
-  renderForm();
+  document.getElementById('tabBm').onclick = () => window.__switchLang('bm');
+  document.getElementById('tabEn').onclick = () => window.__switchLang('en');
 }
 
 function collectForm() {
   const data = cache[currentLang] || {};
   FIELDS.forEach(f => {
-    const el = document.getElementById(f);
+    const el = document.getElementById('f_' + f);
     if (el) data[f] = el.value.trim();
   });
   LIST_FIELDS.forEach(f => {
-    const el = document.getElementById(f);
+    const el = document.getElementById('f_' + f);
     if (el) data[f] = el.value.split('\n').map(l => l.trim()).filter(Boolean);
   });
   cache[currentLang] = data;
 }
 
-async function saveAll() {
-  console.log('[SECTIONS] saveAll clicked');
+function showToast(msg, type) {
+  let t = document.getElementById('adminToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'adminToast';
+    t.className = 'admin-toast';
+    document.body.appendChild(t);
+  }
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  t.innerHTML = `<span class="admin-toast-icon">${icons[type]||'✓'}</span><span>${msg}</span>`;
+  t.className = `admin-toast admin-toast-${type} show`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+window.__saveAll = async function() {
   collectForm();
-  console.log('[SECTIONS] Data to save:', cache);
-  
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.textContent = 'Menyimpan...';
-  
   try {
-    console.log('[SECTIONS] Saving BM...');
+    const { getDatabase, ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
     await set(ref(db, 'sections/bm'), cache.bm);
-    console.log('[SECTIONS] BM saved');
-    
-    console.log('[SECTIONS] Saving EN...');
     await set(ref(db, 'sections/en'), cache.en);
-    console.log('[SECTIONS] EN saved');
-    
     showToast('✅ Semua section disimpan!', 'success');
   } catch (err) {
-    console.error('[SECTIONS] Save error:', err);
     showToast('Ralat: ' + err.message, 'error');
   }
-  
   btn.disabled = false;
   btn.textContent = '💾 Simpan Semua';
-}
+};
 
-window.saveAll = saveAll;
-window.switchLang = switchLang;
+window.__switchLang = function(lang) {
+  collectForm();
+  currentLang = lang;
+  renderForm();
+};
+
+boot();
 </script>
 </body>
 </html>
