@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debug — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+body { background:#0a0a0a; color:#fff; padding:20px; min-height:100vh; }
+h1 { font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:16px; }
+.card { background:#141414; border:1px solid #222; border-radius:12px; padding:16px; margin-bottom:12px; }
+.label { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px; }
+.value { font-size:14px; color:#fff; word-break:break-all; line-height:1.5; font-family:monospace; }
+.ok { color:#38a169; }
+.err { color:#e53e3e; }
+.warn { color:#f59e0b; }
+.btn { display:inline-block; background:#E31E24; color:#fff; padding:12px 20px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; margin-right:8px; margin-top:12px; font-family:inherit; }
+.btn-outline { background:transparent; border:1.5px solid #333; color:#fff; }
+</style>
+</head>
+<body>
+
+<h1>🔍 Admin Debug</h1>
+
+<div class="card">
+  <div class="label">Auth Status</div>
+  <div class="value" id="authStatus">Checking...</div>
+</div>
+
+<div class="card">
+  <div class="label">User Email</div>
+  <div class="value" id="userEmail">—</div>
+</div>
+
+<div class="card">
+  <div class="label">User UID</div>
+  <div class="value" id="userUid">—</div>
+</div>
+
+<div class="card">
+  <div class="label">Test Baca: articles</div>
+  <div class="value" id="testArticles">—</div>
+</div>
+
+<div class="card">
+  <div class="label">Test Baca: sections/bm</div>
+  <div class="value" id="testSections">—</div>
+</div>
+
+<div class="card">
+  <div class="label">Test Tulis: sections/bm</div>
+  <div class="value" id="testWrite">—</div>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <a href="login.html" class="btn btn-outline">Ke Login</a>
+  <a href="dashboard.html" class="btn">Ke Dashboard</a>
+  <button onclick="location.reload()" class="btn">🔄 Reload Test</button>
+</div>
+
+<script type="module">
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+
+function set(id, text, cls='') {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'value ' + cls;
+}
+
+try {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+  const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+  const { getDatabase, ref, get, set: setDb } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+
+  const app = initializeApp(config);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      set('authStatus', '❌ BELUM LOGIN', 'err');
+      set('userEmail', '—');
+      set('userUid', '—');
+      set('testArticles', 'Skip (belum login)', 'warn');
+      set('testSections', 'Skip (belum login)', 'warn');
+      set('testWrite', 'Skip (belum login)', 'warn');
+      return;
+    }
+
+    set('authStatus', '✅ LOGIN BERJAYA', 'ok');
+    set('userEmail', user.email);
+    set('userUid', user.uid);
+
+    // Test read articles
+    try {
+      const snap = await get(ref(db, 'articles'));
+      const count = Object.keys(snap.val() || {}).length;
+      set('testArticles', `✅ Boleh baca (${count} artikel)`, 'ok');
+    } catch (err) {
+      set('testArticles', '❌ ' + err.message, 'err');
+    }
+
+    // Test read sections
+    try {
+      const snap = await get(ref(db, 'sections/bm'));
+      const hasData = snap.exists();
+      set('testSections', hasData ? '✅ Boleh baca (ada data)' : '✅ Boleh baca (kosong)', 'ok');
+    } catch (err) {
+      set('testSections', '❌ ' + err.message, 'err');
+    }
+
+    // Test write sections
+    try {
+      const testRef = ref(db, 'sections/_test');
+      await setDb(testRef, { test: Date.now() });
+      await setDb(testRef, null); // cleanup
+      set('testWrite', '✅ Boleh tulis (test berjaya)', 'ok');
+    } catch (err) {
+      set('testWrite', '❌ ' + err.message, 'err');
+    }
+  });
+} catch (err) {
+  set('authStatus', '❌ Script error: ' + err.message, 'err');
+}
+</script>
+</body>
+</html>
