@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Website Baru — Playground</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/playground/playground.css">
+</head>
+<body class="pg-dash-body">
+
+<div class="pg-testing-banner" style="background:linear-gradient(90deg,#f59e0b 0%,#d97706 100%);color:#fff;padding:10px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;line-height:1.4;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Under testing — Playground masih dalam fasa uji coba, sila coba lagi, terima kasih diatas kerjasama anda
+</div>
+
+<header class="pg-dash-header">
+  <a href="dashboard.html" class="pg-back" style="color:#888;">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Dashboard
+  </a>
+  <img src="../assets/logoUtama/logoUtama.png" alt="hairiamri.buzz" class="pg-logo">
+  <div></div>
+</header>
+
+<main class="pg-dash-wrap">
+  <div class="pg-form-head">
+    <h1 id="pageTitle" style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:6px;">Website Baru</h1>
+    <p id="pageSub" style="font-size:13px;color:#888;">Paste HTML, pilih jenis URL, dan publish.</p>
+  </div>
+
+  <form id="siteForm" class="pg-site-form">
+    <input type="hidden" id="siteId">
+
+    <label>Nama Website</label>
+    <input type="text" id="name" required placeholder="Contoh: Warung Makanan Sedap" maxlength="50">
+    <small>Nama paparan website anda.</small>
+
+    <label>Slug (URL)</label>
+    <input type="text" id="slug" required placeholder="warung-makanan-sedap" maxlength="30">
+    <small>Auto dari nama. Huruf kecil, nombor, dan dash sahaja. 3-30 aksara.</small>
+
+    <label>Jenis URL</label>
+    <div class="pg-radio-group">
+      <label class="pg-radio">
+        <input type="radio" name="type" value="path" checked>
+        <div>
+          <strong>Path</strong>
+          <span>hairiamri.buzz/p/<em id="slugPreviewPath">slug</em></span>
+        </div>
+      </label>
+      <label class="pg-radio">
+        <input type="radio" name="type" value="subdomain">
+        <div>
+          <strong>Subdomain</strong>
+          <span><em id="slugPreviewSub">slug</em>.hairiamri.buzz</span>
+        </div>
+      </label>
+    </div>
+
+    <label>HTML Content</label>
+    <textarea id="html" required rows="18" placeholder="&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Website Saya&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello World!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></textarea>
+    <small>Max 500KB. <span id="charCount" style="color:#E31E24;font-weight:700;">0</span> karakter · <span id="htmlStatus" style="color:#888;"></span></small>
+
+    <p id="msg" class="pg-msg"></p>
+
+    <div class="pg-form-actions">
+      <button type="button" id="previewBtn" class="pg-btn-ghost">👁 Preview</button>
+      <button type="button" id="draftBtn" class="pg-btn-outline">Simpan Draft</button>
+      <button type="submit" id="publishBtn" class="pg-btn-primary">Publish</button>
+    </div>
+  </form>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, set, push, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const MAX_SIZE = 500000;
+const MAX_SITES = 5;
+const RESERVED = ['www','api','admin','blog','mail','app','p','m','login','register','dashboard','playground','test','support','help','static','cdn','assets','img','images','css','js','dev','staging','verify','new','edit','auth'];
+
+let currentUser = null;
+let allSites = {};
+let existingSite = null;
+
+const urlParams = new URLSearchParams(window.location.search);
+const editId = urlParams.get('id');
+
+// Auth guard + load data
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  // Load all websites (untuk slug conflict check + limit check)
+  onValue(ref(db, 'websites'), (snap) => {
+    allSites = snap.val() || {};
+  });
+
+  if (editId) {
+    document.getElementById('pageTitle').textContent = 'Edit Website';
+    document.getElementById('pageSub').textContent = 'Kemaskini website anda.';
+    document.getElementById('publishBtn').textContent = 'Simpan & Publish';
+
+    const snap = await get(ref(db, 'websites/' + editId));
+    existingSite = snap.val();
+    if (!existingSite) {
+      alert('Website tak jumpa');
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    if (existingSite.uid !== user.uid) {
+      alert('Bukan website anda');
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
+    document.getElementById('siteId').value = editId;
+    document.getElementById('name').value = existingSite.name || '';
+    document.getElementById('slug').value = existingSite.slug || '';
+    document.getElementById('html').value = existingSite.html || '';
+    document.querySelector(`input[name="type"][value="${existingSite.type || 'path'}"]`).checked = true;
+    updateSlugPreview();
+    updateCharCount();
+  }
+});
+
+// Auto slug dari nama
+document.getElementById('name').addEventListener('input', (e) => {
+  if (editId) return;
+  const slug = e.target.value.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .substring(0, 30);
+  document.getElementById('slug').value = slug;
+  updateSlugPreview();
+});
+
+document.getElementById('slug').addEventListener('input', updateSlugPreview);
+
+// Type radio change
+document.querySelectorAll('input[name="type"]').forEach(r => {
+  r.addEventListener('change', updateSlugPreview);
+});
+
+function updateSlugPreview() {
+  const slug = document.getElementById('slug').value || 'slug';
+  document.getElementById('slugPreviewPath').textContent = slug;
+  document.getElementById('slugPreviewSub').textContent = slug;
+}
+
+// Character counter
+document.getElementById('html').addEventListener('input', updateCharCount);
+
+function updateCharCount() {
+  const len = document.getElementById('html').value.length;
+  document.getElementById('charCount').textContent = len.toLocaleString();
+  const status = document.getElementById('htmlStatus');
+  const counter = document.getElementById('charCount');
+
+  if (len > MAX_SIZE) {
+    status.textContent = '⚠️ Terlalu besar';
+    status.style.color = '#e53e3e';
+    counter.style.color = '#e53e3e';
+  } else if (len > MAX_SIZE * 0.8) {
+    status.textContent = 'Hampir had';
+    status.style.color = '#f59e0b';
+    counter.style.color = '#f59e0b';
+  } else {
+    status.textContent = 'OK';
+    status.style.color = '#38a169';
+    counter.style.color = '#E31E24';
+  }
+}
+
+// Check slug conflict
+function isSlugConflict(slug, excludeId = null) {
+  return Object.entries(allSites).some(([id, s]) => {
+    if (excludeId && id === excludeId) return false;
+    return s.slug === slug;
+  });
+}
+
+// Validate form
+function validateForm() {
+  const name = document.getElementById('name').value.trim();
+  const slug = document.getElementById('slug').value.trim();
+  const html = document.getElementById('html').value;
+  const type = document.querySelector('input[name="type"]:checked').value;
+
+  if (name.length < 3) return { ok: false, msg: 'Nama minimum 3 aksara' };
+  if (slug.length < 3) return { ok: false, msg: 'Slug minimum 3 aksara' };
+  if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, msg: 'Slug: huruf kecil, nombor, dan dash sahaja' };
+  if (RESERVED.includes(slug)) return { ok: false, msg: `Slug "${slug}" adalah reserved word. Pilih yang lain.` };
+  if (isSlugConflict(slug, editId)) return { ok: false, msg: `Slug "${slug}" dah digunakan. Pilih yang lain.` };
+  if (html.length < 20) return { ok: false, msg: 'HTML terlalu pendek (minimum 20 aksara)' };
+  if (html.length > MAX_SIZE) return { ok: false, msg: 'HTML terlalu besar (max 500KB)' };
+
+  // Limit check (kalau new)
+  if (!editId) {
+    const userSites = Object.values(allSites).filter(s => s.uid === currentUser.uid);
+    if (userSites.length >= MAX_SITES) {
+      return { ok: false, msg: `Limit ${MAX_SITES} website dicapai. Padam yang lama untuk tambah baru.` };
+    }
+  }
+
+  return { ok: true, name, slug, html, type };
+}
+
+// Save to RTDB
+async function saveSite(published) {
+  const v = validateForm();
+  const msg = document.getElementById('msg');
+  if (!v.ok) {
+    msg.textContent = v.msg;
+    msg.style.color = '#e53e3e';
+    return;
+  }
+
+  const btn = published ? document.getElementById('publishBtn') : document.getElementById('draftBtn');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+  msg.textContent = '';
+
+  try {
+    const data = {
+      uid: currentUser.uid,
+      name: v.name,
+      slug: v.slug,
+      type: v.type,
+      html: v.html,
+      published: !!published,
+      updatedAt: Date.now()
+    };
+
+    if (editId) {
+      await update(ref(db, 'websites/' + editId), data);
+    } else {
+      data.createdAt = Date.now();
+      await push(ref(db, 'websites'), data);
+    }
+
+    msg.textContent = published ? '✅ Website published!' : '✅ Draft disimpan!';
+    msg.style.color = '#38a169';
+
+    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+  } catch (err) {
+    msg.textContent = 'Ralat: ' + err.message;
+    msg.style.color = '#e53e3e';
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+}
+
+document.getElementById('draftBtn').onclick = () => saveSite(false);
+document.getElementById('publishBtn').onclick = (e) => {
+  e.preventDefault();
+  saveSite(true);
+};
+
+// Preview via Blob URL
+document.getElementById('previewBtn').onclick = () => {
+  const html = document.getElementById('html').value;
+  if (html.length < 20) {
+    alert('Sila paste HTML dulu');
+    return;
+  }
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+};
+</script>
+</body>
+</html>

@@ -127,7 +127,7 @@ function loadWebsites(uid) {
               <a href="${url}" target="_blank" class="pg-site-url">${url.replace('https://','')} ↗</a>
             </div>
             <div class="pg-site-actions">
-              <a href="edit.html?id=${s.id}" class="pg-btn-sm">Edit</a>
+              <a href="new.html?id=${s.id}" class="pg-btn-sm">Edit</a>
               <button onclick="deleteSite('${s.id}', '${(s.name||'').replace(/'/g, "\\'")}')" class="pg-btn-sm pg-btn-danger">Padam</button>
             </div>
           </div>
