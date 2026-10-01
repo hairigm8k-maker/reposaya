@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Log Masuk — Playground</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/playground/playground.css">
+</head>
+<body class="pg-auth-body">
+
+<div class="pg-testing-banner" style="background:linear-gradient(90deg,#f59e0b 0%,#d97706 100%);color:#fff;padding:10px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;line-height:1.4;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Under testing — Playground masih dalam fasa uji coba, sila coba lagi, terima kasih diatas kerjasama anda
+</div>
+
+<header class="pg-auth-nav">
+  <a href="../index.html" class="pg-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Balik
+  </a>
+  <img src="../assets/logoUtama/logoUtama.png" alt="hairiamri.buzz" class="pg-logo">
+  <a href="index.html" class="pg-link">Daftar</a>
+</header>
+
+<main class="pg-auth-wrap">
+  <div class="pg-auth-card">
+    <div class="pg-auth-head">
+      <span class="pg-badge">PLAYGROUND</span>
+      <h1>Log Masuk</h1>
+      <p>Selamat kembali! Masuk untuk uruskan website anda.</p>
+    </div>
+
+    <form id="loginForm" class="pg-form">
+      <label>Email</label>
+      <input type="email" id="email" required placeholder="email@contoh.com" autocomplete="email">
+
+      <label>Password</label>
+      <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+
+      <button type="submit" class="pg-btn-primary pg-btn-block" id="btnLogin">Log Masuk</button>
+      <p id="msg" class="pg-msg"></p>
+    </form>
+
+    <p class="pg-auth-foot">
+      <a href="#" onclick="forgotPassword();return false;" style="color:#888;font-size:12px;">Lupa password?</a>
+    </p>
+    <p class="pg-auth-foot">Belum ada akaun? <a href="index.html">Daftar</a></p>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('btnLogin');
+  const msg = document.getElementById('msg');
+
+  btn.textContent = 'Log masuk...';
+  btn.disabled = true;
+  msg.textContent = '';
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
+
+    // Sync verified status dari localStorage (kalau ada)
+    const pending = localStorage.getItem('pendingVerify_' + email);
+    if (pending) {
+      try {
+        const p = JSON.parse(pending);
+        await update(ref(db, 'playgroundUsers/' + user.uid), {
+          verified: true,
+          verifiedAt: p.verifiedAt || Date.now()
+        });
+        localStorage.removeItem('pendingVerify_' + email);
+      } catch (err) {
+        console.warn('Sync verified error:', err);
+      }
+    }
+
+    // Check verified status dalam RTDB
+    const snap = await get(ref(db, 'playgroundUsers/' + user.uid));
+    const data = snap.val();
+
+    if (!data || !data.verified) {
+      await signOut(auth);
+      msg.textContent = 'Email belum disahkan. Sila check email anda.';
+      msg.style.color = '#e53e3e';
+      btn.textContent = 'Log Masuk';
+      btn.disabled = false;
+      return;
+    }
+
+    msg.textContent = '✅ Berjaya! Redirect...';
+    msg.style.color = '#38a169';
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  } catch (err) {
+    let m = 'Ralat: ' + err.message;
+    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+      m = 'Email atau password salah';
+    } else if (err.code === 'auth/too-many-requests') {
+      m = 'Terlalu banyak cubaan. Cuba lagi nanti.';
+    }
+    msg.textContent = m;
+    msg.style.color = '#e53e3e';
+    btn.textContent = 'Log Masuk';
+    btn.disabled = false;
+  }
+});
+
+window.forgotPassword = async () => {
+  const email = prompt('Taip email anda:');
+  if (!email) return;
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert('✅ Email reset password dihantar ke ' + email);
+  } catch (err) {
+    alert('Ralat: ' + err.message);
+  }
+};
+</script>
+</body>
+</html>
