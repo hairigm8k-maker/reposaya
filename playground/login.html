@@ -76,24 +76,25 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
-    // Sync verified status dari localStorage (kalau ada)
-    const pending = localStorage.getItem('pendingVerify_' + email);
-    if (pending) {
-      try {
-        const p = JSON.parse(pending);
+    // Check user data
+    const snap = await get(ref(db, 'playgroundUsers/' + user.uid));
+    let data = snap.val();
+
+    // Kalau belum verified, check node verifications
+    if (!data || !data.verified) {
+      const emailKey = email.toLowerCase().replace(/[.@]/g, '_');
+      const verifySnap = await get(ref(db, 'verifications/' + emailKey));
+      const verifyData = verifySnap.val();
+
+      if (verifyData) {
+        // Update user verified status
         await update(ref(db, 'playgroundUsers/' + user.uid), {
           verified: true,
-          verifiedAt: p.verifiedAt || Date.now()
+          verifiedAt: verifyData.verifiedAt || Date.now()
         });
-        localStorage.removeItem('pendingVerify_' + email);
-      } catch (err) {
-        console.warn('Sync verified error:', err);
+        data = { ...data, verified: true };
       }
     }
-
-    // Check verified status dalam RTDB
-    const snap = await get(ref(db, 'playgroundUsers/' + user.uid));
-    const data = snap.val();
 
     if (!data || !data.verified) {
       await signOut(auth);

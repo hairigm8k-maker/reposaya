@@ -166,6 +166,15 @@ async function verify() {
       usedAt: Date.now()
     });
 
+    // Simpan verification flag dalam node public (login page akan baca)
+    const emailKey = data.email.toLowerCase().replace(/[.@]/g, '_');
+    await update(ref(db, 'verifications/' + emailKey), {
+      uid: data.uid,
+      email: data.email,
+      name: data.name,
+      verifiedAt: Date.now()
+    });
+
     showSuccess(data.name, data.uid, data.email);
   } catch (err) {
     showError('Ralat: ' + err.message);
