@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-body { background:#0a0a0a; color:#fff; padding:20px; min-height:100vh; }
+body { background:#0a0a0a; color:#fff; padding:20px; min-height:100vh; padding-bottom:100px; }
 h1 { font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:16px; }
 .card { background:#141414; border:1px solid #222; border-radius:12px; padding:16px; margin-bottom:12px; }
 .label { font-size:11px; font-weight:700; color:#888; text-transform:uppercase; margin-bottom:6px; letter-spacing:0.5px; }
@@ -16,8 +16,10 @@ h1 { font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:16px;
 .ok { color:#38a169; }
 .err { color:#e53e3e; }
 .warn { color:#f59e0b; }
-.btn { display:inline-block; background:#E31E24; color:#fff; padding:12px 20px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; margin-right:8px; margin-top:12px; font-family:inherit; }
+.btn { display:inline-block; background:#E31E24; color:#fff; padding:12px 20px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; margin-right:8px; margin-top:8px; font-family:inherit; }
 .btn-outline { background:transparent; border:1.5px solid #333; color:#fff; }
+.btn-fixed { position:fixed; bottom:20px; left:20px; right:20px; max-width:400px; margin:0 auto; display:block; }
+textarea { width:100%; min-height:300px; background:#0a0a0a; border:1px solid #333; border-radius:8px; color:#38a169; font-family:monospace; font-size:11px; padding:12px; margin-top:12px; }
 </style>
 </head>
 <body>
@@ -54,20 +56,61 @@ h1 { font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:16px;
   <div class="value" id="testWrite">—</div>
 </div>
 
+<div class="card">
+  <div class="label">JSON Report (copy ni)</div>
+  <textarea id="jsonReport" readonly>Loading...</textarea>
+</div>
+
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
   <a href="login.html" class="btn btn-outline">Ke Login</a>
-  <a href="dashboard.html" class="btn">Ke Dashboard</a>
-  <button onclick="location.reload()" class="btn">🔄 Reload Test</button>
+  <a href="dashboard.html" class="btn btn-outline">Ke Dashboard</a>
+  <button onclick="location.reload()" class="btn btn-outline">🔄 Reload Test</button>
 </div>
+
+<button onclick="copyReport()" class="btn btn-fixed" id="copyBtn">📋 Copy JSON Report</button>
 
 <script type="module">
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 
+const report = {
+  timestamp: new Date().toISOString(),
+  userAgent: navigator.userAgent,
+  status: 'pending'
+};
+
 function set(id, text, cls='') {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = text;
   el.className = 'value ' + cls;
 }
+
+function updateReport() {
+  document.getElementById('jsonReport').value = JSON.stringify(report, null, 2);
+}
+
+window.copyReport = function() {
+  const text = JSON.stringify(report, null, 2);
+  const ta = document.getElementById('jsonReport');
+  ta.value = text;
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✅ Copied! Paste kat chat';
+      setTimeout(() => btn.textContent = '📋 Copy JSON Report', 2000);
+    }).catch(() => {
+      // Fallback
+      document.execCommand('copy');
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✅ Copied! (fallback)';
+      setTimeout(() => btn.textContent = '📋 Copy JSON Report', 2000);
+    });
+  } catch (e) {
+    alert('Tak boleh copy. Tekan lama textarea tu & copy manual.');
+  }
+};
 
 try {
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
@@ -78,27 +121,33 @@ try {
   const auth = getAuth(app);
   const db = getDatabase(app);
 
+  report.firebaseInit = 'OK';
+  updateReport();
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
+      report.auth = 'NOT_LOGGED_IN';
+      report.user = null;
       set('authStatus', '❌ BELUM LOGIN', 'err');
-      set('userEmail', '—');
-      set('userUid', '—');
-      set('testArticles', 'Skip (belum login)', 'warn');
-      set('testSections', 'Skip (belum login)', 'warn');
-      set('testWrite', 'Skip (belum login)', 'warn');
+      updateReport();
       return;
     }
 
+    report.auth = 'OK';
+    report.user = { email: user.email, uid: user.uid, displayName: user.displayName || null };
     set('authStatus', '✅ LOGIN BERJAYA', 'ok');
     set('userEmail', user.email);
     set('userUid', user.uid);
+    updateReport();
 
     // Test read articles
     try {
       const snap = await get(ref(db, 'articles'));
       const count = Object.keys(snap.val() || {}).length;
+      report.readArticles = { ok: true, count };
       set('testArticles', `✅ Boleh baca (${count} artikel)`, 'ok');
     } catch (err) {
+      report.readArticles = { ok: false, error: err.message };
       set('testArticles', '❌ ' + err.message, 'err');
     }
 
@@ -106,8 +155,10 @@ try {
     try {
       const snap = await get(ref(db, 'sections/bm'));
       const hasData = snap.exists();
+      report.readSections = { ok: true, hasData };
       set('testSections', hasData ? '✅ Boleh baca (ada data)' : '✅ Boleh baca (kosong)', 'ok');
     } catch (err) {
+      report.readSections = { ok: false, error: err.message };
       set('testSections', '❌ ' + err.message, 'err');
     }
 
@@ -115,14 +166,20 @@ try {
     try {
       const testRef = ref(db, 'sections/_test');
       await setDb(testRef, { test: Date.now() });
-      await setDb(testRef, null); // cleanup
+      await setDb(testRef, null);
+      report.writeSections = { ok: true };
       set('testWrite', '✅ Boleh tulis (test berjaya)', 'ok');
     } catch (err) {
+      report.writeSections = { ok: false, error: err.message };
       set('testWrite', '❌ ' + err.message, 'err');
     }
+
+    updateReport();
   });
 } catch (err) {
+  report.error = err.message;
   set('authStatus', '❌ Script error: ' + err.message, 'err');
+  updateReport();
 }
 </script>
 </body>
