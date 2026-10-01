@@ -19,6 +19,13 @@
 </a>
 <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="logo-img">
 </div>
+<div class="nav-center">
+<div class="lang-switch">
+<button class="lang-btn active" data-lang="bm" onclick="setLang('bm')">BM</button>
+<span class="lang-divider">|</span>
+<button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+</div>
+</div>
 </header>
 
 <div class="divider-bar">
@@ -26,36 +33,60 @@
 </div>
 
 <section class="section-blog">
-  <h1 class="blog-title">Blog</h1>
-  <p class="blog-sub">Tips & panduan untuk bisnes kecil Malaysia.</p>
+  <h1 class="blog-title" data-bm="Blog" data-en="Blog">Blog</h1>
+  <p class="blog-sub" data-bm="Tips &amp; panduan untuk bisnes kecil Malaysia." data-en="Tips &amp; guides for Malaysian small businesses.">Tips &amp; panduan untuk bisnes kecil Malaysia.</p>
 
   <div class="blog-grid">
 
-    
-
-    <a href="#" class="blog-card">
-      <h2>Beza Landing Page vs Website Biasa</h2>
-      <p>Ramai keliru antara dua ni. Jom faham perbezaan dan bila patut guna setiap satu.</p>
-      <span class="blog-card-link">Coming soon</span>
+    <a href="blog/artikel.html" class="blog-card">
+      <h2 data-bm="Kenapa Bisnes Kecil Perlu Landing Page?" data-en="Why Small Businesses Need a Landing Page?">Kenapa Bisnes Kecil Perlu Landing Page?</h2>
+      <p data-bm="Landing page bukan sekadar website. Ia alat jualan yang boleh tingkatkan conversion bisnes anda." data-en="A landing page is not just a website. It is a sales tool that boosts business conversion.">Landing page bukan sekadar website. Ia alat jualan yang boleh tingkatkan conversion bisnes anda.</p>
+      <span class="blog-card-link" data-bm="Baca artikel →" data-en="Read article →">Baca artikel →</span>
     </a>
 
     <a href="#" class="blog-card">
-      <h2>5 Cara Tarik Customer ke Website Anda</h2>
-      <p>Teknik mudah untuk bawa traffic ke landing page bisnes anda tanpa buang duit iklan besar.</p>
-      <span class="blog-card-link">Coming soon</span>
+      <h2 data-bm="Beza Landing Page vs Website Biasa" data-en="Landing Page vs Regular Website">Beza Landing Page vs Website Biasa</h2>
+      <p data-bm="Ramai keliru antara dua ni. Jom faham perbezaan dan bila patut guna setiap satu." data-en="Many confuse the two. Learn the difference and when to use each.">Ramai keliru antara dua ni. Jom faham perbezaan dan bila patut guna setiap satu.</p>
+      <span class="blog-card-link" data-bm="Akan datang" data-en="Coming soon">Akan datang</span>
     </a>
 
-    </div>
-
-  
     <a href="#" class="blog-card">
-      <h2>Website untuk Seller Shopee & Dropship</h2>
-      <p>Kenapa seller perlu website sendiri walaupun dah jual di marketplace.</p>
-      <span class="blog-card-link">Coming soon</span>
+      <h2 data-bm="5 Cara Tarik Customer ke Website Anda" data-en="5 Ways to Attract Customers to Your Website">5 Cara Tarik Customer ke Website Anda</h2>
+      <p data-bm="Teknik mudah untuk bawa traffic ke landing page bisnes anda tanpa buang duit iklan besar." data-en="Easy techniques to drive traffic to your landing page without spending on big ads.">Teknik mudah untuk bawa traffic ke landing page bisnes anda tanpa buang duit iklan besar.</p>
+      <span class="blog-card-link" data-bm="Akan datang" data-en="Coming soon">Akan datang</span>
     </a>
 
-  <a href="index.html" class="blog-back">← Balik ke Utama</a>
+    <a href="#" class="blog-card">
+      <h2 data-bm="Website untuk Seller Shopee &amp; Dropship" data-en="Website for Shopee Sellers &amp; Dropshippers">Website untuk Seller Shopee &amp; Dropship</h2>
+      <p data-bm="Kenapa seller perlu website sendiri walaupun dah jual di marketplace." data-en="Why sellers need their own website even when selling on marketplaces.">Kenapa seller perlu website sendiri walaupun dah jual di marketplace.</p>
+      <span class="blog-card-link" data-bm="Akan datang" data-en="Coming soon">Akan datang</span>
+    </a>
+
+  </div>
+
+  <a href="index.html" class="blog-back" data-bm="← Balik ke Utama" data-en="← Back to Home">← Balik ke Utama</a>
 </section>
+
+<script>
+(function() {
+  function setLang(lang) {
+    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    document.querySelectorAll('[data-bm][data-en]').forEach(function(el) {
+      el.textContent = el.dataset[lang];
+    });
+    try { localStorage.setItem('preferredLang', lang); } catch(e) {}
+  }
+  window.setLang = setLang;
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      var saved = localStorage.getItem('preferredLang');
+      if (saved) setLang(saved);
+    } catch(e) {}
+  });
+})();
+</script>
 
 </body>
 </html>

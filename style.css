@@ -2614,3 +2614,488 @@ body.push-open .push-drawer {
   color: #E31E24;
   flex-shrink: 0;
 }
+
+/* ============================================
+   BLOG TEASER (HOMEPAGE)
+   ============================================ */
+.section-blog-teaser {
+  padding: 60px 25px;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e5e5;
+}
+
+.teaser-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 720px;
+  margin: 0 auto 24px;
+}
+
+.teaser-head h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.teaser-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #E31E24;
+  text-decoration: none;
+}
+
+.teaser-card {
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 16px;
+  text-decoration: none;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+  transition: 0.25s;
+}
+
+.teaser-card:hover {
+  border-color: #E31E24;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+.teaser-img {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  display: block;
+  position: relative;
+}
+
+.teaser-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.teaser-body {
+  padding: 20px 24px 24px;
+}
+
+.teaser-tag {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #E31E24;
+  background-color: rgba(227, 30, 36, 0.08);
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.teaser-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+  margin: 0 0 10px 0;
+}
+
+.teaser-card p {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 14px 0;
+}
+
+.teaser-read {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #E31E24;
+}
+
+@media (min-width: 768px) {
+  .section-blog-teaser { padding: 100px 40px; }
+  .teaser-head h2 { font-size: 28px; }
+  .teaser-img { height: 260px; }
+  .teaser-card h3 { font-size: 22px; }
+}
+
+/* ============================================
+   BLOG ARTICLE PAGE
+   ============================================ */
+.section-article {
+  padding: 40px 25px 80px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.article-tag {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #E31E24;
+  background-color: rgba(227, 30, 36, 0.08);
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.article-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.article-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.article-content h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 32px;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.article-content h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 22px;
+  margin-bottom: 8px;
+}
+
+.article-content p {
+  font-family: 'Inter', sans-serif;
+  font-size: 15.5px;
+  color: #444;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.article-content strong {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.article-content em {
+  font-style: italic;
+  color: #555;
+}
+
+.article-content ul {
+  margin: 0 0 16px 0;
+  padding-left: 22px;
+  list-style: disc;
+}
+
+.article-content ul li {
+  font-family: 'Inter', sans-serif;
+  font-size: 15.5px;
+  color: #444;
+  line-height: 1.75;
+  margin-bottom: 6px;
+}
+
+.article-content a {
+  color: #E31E24;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.article-back {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 12px 24px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.article-back:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .section-article { padding: 60px 40px 100px; }
+  .article-title { font-size: 44px; }
+  .article-content p,
+  .article-content ul li { font-size: 17px; }
+  .article-content h2 { font-size: 28px; }
+  .article-content h3 { font-size: 20px; }
+}
+
+/* ============================================
+   BLOG LIST PAGE
+   ============================================ */
+.blog-back {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.blog-back:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  }
+
+/* Article — tarik ke atas + rapat */
+.section-article {
+  padding: 20px 25px 60px !important;
+}
+
+.article-title {
+  margin-top: 0 !important;
+  margin-bottom: 10px !important;
+}
+
+.article-meta {
+  margin-bottom: 20px !important;
+  padding-bottom: 16px !important;
+}
+
+.article-content p {
+  margin-bottom: 14px !important;
+}
+
+@media (min-width: 768px) {
+  .section-article {
+    padding: 30px 40px 100px !important;
+  }
+}
+
+/* ============================================
+   BLOG LIST — Card Bucu Tajam
+   ============================================ */
+@media (min-width: 768px) {
+  }
+
+/* ============================================
+   BLOG LIST PAGE — Layout bersih
+   ============================================ */
+.section-blog {
+  padding: 30px 20px 80px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.blog-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+}
+
+.blog-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0 0 32px 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.blog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.blog-back {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.blog-back:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .section-blog { padding: 60px 40px 100px; }
+  .blog-title { font-size: 48px; }
+  }
+
+/* ============================================
+   BLOG LIST — Card Bucu Tajam (FINAL)
+   ============================================ */
+.section-blog {
+  padding: 30px 20px 80px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.blog-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+}
+
+.blog-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0 0 32px 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.blog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.blog-card {
+  display: block;
+  padding: 26px 24px;
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0;
+  text-decoration: none;
+  transition: 0.25s;
+  position: relative;
+}
+
+.blog-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background-color: #E31E24;
+  transition: width 0.3s;
+}
+
+.blog-card:hover {
+  border-color: #1a1a1a;
+  transform: translateX(4px);
+}
+
+.blog-card:hover::before {
+  width: 4px;
+}
+
+.blog-card h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+  line-height: 1.35;
+  margin: 0 0 10px 0;
+  text-decoration: none;
+}
+
+.blog-card p {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 14px 0;
+  text-decoration: none;
+}
+
+.blog-card-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #E31E24;
+  text-decoration: none;
+}
+
+.blog-card,
+.blog-card * {
+  text-decoration: none;
+}
+
+.blog-back {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.blog-back:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .section-blog { padding: 60px 40px 100px; }
+  .blog-title { font-size: 48px; }
+  .blog-card { padding: 32px 28px; }
+  .blog-card h2 { font-size: 22px; }
+}
