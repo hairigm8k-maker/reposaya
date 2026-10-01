@@ -534,3 +534,32 @@ img { max-width: 100%; display: block; }
   margin: 12px auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Banner Under Testing */
+.pg-testing-banner {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+  padding: 10px 16px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pg-testing-banner svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  animation: pulseBanner 2s ease-in-out infinite;
+}
+@keyframes pulseBanner {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
