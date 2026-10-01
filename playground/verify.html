@@ -21,7 +21,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
@@ -29,7 +29,10 @@ const db = getDatabase(app);
 
 const card = document.getElementById('card');
 
-function showSuccess(name) {
+function showSuccess(name, uid, email) {
+  // Simpan info verified dalam localStorage supaya login page boleh update user
+  localStorage.setItem('pendingVerify_' + email, JSON.stringify({ uid, name, verifiedAt: Date.now() }));
+
   card.innerHTML = `
     <div class="pg-modal-icon success" style="margin: 0 auto 20px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -70,26 +73,22 @@ async function verify() {
     }
 
     if (data.used) {
-      showSuccess(data.name);
+      showSuccess(data.name, data.uid, data.email);
       return;
     }
 
     if (data.expiresAt && Date.now() > data.expiresAt) {
-      await remove(ref(db, 'verifyTokens/' + token));
-      showError('Link telah tamat tempoh. Sila daftar semula atau hubungi sokongan.');
+      showError('Link telah tamat tempoh. Sila daftar semula.');
       return;
     }
 
-    // Mark user verified
-    await update(ref(db, 'playgroundUsers/' + data.uid), {
-      verified: true,
-      verifiedAt: Date.now()
+    // Mark token as used (public write ok)
+    await update(ref(db, 'verifyTokens/' + token), {
+      used: true,
+      usedAt: Date.now()
     });
 
-    // Mark token used
-    await update(ref(db, 'verifyTokens/' + token), { used: true });
-
-    showSuccess(data.name);
+    showSuccess(data.name, data.uid, data.email);
   } catch (err) {
     showError('Ralat: ' + err.message);
   }
