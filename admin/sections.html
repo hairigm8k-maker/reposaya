@@ -109,6 +109,77 @@ const DEFAULT_VALUES = {
   }
 };
 
+const DEFAULT_VALUES = {
+  bm: {
+    alertBar: 'Laman web ini baru dilancarkan. Sila luangkan masa untuk memberikan maklum balas — sumbangan anda amat kami hargai.',
+    heroLine1: 'NAK BUAT',
+    heroLine2: 'LANDING PAGE?',
+    heroPrice: 'RM99 SAHAJA',
+    kredibiliti: 'Kredibiliti bermula dengan laman web yang profesional.',
+    bantuTitle: 'JADIKAN PERNIAGAAN ANDA|LEBIH DIPERCAYAI',
+    bantuItems: [
+      'Pelanggan jumpa bisnes anda di Google',
+      'Bantu tarik lebih banyak customer',
+      'Kami uruskan dari A - Z',
+      'Naikkan keyakinan pelanggan baru',
+      'Jimat kos, tak perlu bayar lebih'
+    ],
+    videoUrl: 'assets/video/videohero.mp4',
+    pakejTitle: 'RM99 — ALL IN',
+    pakejItems: [
+      'Landing page 1 halaman',
+      'Design moden & custom',
+      'Mobile friendly',
+      'Domain percuma',
+      'Hosting 1 tahun',
+      'SSL percuma',
+      'SEO asas',
+      '1x revision',
+      'Siap 3-5 hari'
+    ],
+    pakejNote: 'Tiada kos tersembunyi. Semua dalam RM99.',
+    pakejCtaText: 'Tempah Sekarang',
+    pakejCtaUrl: 'https://wa.me/60172131814',
+    feedbackTitle: 'Hantar Maklum Balas',
+    feedbackSub: 'Pendapat anda membantu kami tingkatkan servis.',
+    blogTeaserTitle: 'Artikel Terkini'
+  },
+  en: {
+    alertBar: 'This website has just launched. Please take a moment to provide feedback — your contribution is greatly appreciated.',
+    heroLine1: 'WANT',
+    heroLine2: 'A LANDING PAGE?',
+    heroPrice: 'RM99 ONLY',
+    kredibiliti: 'Credibility starts with a professional website.',
+    bantuTitle: 'MAKE YOUR BUSINESS|MORE TRUSTWORTHY',
+    bantuItems: [
+      'Customers find your business on Google',
+      'Attract more customers',
+      'We handle everything from A to Z',
+      'Boost new customer trust',
+      'Save cost, pay no extra'
+    ],
+    videoUrl: 'assets/video/videohero.mp4',
+    pakejTitle: 'RM99 — ALL IN',
+    pakejItems: [
+      '1-page landing page',
+      'Modern & custom design',
+      'Mobile friendly',
+      'Free domain',
+      '1 year hosting',
+      'Free SSL',
+      'Basic SEO',
+      '1x revision',
+      'Ready in 3-5 days'
+    ],
+    pakejNote: 'No hidden costs. All in RM99.',
+    pakejCtaText: 'Order Now',
+    pakejCtaUrl: 'https://wa.me/60172131814',
+    feedbackTitle: 'Send Feedback',
+    feedbackSub: 'Your feedback helps us improve our service.',
+    blogTeaserTitle: 'Latest Articles'
+  }
+};
+
 const ADMIN_NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: 'grid', href: 'dashboard.html' },
   { id: 'articles', label: 'Artikel', icon: 'file-text', href: 'dashboard.html' },
@@ -372,6 +443,36 @@ window.__switchLang = function(lang) {
   collectForm();
   currentLang = lang;
   renderForm();
+};
+
+window.__restoreDefault = async function() {
+  if (!confirm('Reset semua sections ke nilai asal? Perubahan semasa akan dipadam.')) return;
+  
+  const btn = document.getElementById('restoreBtn');
+  btn.disabled = true;
+  btn.textContent = 'Resetting...';
+  
+  try {
+    const { getDatabase, ref, set } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+    
+    // Overwrite dengan default
+    await set(ref(db, 'sections/bm'), DEFAULT_VALUES.bm);
+    await set(ref(db, 'sections/en'), DEFAULT_VALUES.en);
+    
+    // Update cache
+    cache.bm = { ...DEFAULT_VALUES.bm };
+    cache.en = { ...DEFAULT_VALUES.en };
+    
+    // Re-render form dengan nilai default
+    renderForm();
+    
+    showToast('✅ Sections berjaya di-restore ke default!', 'success');
+  } catch (err) {
+    showToast('Ralat: ' + err.message, 'error');
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '↺ Restore Default';
 };
 
 window.__restoreDefault = async function() {
