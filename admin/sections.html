@@ -11,90 +11,185 @@
 <body class="admin-body">
 <div id="adminLayout"></div>
 <main class="admin-main" id="adminMain">
+  <p style="color:#888;font-size:13px;">Loading sections...</p>
+</main>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { renderLayout, showToast } from './admin.js';
 
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+document.getElementById('adminLayout').innerHTML = renderLayout('sections', 'Sections Editor');
+
 let currentLang = 'bm';
 let cache = { bm: {}, en: {} };
 
 const FIELDS = ['alertBar','heroLine1','heroLine2','heroPrice','kredibiliti','bantuTitle','videoUrl','pakejTitle','pakejNote','pakejCtaText','pakejCtaUrl','feedbackTitle','feedbackSub','blogTeaserTitle'];
-const LIST_FIELDS = { bantuItems: 'bantuItems', pakejItems: 'pakejItems' };
+const LIST_FIELDS = ['bantuItems', 'pakejItems'];
 
-onAuthStateChanged(auth, async (u) => {
-  if (!u) { window.location.href = 'index.html'; return; }
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  document.getElementById('adminUserName').textContent = user.displayName || 'Admin';
+  document.getElementById('adminUserEmail').textContent = user.email;
+  document.getElementById('adminAvatar').textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+  document.getElementById('adminLogoutBtn').onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
+  document.getElementById('adminMenuToggle').onclick = () => document.getElementById('adminSidebar').classList.toggle('open');
+
   await loadLang('bm');
   await loadLang('en');
-  renderForm('bm');
+  renderForm();
 });
 
 async function loadLang(lang) {
-  const snap = await get(ref(db, 'sections/' + lang));
-  cache[lang] = snap.val() || {};
+  try {
+    const snap = await get(ref(db, 'sections/' + lang));
+    cache[lang] = snap.val() || {};
+  } catch (err) {
+    showToast('Ralat load ' + lang + ': ' + err.message, 'error');
+  }
 }
 
-function renderForm(lang) {
-  const data = cache[lang] || {};
-  FIELDS.forEach(f => {
-    const el = document.getElementById(f);
-    if (el) el.value = data[f] || '';
-  });
-  // List fields — convert array to newline
-  Object.keys(LIST_FIELDS).forEach(f => {
-    const el = document.getElementById(f);
-    if (el) el.value = (data[f] || []).join('\n');
-  });
+function renderForm() {
+  const main = document.getElementById('adminMain');
+  const data = cache[currentLang] || {};
+
+  main.innerHTML = `
+    <div class="admin-page-header">
+      <div>
+        <h2>Sections Editor</h2>
+        <p>Edit kandungan homepage — BM & English</p>
+      </div>
+      <button onclick="saveAll()" id="saveBtn" style="padding:12px 24px;background:#E31E24;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Simpan Semua</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button onclick="switchLang('bm')" class="lang-tab ${currentLang==='bm'?'active':''}" style="padding:10px 20px;border:2px solid ${currentLang==='bm'?'#1a1a1a':'#e5e5e5'};background:${currentLang==='bm'?'#1a1a1a':'#fff'};color:${currentLang==='bm'?'#fff':'#1a1a1a'};border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🇲🇾 BM</button>
+      <button onclick="switchLang('en')" class="lang-tab ${currentLang==='en'?'active':''}" style="padding:10px 20px;border:2px solid ${currentLang==='en'?'#1a1a1a':'#e5e5e5'};background:${currentLang==='en'?'#1a1a1a':'#fff'};color:${currentLang==='en'?'#fff':'#1a1a1a'};border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🇬🇧 EN</button>
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🔔 Alert Bar</h3>
+      <label class="fld-label">Alert Text</label>
+      <input type="text" class="fld-input" id="alertBar" value="${esc(data.alertBar||'')}" placeholder="Website ini baru dilancarkan...">
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🚀 Hero</h3>
+      <label class="fld-label">Headline Line 1</label>
+      <input type="text" class="fld-input" id="heroLine1" value="${esc(data.heroLine1||'')}" placeholder="NAK BUAT">
+      <label class="fld-label">Headline Line 2</label>
+      <input type="text" class="fld-input" id="heroLine2" value="${esc(data.heroLine2||'')}" placeholder="LANDING PAGE?">
+      <label class="fld-label">Harga</label>
+      <input type="text" class="fld-input" id="heroPrice" value="${esc(data.heroPrice||'')}" placeholder="RM99 SAHAJA">
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">⭐ Kredibiliti</h3>
+      <label class="fld-label">Ayat</label>
+      <textarea class="fld-textarea" id="kredibiliti" rows="2" placeholder="Kredibiliti bermula dengan...">${esc(data.kredibiliti||'')}</textarea>
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">✅ Bantu</h3>
+      <label class="fld-label">Tajuk (pisah baris guna "|")</label>
+      <input type="text" class="fld-input" id="bantuTitle" value="${esc(data.bantuTitle||'')}" placeholder="JADIKAN PERNIAGAAN ANDA|LEBIH DIPERCAYAI">
+      <label class="fld-label">List (satu per baris)</label>
+      <textarea class="fld-textarea" id="bantuItems" rows="6" placeholder="Item 1&#10;Item 2">${(data.bantuItems||[]).join('\n')}</textarea>
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🎬 Video</h3>
+      <label class="fld-label">Video URL</label>
+      <input type="url" class="fld-input" id="videoUrl" value="${esc(data.videoUrl||'')}" placeholder="https://... atau assets/video/videohero.mp4">
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💰 Pakej</h3>
+      <label class="fld-label">Tajuk</label>
+      <input type="text" class="fld-input" id="pakejTitle" value="${esc(data.pakejTitle||'')}" placeholder="RM99 — ALL IN">
+      <label class="fld-label">List (satu per baris)</label>
+      <textarea class="fld-textarea" id="pakejItems" rows="10">${(data.pakejItems||[]).join('\n')}</textarea>
+      <label class="fld-label">Note</label>
+      <input type="text" class="fld-input" id="pakejNote" value="${esc(data.pakejNote||'')}" placeholder="Tiada kos tersembunyi...">
+      <label class="fld-label">CTA Text</label>
+      <input type="text" class="fld-input" id="pakejCtaText" value="${esc(data.pakejCtaText||'')}" placeholder="Tempah Sekarang">
+      <label class="fld-label">CTA URL</label>
+      <input type="url" class="fld-input" id="pakejCtaUrl" value="${esc(data.pakejCtaUrl||'')}" placeholder="https://wa.me/60172131814">
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💬 Feedback</h3>
+      <label class="fld-label">Tajuk</label>
+      <input type="text" class="fld-input" id="feedbackTitle" value="${esc(data.feedbackTitle||'')}" placeholder="Hantar Maklum Balas">
+      <label class="fld-label">Subtitle</label>
+      <input type="text" class="fld-input" id="feedbackSub" value="${esc(data.feedbackSub||'')}" placeholder="Pendapat anda membantu kami...">
+    </div>
+
+    <div class="admin-card">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">📰 Blog Teaser</h3>
+      <label class="fld-label">Tajuk</label>
+      <input type="text" class="fld-input" id="blogTeaserTitle" value="${esc(data.blogTeaserTitle||'')}" placeholder="Artikel Terkini">
+    </div>
+  `;
+
+  // Inject styles
+  if (!document.getElementById('sectionFormStyles')) {
+    const s = document.createElement('style');
+    s.id = 'sectionFormStyles';
+    s.textContent = `
+      .fld-label { display:block; font-size:11px; font-weight:700; color:#666; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
+      .fld-label:first-of-type { margin-top:0; }
+      .fld-input, .fld-textarea { width:100%; padding:11px 14px; border:1.5px solid #e5e5e5; border-radius:8px; font-size:14px; font-family:inherit; background:#f9fafb; transition:0.2s; box-sizing:border-box; }
+      .fld-input:focus, .fld-textarea:focus { outline:none; border-color:#E31E24; background:#fff; }
+      .fld-textarea { resize:vertical; font-family:'Courier New',monospace; font-size:13px; }
+    `;
+    document.head.appendChild(s);
+  }
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 window.switchLang = (lang) => {
-  // Save current sebelum tukar
-  collectForm(currentLang);
+  collectForm();
   currentLang = lang;
-  document.querySelectorAll('.lang-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.lang === lang);
-  });
-  renderForm(lang);
+  renderForm();
 };
 
-function collectForm(lang) {
-  const data = cache[lang] || {};
+function collectForm() {
+  const data = cache[currentLang] || {};
   FIELDS.forEach(f => {
     const el = document.getElementById(f);
     if (el) data[f] = el.value.trim();
   });
-  Object.keys(LIST_FIELDS).forEach(f => {
+  LIST_FIELDS.forEach(f => {
     const el = document.getElementById(f);
     if (el) data[f] = el.value.split('\n').map(l => l.trim()).filter(Boolean);
   });
-  cache[lang] = data;
+  cache[currentLang] = data;
 }
 
-document.getElementById('saveBtn').onclick = async () => {
+window.saveAll = async () => {
+  collectForm();
   const btn = document.getElementById('saveBtn');
-  const msg = document.getElementById('msg');
   btn.disabled = true;
   btn.textContent = 'Menyimpan...';
-
-  collectForm(currentLang);
-
   try {
     await set(ref(db, 'sections/bm'), cache.bm);
     await set(ref(db, 'sections/en'), cache.en);
-    msg.textContent = '✅ Semua section disimpan!';
-    msg.style.color = '#38a169';
+    showToast('✅ Semua section disimpan!', 'success');
   } catch (err) {
-    msg.textContent = 'Ralat: ' + err.message;
-    msg.style.color = '#e53e3e';
+    showToast('Ralat: ' + err.message, 'error');
   }
   btn.disabled = false;
-  btn.textContent = 'Simpan Semua';
+  btn.textContent = '💾 Simpan Semua';
 };
 </script>
 </body>
