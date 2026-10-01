@@ -166,6 +166,14 @@ async function verify() {
       usedAt: Date.now()
     });
 
+    // Update user verified status
+    if (data.uid) {
+      await update(ref(db, 'playgroundUsers/' + data.uid), {
+        verified: true,
+        verifiedAt: Date.now()
+      });
+    }
+
     showSuccess(data.name, data.uid, data.email);
   } catch (err) {
     showError('Ralat: ' + err.message);
