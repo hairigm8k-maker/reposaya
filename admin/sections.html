@@ -15,17 +15,24 @@
 </main>
 
 <script type="module">
+console.log('[SECTIONS] Script started');
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { renderLayout, showToast } from './admin.js';
+
+console.log('[SECTIONS] Imports loaded');
 
 const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.firebasestorage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
 const app = initializeApp(config);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+console.log('[SECTIONS] Firebase initialized');
+
 document.getElementById('adminLayout').innerHTML = renderLayout('sections', 'Sections Editor');
+console.log('[SECTIONS] Layout rendered');
 
 let currentLang = 'bm';
 let cache = { bm: {}, en: {} };
@@ -33,16 +40,44 @@ let cache = { bm: {}, en: {} };
 const FIELDS = ['alertBar','heroLine1','heroLine2','heroPrice','kredibiliti','bantuTitle','videoUrl','pakejTitle','pakejNote','pakejCtaText','pakejCtaUrl','feedbackTitle','feedbackSub','blogTeaserTitle'];
 const LIST_FIELDS = ['bantuItems', 'pakejItems'];
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = 'index.html'; return; }
-  document.getElementById('adminUserName').textContent = user.displayName || 'Admin';
-  document.getElementById('adminUserEmail').textContent = user.email;
-  document.getElementById('adminAvatar').textContent = (user.displayName || 'A').charAt(0).toUpperCase();
-  document.getElementById('adminLogoutBtn').onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
-  document.getElementById('adminMenuToggle').onclick = () => document.getElementById('adminSidebar').classList.toggle('open');
+// Inject form styles
+const style = document.createElement('style');
+style.textContent = `
+  .fld-label { display:block; font-size:11px; font-weight:700; color:#666; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
+  .fld-label:first-of-type { margin-top:0; }
+  .fld-input, .fld-textarea { width:100%; padding:11px 14px; border:1.5px solid #e5e5e5; border-radius:8px; font-size:14px; font-family:inherit; background:#f9fafb; transition:0.2s; box-sizing:border-box; }
+  .fld-input:focus, .fld-textarea:focus { outline:none; border-color:#E31E24; background:#fff; }
+  .fld-textarea { resize:vertical; font-family:'Courier New',monospace; font-size:13px; }
+  .lang-tab { padding:10px 20px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .lang-tab.active { border:2px solid #1a1a1a; background:#1a1a1a; color:#fff; }
+  .lang-tab:not(.active) { border:2px solid #e5e5e5; background:#fff; color:#1a1a1a; }
+`;
+document.head.appendChild(style);
 
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+onAuthStateChanged(auth, async (user) => {
+  console.log('[SECTIONS] onAuthStateChanged:', user?.email);
+  if (!user) { window.location.href = 'index.html'; return; }
+  
+  const uName = document.getElementById('adminUserName');
+  const uEmail = document.getElementById('adminUserEmail');
+  const uAvatar = document.getElementById('adminAvatar');
+  const logoutBtn = document.getElementById('adminLogoutBtn');
+  const menuToggle = document.getElementById('adminMenuToggle');
+  
+  if (uName) uName.textContent = user.displayName || 'Admin';
+  if (uEmail) uEmail.textContent = user.email;
+  if (uAvatar) uAvatar.textContent = (user.displayName || 'A').charAt(0).toUpperCase();
+  if (logoutBtn) logoutBtn.onclick = async () => { await signOut(auth); window.location.href = 'index.html'; };
+  if (menuToggle) menuToggle.onclick = () => document.getElementById('adminSidebar').classList.toggle('open');
+
+  console.log('[SECTIONS] Loading lang data...');
   await loadLang('bm');
   await loadLang('en');
+  console.log('[SECTIONS] Loaded:', cache);
   renderForm();
 });
 
@@ -50,14 +85,19 @@ async function loadLang(lang) {
   try {
     const snap = await get(ref(db, 'sections/' + lang));
     cache[lang] = snap.val() || {};
+    console.log(`[SECTIONS] ${lang}:`, cache[lang]);
   } catch (err) {
+    console.error(`[SECTIONS] Load ${lang} error:`, err);
     showToast('Ralat load ' + lang + ': ' + err.message, 'error');
   }
 }
 
 function renderForm() {
   const main = document.getElementById('adminMain');
+  if (!main) { console.error('[SECTIONS] adminMain not found'); return; }
+  
   const data = cache[currentLang] || {};
+  console.log('[SECTIONS] Rendering form for', currentLang);
 
   main.innerHTML = `
     <div class="admin-page-header">
@@ -65,12 +105,12 @@ function renderForm() {
         <h2>Sections Editor</h2>
         <p>Edit kandungan homepage — BM & English</p>
       </div>
-      <button onclick="saveAll()" id="saveBtn" style="padding:12px 24px;background:#E31E24;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Simpan Semua</button>
+      <button id="saveBtn" type="button" style="padding:12px 24px;background:#E31E24;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">💾 Simpan Semua</button>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:20px;">
-      <button onclick="switchLang('bm')" class="lang-tab ${currentLang==='bm'?'active':''}" style="padding:10px 20px;border:2px solid ${currentLang==='bm'?'#1a1a1a':'#e5e5e5'};background:${currentLang==='bm'?'#1a1a1a':'#fff'};color:${currentLang==='bm'?'#fff':'#1a1a1a'};border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🇲🇾 BM</button>
-      <button onclick="switchLang('en')" class="lang-tab ${currentLang==='en'?'active':''}" style="padding:10px 20px;border:2px solid ${currentLang==='en'?'#1a1a1a':'#e5e5e5'};background:${currentLang==='en'?'#1a1a1a':'#fff'};color:${currentLang==='en'?'#fff':'#1a1a1a'};border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🇬🇧 EN</button>
+      <button type="button" id="tabBm" class="lang-tab ${currentLang==='bm'?'active':''}">🇲🇾 BM</button>
+      <button type="button" id="tabEn" class="lang-tab ${currentLang==='en'?'active':''}">🇬🇧 EN</button>
     </div>
 
     <div class="admin-card">
@@ -92,76 +132,65 @@ function renderForm() {
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">⭐ Kredibiliti</h3>
       <label class="fld-label">Ayat</label>
-      <textarea class="fld-textarea" id="kredibiliti" rows="2" placeholder="Kredibiliti bermula dengan...">${esc(data.kredibiliti||'')}</textarea>
+      <textarea class="fld-textarea" id="kredibiliti" rows="2">${esc(data.kredibiliti||'')}</textarea>
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">✅ Bantu</h3>
-      <label class="fld-label">Tajuk (pisah baris guna "|")</label>
-      <input type="text" class="fld-input" id="bantuTitle" value="${esc(data.bantuTitle||'')}" placeholder="JADIKAN PERNIAGAAN ANDA|LEBIH DIPERCAYAI">
+      <label class="fld-label">Tajuk (pisah dengan "|")</label>
+      <input type="text" class="fld-input" id="bantuTitle" value="${esc(data.bantuTitle||'')}">
       <label class="fld-label">List (satu per baris)</label>
-      <textarea class="fld-textarea" id="bantuItems" rows="6" placeholder="Item 1&#10;Item 2">${(data.bantuItems||[]).join('\n')}</textarea>
+      <textarea class="fld-textarea" id="bantuItems" rows="6">${(data.bantuItems||[]).join('\n')}</textarea>
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">🎬 Video</h3>
       <label class="fld-label">Video URL</label>
-      <input type="url" class="fld-input" id="videoUrl" value="${esc(data.videoUrl||'')}" placeholder="https://... atau assets/video/videohero.mp4">
+      <input type="url" class="fld-input" id="videoUrl" value="${esc(data.videoUrl||'')}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💰 Pakej</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="pakejTitle" value="${esc(data.pakejTitle||'')}" placeholder="RM99 — ALL IN">
+      <input type="text" class="fld-input" id="pakejTitle" value="${esc(data.pakejTitle||'')}">
       <label class="fld-label">List (satu per baris)</label>
       <textarea class="fld-textarea" id="pakejItems" rows="10">${(data.pakejItems||[]).join('\n')}</textarea>
       <label class="fld-label">Note</label>
-      <input type="text" class="fld-input" id="pakejNote" value="${esc(data.pakejNote||'')}" placeholder="Tiada kos tersembunyi...">
+      <input type="text" class="fld-input" id="pakejNote" value="${esc(data.pakejNote||'')}">
       <label class="fld-label">CTA Text</label>
-      <input type="text" class="fld-input" id="pakejCtaText" value="${esc(data.pakejCtaText||'')}" placeholder="Tempah Sekarang">
+      <input type="text" class="fld-input" id="pakejCtaText" value="${esc(data.pakejCtaText||'')}">
       <label class="fld-label">CTA URL</label>
-      <input type="url" class="fld-input" id="pakejCtaUrl" value="${esc(data.pakejCtaUrl||'')}" placeholder="https://wa.me/60172131814">
+      <input type="url" class="fld-input" id="pakejCtaUrl" value="${esc(data.pakejCtaUrl||'')}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">💬 Feedback</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="feedbackTitle" value="${esc(data.feedbackTitle||'')}" placeholder="Hantar Maklum Balas">
+      <input type="text" class="fld-input" id="feedbackTitle" value="${esc(data.feedbackTitle||'')}">
       <label class="fld-label">Subtitle</label>
-      <input type="text" class="fld-input" id="feedbackSub" value="${esc(data.feedbackSub||'')}" placeholder="Pendapat anda membantu kami...">
+      <input type="text" class="fld-input" id="feedbackSub" value="${esc(data.feedbackSub||'')}">
     </div>
 
     <div class="admin-card">
       <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 16px;">📰 Blog Teaser</h3>
       <label class="fld-label">Tajuk</label>
-      <input type="text" class="fld-input" id="blogTeaserTitle" value="${esc(data.blogTeaserTitle||'')}" placeholder="Artikel Terkini">
+      <input type="text" class="fld-input" id="blogTeaserTitle" value="${esc(data.blogTeaserTitle||'')}">
     </div>
   `;
 
-  // Inject styles
-  if (!document.getElementById('sectionFormStyles')) {
-    const s = document.createElement('style');
-    s.id = 'sectionFormStyles';
-    s.textContent = `
-      .fld-label { display:block; font-size:11px; font-weight:700; color:#666; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
-      .fld-label:first-of-type { margin-top:0; }
-      .fld-input, .fld-textarea { width:100%; padding:11px 14px; border:1.5px solid #e5e5e5; border-radius:8px; font-size:14px; font-family:inherit; background:#f9fafb; transition:0.2s; box-sizing:border-box; }
-      .fld-input:focus, .fld-textarea:focus { outline:none; border-color:#E31E24; background:#fff; }
-      .fld-textarea { resize:vertical; font-family:'Courier New',monospace; font-size:13px; }
-    `;
-    document.head.appendChild(s);
-  }
+  // Attach listeners AFTER render
+  document.getElementById('saveBtn').addEventListener('click', saveAll);
+  document.getElementById('tabBm').addEventListener('click', () => switchLang('bm'));
+  document.getElementById('tabEn').addEventListener('click', () => switchLang('en'));
+  
+  console.log('[SECTIONS] Form rendered, button attached');
 }
 
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-window.switchLang = (lang) => {
+function switchLang(lang) {
   collectForm();
   currentLang = lang;
   renderForm();
-};
+}
 
 function collectForm() {
   const data = cache[currentLang] || {};
@@ -176,21 +205,36 @@ function collectForm() {
   cache[currentLang] = data;
 }
 
-window.saveAll = async () => {
+async function saveAll() {
+  console.log('[SECTIONS] saveAll clicked');
   collectForm();
+  console.log('[SECTIONS] Data to save:', cache);
+  
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.textContent = 'Menyimpan...';
+  
   try {
+    console.log('[SECTIONS] Saving BM...');
     await set(ref(db, 'sections/bm'), cache.bm);
+    console.log('[SECTIONS] BM saved');
+    
+    console.log('[SECTIONS] Saving EN...');
     await set(ref(db, 'sections/en'), cache.en);
+    console.log('[SECTIONS] EN saved');
+    
     showToast('✅ Semua section disimpan!', 'success');
   } catch (err) {
+    console.error('[SECTIONS] Save error:', err);
     showToast('Ralat: ' + err.message, 'error');
   }
+  
   btn.disabled = false;
   btn.textContent = '💾 Simpan Semua';
-};
+}
+
+window.saveAll = saveAll;
+window.switchLang = switchLang;
 </script>
 </body>
 </html>
