@@ -2,405 +2,49 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>404 — Halaman Tidak Dijumpai | hairiamri.buzz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hairiamri.buzz — Penyelenggaraan</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="assets/logoUtama/logoUtama.png">
 <style>
-/* ============================================
-   RESET OVERRIDE — elak konflik dengan style.css
-   ============================================ */
-html, body {
-  padding: 0 !important;
-  margin: 0 !important;
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
-body {
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-/* ============================================
-   HEADER — sticky & proper z-index
-   ============================================ */
-.main-nav {
-  position: sticky !important;
-  top: 0;
-  z-index: 1000;
-  flex-shrink: 0;
-}
-
-.divider-bar {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 999;
-}
-
-/* ============================================
-   404 SECTION — flex fill remaining space
-   ============================================ */
-.error-section {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px 60px;
-  position: relative;
-  overflow: hidden;
-  min-height: 0;
-  isolation: isolate;
-}
-
-.error-content {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* ============================================
-   BACKGROUND DECORATION — blob halus
-   ============================================ */
-.error-section::before,
-.error-section::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.12;
-  pointer-events: none;
-  z-index: 0;
-}
-.error-section::before {
-  width: 260px;
-  height: 260px;
-  background: #E31E24;
-  top: 0;
-  left: -80px;
-  animation: floatBlob 8s ease-in-out infinite;
-}
-.error-section::after {
-  width: 320px;
-  height: 320px;
-  background: #1a1a1a;
-  bottom: 0;
-  right: -100px;
-  animation: floatBlob 10s ease-in-out infinite reverse;
-}
-@keyframes floatBlob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(20px, -20px) scale(1.1); }
-}
-
-/* ============================================
-   ICON — pulse effect
-   ============================================ */
-.error-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #fef2f2;
-  color: #E31E24;
-  margin-bottom: 20px;
-  animation: pulseIcon 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-.error-icon svg {
-  width: 26px;
-  height: 26px;
-}
-@keyframes pulseIcon {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(227,30,36,0.3);
-  }
-  50% {
-    transform: scale(1.06);
-    box-shadow: 0 0 0 12px rgba(227,30,36,0);
-  }
-}
-
-/* ============================================
-   404 TEXT — responsive + glitch via text-shadow
-   ============================================ */
-.error-404 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(72px, 22vw, 140px);
-  font-weight: 900;
-  line-height: 0.9;
-  letter-spacing: -0.05em;
-  color: #1a1a1a;
-  margin: 0 0 16px 0;
-  padding: 0;
-  display: block;
-  text-align: center;
-  animation: float404 4s ease-in-out infinite, glitchText 3.5s infinite;
-  will-change: transform, text-shadow;
-  user-select: none;
-}
-@keyframes float404 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-@keyframes glitchText {
-  0%, 88%, 100% { text-shadow: 0 0 0 transparent; }
-  90% { text-shadow: -3px 0 0 #E31E24, 3px 0 0 #1a1a1a; }
-  92% { text-shadow: 3px 0 0 #E31E24, -3px 0 0 #1a1a1a; }
-  94% { text-shadow: -2px 0 0 #E31E24, 2px 0 0 #1a1a1a; }
-  96% { text-shadow: 2px 0 0 #E31E24; }
-  98% { text-shadow: -1px 0 0 #E31E24; }
-}
-
-/* ============================================
-   TEXT CONTENT
-   ============================================ */
-.error-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(22px, 6vw, 30px);
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  margin: 0 0 12px 0;
-  padding: 0;
-}
-
-.error-desc {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(14px, 3.5vw, 15px);
-  color: #666;
-  line-height: 1.6;
-  max-width: 420px;
-  margin: 0 auto 32px;
-  padding: 0 4px;
-}
-
-/* ============================================
-   BUTTONS — proper alignment
-   ============================================ */
-.error-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-}
-
-.btn-404-primary,
-.btn-404-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 26px;
-  border-radius: 100px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: 0.25s;
-  cursor: pointer;
-  border: none;
-  white-space: nowrap;
-  min-height: 48px;
-  box-sizing: border-box;
-}
-
-.btn-404-primary {
-  background: #E31E24;
-  color: #ffffff;
-  box-shadow: 0 8px 20px rgba(227,30,36,0.3);
-}
-.btn-404-primary:hover {
-  background: #c4161c;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(227,30,36,0.4);
-}
-.btn-404-primary:active {
-  transform: translateY(0);
-}
-
-.btn-404-outline {
-  background: transparent;
-  color: #1a1a1a;
-  border: 1.5px solid #1a1a1a;
-}
-.btn-404-outline:hover {
-  background: #1a1a1a;
-  color: #ffffff;
-  transform: translateY(-2px);
-}
-.btn-404-outline:active {
-  transform: translateY(0);
-}
-
-.btn-404-primary svg,
-.btn-404-outline svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-/* ============================================
-   TABLET (>= 640px)
-   ============================================ */
-@media (min-width: 640px) {
-  .error-section {
-    padding: 60px 40px 80px;
-  }
-  .error-content {
-    max-width: 600px;
-  }
-}
-
-/* ============================================
-   MOBILE (<= 600px)
-   ============================================ */
-@media (max-width: 600px) {
-  .error-section {
-    padding: 32px 18px 48px;
-    align-items: flex-start;
-  }
-  .error-content {
-    padding-top: 16px;
-  }
-  .error-icon {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-  }
-  .error-icon svg {
-    width: 22px;
-    height: 22px;
-  }
-  .error-404 {
-    margin-bottom: 12px;
-  }
-  .error-desc {
-    margin-bottom: 26px;
-  }
-  .error-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    max-width: 280px;
-    margin: 0 auto;
-  }
-  .btn-404-primary,
-  .btn-404-outline {
-    width: 100%;
-    padding: 14px 20px;
-  }
-}
-
-/* ============================================
-   SMALL MOBILE (<= 380px)
-   ============================================ */
-@media (max-width: 380px) {
-  .error-404 {
-    letter-spacing: -0.06em;
-  }
-  .error-desc {
-    font-size: 13px;
-  }
-}
-
-/* ============================================
-   HIDE FLOATING ELEMENTS dari style.css
-   ============================================ */
-.wa-float,
-.bottom-nav,
-.profile-link,
-.arrow-btn {
-  /* Jangan render pada 404 (kalau ada dalam cache atau HTML) */
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eeeeee;color:#222222;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+header{padding:24px;display:flex;justify-content:center}
+.brand{display:inline-flex;align-items:center;text-decoration:none}
+.brand img{height:40px;width:auto;display:block}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{max-width:560px;width:100%;background:#ffffff;border-radius:12px;padding:48px 40px;text-align:center}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#555555;margin-bottom:24px}
+.status i{width:8px;height:8px;border-radius:50%;background:#f0b400;display:inline-block;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-size:30px;font-weight:700;letter-spacing:-0.03em;line-height:1.2;margin-bottom:20px;color:#222222}
+p{font-size:15px;line-height:1.7;color:#555555;margin-bottom:14px}
+p:last-of-type{margin-bottom:0}
+.contact{margin-top:32px;padding-top:24px;border-top:1px solid rgba(34,34,34,0.1);font-size:13px;color:#555555;line-height:1.6}
+.contact a{color:#222222;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(34,34,34,0.2)}
+.contact a:hover{border-bottom-color:#222222}
+footer{padding:24px;text-align:center;font-size:11px;letter-spacing:0.02em;color:#888888}
+footer a{color:#555555;text-decoration:none}
+footer a:hover{color:#222222}
+@media (max-width:480px){.box{padding:36px 24px}h1{font-size:22px}.brand img{height:32px}}
 </style>
 </head>
 <body>
-
-<header class="main-nav">
-  <div class="nav-left">
-    <div class="hamburger" onclick="window.location.href='index.html'">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-    <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="logo-img">
-  </div>
-
-  <div class="nav-center">
-    <div class="lang-switch">
-      <button class="lang-btn active" data-lang="bm" onclick="window.location.href='index.html'">BM</button>
-      <span class="lang-divider">|</span>
-      <button class="lang-btn" data-lang="en" onclick="window.location.href='index.html'">EN</button>
-    </div>
-  </div>
-
-  <div class="nav-right">
-    <a href="index.html" class="arrow-btn" aria-label="Balik ke Utama">
-      <svg class="arrow-icon" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0,95 C0,95 5,60 25,45 C40,34 60,34 75,34 L75,10 L100,45 L75,80 L75,55 C60,55 45,55 35,62 C22,70 15,85 15,85 C12,90 8,95 0,95 Z"/>
-      </svg>
-    </a>
-  </div>
+<header>
+<a href="/" class="brand">
+<img src="assets/logoUtama/logoUtama.png" alt="hairiamri.buzz">
+</a>
 </header>
-
-<div class="divider-bar">
-  <div class="rgb-line"></div>
+<main>
+<div class="box">
+<div class="status"><i></i>Penyelenggaraan</div>
+<h1>Laman ini sedang menjalani penyelenggaraan berjadual.</h1>
+<p>Kami sedang melaksanakan kerja penyelenggaraan bagi meningkatkan kualiti perkhidmatan. Akses kepada laman ini akan dipulihkan dalam masa terdekat.</p>
+<p>Kami memohon maaf atas sebarang kesulitan yang timbul.</p>
+<div class="contact">Untuk pertanyaan lanjut, sila hubungi kami di <a href="mailto:support@hairiamri.buzz">support@hairiamri.buzz</a></div>
 </div>
-
-<section class="error-section">
-  <div class="error-content">
-
-    <div class="error-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    </div>
-
-    <h1 class="error-404">404</h1>
-    <h2 class="error-title">Halaman Tidak Dijumpai</h2>
-    <p class="error-desc">Maaf, halaman yang anda cari tidak wujud atau telah dipindahkan. Sila periksa URL atau kembali ke halaman utama.</p>
-
-    <div class="error-actions">
-      <a href="index.html" class="btn-404-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"/>
-          <polyline points="12 19 5 12 12 5"/>
-        </svg>
-        Balik ke Utama
-      </a>
-      <a href="https://wa.me/60172131814" target="_blank" rel="noopener" class="btn-404-outline">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-        Hubungi Kami
-      </a>
-    </div>
-
-  </div>
-</section>
-
+</main>
+<footer>© <span id="y"></span> <a href="https://hairiamri.buzz">hairiamri.buzz</a></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
 </body>
 </html>
