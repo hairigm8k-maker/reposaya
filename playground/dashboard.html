@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dashboard — Playground</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/playground/playground.css">
+</head>
+<body class="pg-dash-body">
+
+<div class="pg-testing-banner" style="background:linear-gradient(90deg,#f59e0b 0%,#d97706 100%);color:#fff;padding:10px 16px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;line-height:1.4;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  Under testing — Playground masih dalam fasa uji coba, sila coba lagi, terima kasih diatas kerjasama anda
+</div>
+
+<header class="pg-dash-header">
+  <img src="../assets/logoUtama/logoUtama.png" alt="hairiamri.buzz" class="pg-logo">
+  <div class="pg-user-info">
+    <span class="pg-user-name" id="userName">—</span>
+    <button id="logoutBtn" class="pg-btn-sm">Log Keluar</button>
+  </div>
+</header>
+
+<main class="pg-dash-wrap">
+
+  <div class="pg-dash-stats">
+    <div class="pg-stat-card">
+      <div class="pg-stat-label">Website Aktif</div>
+      <div class="pg-stat-value"><span id="siteCount">0</span> / <span id="siteLimit">5</span></div>
+    </div>
+    <div class="pg-stat-card">
+      <div class="pg-stat-label">Plan</div>
+      <div class="pg-stat-value" style="font-size:18px;color:#E31E24;font-weight:800;">FREE</div>
+    </div>
+  </div>
+
+  <div class="pg-dash-actions">
+    <h2 class="pg-dash-title">Website Saya</h2>
+    <a href="new.html" class="pg-btn-primary pg-btn-sm" id="btnNew">+ Website Baru</a>
+  </div>
+
+  <div id="sitesList" class="pg-sites-list">
+    <p class="pg-loading">Loading...</p>
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const config = { apiKey:"AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k", authDomain:"fikri-2a880.firebaseapp.com", databaseURL:"https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app", projectId:"fikri-2a880", storageBucket:"fikri-2a880.storage.app", messagingSenderId:"844408547984", appId:"1:844408547984:web:63336207d709bb9f090615" };
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentUser = null;
+const MAX_SITES = 5;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  // Load user data
+  const userSnap = await get(ref(db, 'playgroundUsers/' + user.uid));
+  const userData = userSnap.val();
+  document.getElementById('userName').textContent = userData?.name || user.email || 'User';
+
+  // Load websites
+  loadWebsites(user.uid);
+});
+
+document.getElementById('logoutBtn').onclick = async () => {
+  await signOut(auth);
+  window.location.href = 'login.html';
+};
+
+function loadWebsites(uid) {
+  const list = document.getElementById('sitesList');
+  const sitesRef = ref(db, 'websites');
+
+  onValue(sitesRef, (snap) => {
+    const all = snap.val() || {};
+    const sites = Object.entries(all)
+      .map(([id, s]) => ({ id, ...s }))
+      .filter(s => s.uid === uid)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    document.getElementById('siteCount').textContent = sites.length;
+    document.getElementById('siteLimit').textContent = MAX_SITES;
+
+    // Disable button kalau dah max
+    const btn = document.getElementById('btnNew');
+    if (sites.length >= MAX_SITES) {
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      btn.textContent = '⚠️ Limit Dicapai';
+    }
+
+    if (sites.length === 0) {
+      list.innerHTML = `
+        <div class="pg-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;color:#444;margin-bottom:16px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <h3>Belum ada website</h3>
+          <p>Klik "+ Website Baru" untuk mula paste HTML anda.</p>
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = sites.map(s => {
+      const url = s.type === 'subdomain'
+        ? `https://${s.slug}.hairiamri.buzz`
+        : `https://hairiamri.buzz/p/${s.slug}`;
+      const statusBadge = s.published
+        ? '<span class="pg-badge-live">LIVE</span>'
+        : '<span class="pg-badge-draft">DRAFT</span>';
+
+      return `
+        <div class="pg-site-card">
+          <div class="pg-site-head">
+            <div>
+              <h3>${s.name || 'Tanpa Nama'} ${statusBadge}</h3>
+              <a href="${url}" target="_blank" class="pg-site-url">${url.replace('https://','')} ↗</a>
+            </div>
+            <div class="pg-site-actions">
+              <a href="edit.html?id=${s.id}" class="pg-btn-sm">Edit</a>
+              <button onclick="deleteSite('${s.id}', '${(s.name||'').replace(/'/g, "\\'")}')" class="pg-btn-sm pg-btn-danger">Padam</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+window.deleteSite = async (id, name) => {
+  if (!confirm(`Padam website "${name}"? Tindakan ini tak boleh diundur.`)) return;
+  try {
+    await remove(ref(db, 'websites/' + id));
+  } catch (err) {
+    alert('Ralat: ' + err.message);
+  }
+};
+</script>
+</body>
+</html>
