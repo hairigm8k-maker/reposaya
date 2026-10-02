@@ -1,0 +1,49 @@
+# ============================================
+# SECURITY HEADERS — hairiamri.buzz
+# Cloudflare Pages _headers format
+# https://developers.cloudflare.com/pages/configuration/headers/
+# ============================================
+
+/*
+  # --- Security ---
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  X-XSS-Protection: 1; mode=block
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # --- Content Security Policy ---
+  # Whitelist semua CDN yang digunakan
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https://cloudflareinsights.com https://*.cloudflare.com https://wa.me; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://script.google.com https://wa.me
+
+# ============================================
+# Jangan apply security headers pada admin
+# (untuk elak konflik tools admin)
+# ============================================
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+
+# ============================================
+# Debug page — jangan index
+# ============================================
+/debug-hairiamri-2026.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+# ============================================
+# Cache control untuk static assets
+# ============================================
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=604800
+
+/*.js
+  Cache-Control: public, max-age=604800
+
+# ============================================
+# HTML — no cache supaya changes cepat live
+# ============================================
+/*.html
+  Cache-Control: public, max-age=300, must-revalidate
