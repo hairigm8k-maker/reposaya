@@ -21,15 +21,16 @@
 
 #ai-chat-panel {
   position: fixed;
-  bottom: 172px;
-  right: 20px;
-  width: 360px;
-  max-width: calc(100vw - 40px);
-  height: 520px;
-  max-height: calc(100vh - 220px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(.95);
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  height: 540px;
+  max-height: calc(100vh - 80px);
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -37,23 +38,54 @@
   font-family: 'Inter', system-ui, sans-serif;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(20px);
   transition: opacity .25s ease, transform .25s ease;
 }
 #ai-chat-panel.open {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translate(-50%, -50%) scale(1);
 }
+#ai-chat-panel.dragging {
+  transition: none;
+  user-select: none;
+}
+#ai-chat-panel.dragged {
+  transform: none;
+}
+#ai-chat-panel.dragged.open {
+  transform: none;
+}
+
 .ai-chat-head {
   background: #111;
   color: #fff;
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   font-weight: 600;
   font-size: 15px;
+  cursor: grab;
+  touch-action: none;
+}
+.ai-chat-head:active { cursor: grabbing; }
+.ai-chat-head-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #fff;
+  flex-shrink: 0;
+}
+.ai-chat-head-info {
+  flex: 1;
+  min-width: 0;
+}
+.ai-chat-head-info span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ai-chat-head small {
   display: block;
@@ -70,6 +102,7 @@
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
+  flex-shrink: 0;
 }
 .ai-chat-body {
   flex: 1;
@@ -165,7 +198,17 @@
   background: #fafafa;
 }
 .ai-chat-wa:hover { color: #111; }
+
 @media (max-width: 480px) {
-  #ai-chat-panel { right: 10px; left: 10px; width: auto; bottom: 165px; }
+  #ai-chat-panel {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 120px);
+    top: 60px;
+    left: 12px;
+    transform: none;
+  }
+  #ai-chat-panel.open {
+    transform: none;
+  }
   #ai-chat-bubble { right: 16px; bottom: 90px; }
 }

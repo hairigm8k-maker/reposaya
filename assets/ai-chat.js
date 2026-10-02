@@ -3,6 +3,7 @@
   window.__aiChatLoaded = true;
 
   const WA_LINK = 'https://wa.me/60172131814';
+  const LOGO = 'assets/logoUtama/logoUtama.png';
   let history = [];
 
   function getLang() {
@@ -18,8 +19,9 @@
   const panel = document.createElement('div');
   panel.id = 'ai-chat-panel';
   panel.innerHTML = `
-    <div class="ai-chat-head">
-      <div>
+    <div class="ai-chat-head" id="ai-chat-head">
+      <img src="${LOGO}" alt="Logo" class="ai-chat-head-logo">
+      <div class="ai-chat-head-info">
         <span data-ai-title>CS Assistant</span>
         <small data-ai-sub>Biasanya reply dalam beberapa saat</small>
       </div>
@@ -36,9 +38,93 @@
   document.body.appendChild(bubble);
   document.body.appendChild(panel);
 
+  const head = panel.querySelector('#ai-chat-head');
   const body = panel.querySelector('#ai-chat-body');
   const input = panel.querySelector('#ai-chat-input');
   const sendBtn = panel.querySelector('#ai-chat-send');
+
+  // ===== DRAG LOGIC =====
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let startLeft = 0, startTop = 0;
+
+  function getPanelPos() {
+    const r = panel.getBoundingClientRect();
+    return { left: r.left, top: r.top, width: r.width, height: r.height };
+  }
+
+  function onDragStart(x, y) {
+    const pos = getPanelPos();
+    // Freeze position as pixel values
+    panel.style.left = pos.left + 'px';
+    panel.style.top = pos.top + 'px';
+    panel.style.transform = 'none';
+    panel.classList.add('dragged', 'dragging');
+
+    startX = x;
+    startY = y;
+    startLeft = pos.left;
+    startTop = pos.top;
+    isDragging = true;
+  }
+
+  function onDragMove(x, y) {
+    if (!isDragging) return;
+    const dx = x - startX;
+    const dy = y - startY;
+    const w = panel.offsetWidth;
+    const h = panel.offsetHeight;
+
+    let newLeft = startLeft + dx;
+    let newTop = startTop + dy;
+
+    // Keep in viewport
+    newLeft = Math.max(4, Math.min(window.innerWidth - w - 4, newLeft));
+    newTop = Math.max(4, Math.min(window.innerHeight - h - 4, newTop));
+
+    panel.style.left = newLeft + 'px';
+    panel.style.top = newTop + 'px';
+  }
+
+  function onDragEnd() {
+    isDragging = false;
+    panel.classList.remove('dragging');
+  }
+
+  // Mouse
+  head.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.ai-chat-close')) return;
+    e.preventDefault();
+    onDragStart(e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) onDragMove(e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseup', onDragEnd);
+
+  // Touch
+  head.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.ai-chat-close')) return;
+    const t0 = e.touches[0];
+    onDragStart(t0.clientX, t0.clientY);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging) {
+      const t0 = e.touches[0];
+      onDragMove(t0.clientX, t0.clientY);
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', onDragEnd);
+
+  // Reset position bila close
+  function resetPosition() {
+    panel.classList.remove('dragged');
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.style.transform = '';
+  }
+
+  // ===== END DRAG =====
 
   function updateLang() {
     panel.querySelector('[data-ai-sub]').textContent = t('Biasanya reply dalam beberapa saat', 'Usually replies in seconds');
@@ -95,6 +181,7 @@
   }
 
   bubble.addEventListener('click', () => {
+    resetPosition();
     panel.classList.add('open');
     updateLang();
     setTimeout(() => input.focus(), 250);
@@ -105,7 +192,10 @@
       ), 'bot');
     }
   });
-  panel.querySelector('.ai-chat-close').addEventListener('click', () => panel.classList.remove('open'));
+  panel.querySelector('.ai-chat-close').addEventListener('click', () => {
+    panel.classList.remove('open');
+    resetPosition();
+  });
   sendBtn.addEventListener('click', send);
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
