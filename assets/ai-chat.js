@@ -5,11 +5,17 @@
   const WA_LINK = 'https://wa.me/60172131814';
   const LOGO = 'assets/logoUtama/logoUtama.png';
   let history = [];
+  let heroShown = true;
 
   function getLang() {
     return document.documentElement.dataset.currentLang === 'en' ? 'en' : 'bm';
   }
   function t(bm, en) { return getLang() === 'en' ? en : bm; }
+
+  const suggestions = {
+    bm: ['Berapa harga?', 'Cara nak order', 'Berapa hari siap?', 'Ada portfolio?'],
+    en: ['How much?', 'How to order', 'Delivery time?', 'Portfolio?']
+  };
 
   const bubble = document.createElement('button');
   bubble.id = 'ai-chat-bubble';
@@ -21,123 +27,74 @@
   panel.innerHTML = `
     <div class="ai-chat-head" id="ai-chat-head">
       <img src="${LOGO}" alt="Logo" class="ai-chat-head-logo">
-      <div class="ai-chat-head-info">
-        <span data-ai-title>CS Assistant</span>
-        <small data-ai-sub>Biasanya reply dalam beberapa saat</small>
-      </div>
+      <div class="ai-chat-title">hairiamri.buzz</div>
       <button class="ai-chat-close" aria-label="Close">✕</button>
     </div>
-    <div class="ai-chat-body" id="ai-chat-body"></div>
-    <div class="ai-chat-foot">
-      <textarea class="ai-chat-input" id="ai-chat-input" rows="1" placeholder="Taip mesej..."></textarea>
-      <button class="ai-chat-send" id="ai-chat-send">→</button>
+    <div class="ai-chat-body" id="ai-chat-body">
+      <div class="ai-chat-hero" id="ai-chat-hero">
+        <div class="ai-orb"></div>
+        <h2 class="ai-chat-greet" data-greet>Hi! 👋</h2>
+        <p class="ai-chat-sub" data-sub>Bagaimana saya boleh bantu anda hari ini?</p>
+        <div class="ai-suggestions" id="ai-suggestions"></div>
+      </div>
+      <div class="ai-chat-messages" id="ai-chat-messages"></div>
     </div>
-    <a class="ai-chat-wa" href="${WA_LINK}" target="_blank" data-ai-wa>Chat dengan kami di WhatsApp →</a>
+    <div class="ai-chat-foot">
+      <button class="ai-chat-plus" aria-label="More" type="button">+</button>
+      <div class="ai-chat-input-wrap">
+        <textarea class="ai-chat-input" id="ai-chat-input" rows="1" placeholder="Taip mesej..."></textarea>
+        <button class="ai-chat-send" id="ai-chat-send" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+        </button>
+      </div>
+    </div>
+    <a class="ai-chat-wa-link" href="${WA_LINK}" target="_blank">${t('Atau chat kami di WhatsApp →', 'Or chat us on WhatsApp →')}</a>
   `;
 
   document.body.appendChild(bubble);
   document.body.appendChild(panel);
 
   const head = panel.querySelector('#ai-chat-head');
-  const body = panel.querySelector('#ai-chat-body');
+  const hero = panel.querySelector('#ai-chat-hero');
+  const messagesEl = panel.querySelector('#ai-chat-messages');
   const input = panel.querySelector('#ai-chat-input');
   const sendBtn = panel.querySelector('#ai-chat-send');
+  const suggestEl = panel.querySelector('#ai-suggestions');
+  const greetEl = panel.querySelector('[data-greet]');
+  const subEl = panel.querySelector('[data-sub]');
+  const waLink = panel.querySelector('.ai-chat-wa-link');
 
-  // ===== DRAG LOGIC =====
-  let isDragging = false;
-  let startX = 0, startY = 0;
-  let startLeft = 0, startTop = 0;
-
-  function getPanelPos() {
-    const r = panel.getBoundingClientRect();
-    return { left: r.left, top: r.top, width: r.width, height: r.height };
+  // ===== SUGGESTIONS =====
+  function renderSuggestions() {
+    suggestEl.innerHTML = '';
+    suggestions[getLang()].forEach(text => {
+      const btn = document.createElement('button');
+      btn.className = 'ai-suggestion';
+      btn.textContent = text;
+      btn.addEventListener('click', () => {
+        input.value = text;
+        send();
+      });
+      suggestEl.appendChild(btn);
+    });
   }
 
-  function onDragStart(x, y) {
-    const pos = getPanelPos();
-    // Freeze position as pixel values
-    panel.style.left = pos.left + 'px';
-    panel.style.top = pos.top + 'px';
-    panel.style.transform = 'none';
-    panel.classList.add('dragged', 'dragging');
-
-    startX = x;
-    startY = y;
-    startLeft = pos.left;
-    startTop = pos.top;
-    isDragging = true;
-  }
-
-  function onDragMove(x, y) {
-    if (!isDragging) return;
-    const dx = x - startX;
-    const dy = y - startY;
-    const w = panel.offsetWidth;
-    const h = panel.offsetHeight;
-
-    let newLeft = startLeft + dx;
-    let newTop = startTop + dy;
-
-    // Keep in viewport
-    newLeft = Math.max(4, Math.min(window.innerWidth - w - 4, newLeft));
-    newTop = Math.max(4, Math.min(window.innerHeight - h - 4, newTop));
-
-    panel.style.left = newLeft + 'px';
-    panel.style.top = newTop + 'px';
-  }
-
-  function onDragEnd() {
-    isDragging = false;
-    panel.classList.remove('dragging');
-  }
-
-  // Mouse
-  head.addEventListener('mousedown', (e) => {
-    if (e.target.closest('.ai-chat-close')) return;
-    e.preventDefault();
-    onDragStart(e.clientX, e.clientY);
-  });
-  document.addEventListener('mousemove', (e) => {
-    if (isDragging) onDragMove(e.clientX, e.clientY);
-  });
-  document.addEventListener('mouseup', onDragEnd);
-
-  // Touch
-  head.addEventListener('touchstart', (e) => {
-    if (e.target.closest('.ai-chat-close')) return;
-    const t0 = e.touches[0];
-    onDragStart(t0.clientX, t0.clientY);
-  }, { passive: true });
-  document.addEventListener('touchmove', (e) => {
-    if (isDragging) {
-      const t0 = e.touches[0];
-      onDragMove(t0.clientX, t0.clientY);
-    }
-  }, { passive: true });
-  document.addEventListener('touchend', onDragEnd);
-
-  // Reset position bila close
-  function resetPosition() {
-    panel.classList.remove('dragged');
-    panel.style.left = '';
-    panel.style.top = '';
-    panel.style.transform = '';
-  }
-
-  // ===== END DRAG =====
-
+  // ===== LANGUAGE =====
   function updateLang() {
-    panel.querySelector('[data-ai-sub]').textContent = t('Biasanya reply dalam beberapa saat', 'Usually replies in seconds');
-    panel.querySelector('[data-ai-wa]').textContent = t('Chat dengan kami di WhatsApp →', 'Chat with us on WhatsApp →');
+    greetEl.textContent = t('Hi! 👋', 'Hi! 👋');
+    subEl.textContent = t('Bagaimana saya boleh bantu anda hari ini?', 'How can I help you today?');
     input.placeholder = t('Taip mesej...', 'Type a message...');
+    waLink.textContent = t('Atau chat kami di WhatsApp →', 'Or chat us on WhatsApp →');
+    renderSuggestions();
   }
 
+  // ===== MESSAGES =====
   function addMsg(text, who) {
     const el = document.createElement('div');
     el.className = 'ai-msg ' + who;
     el.innerHTML = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-    body.appendChild(el);
-    body.scrollTop = body.scrollHeight;
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
     return el;
   }
   function showTyping() {
@@ -145,17 +102,24 @@
     el.className = 'ai-typing';
     el.id = 'ai-typing';
     el.innerHTML = '<span></span><span></span><span></span>';
-    body.appendChild(el);
-    body.scrollTop = body.scrollHeight;
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
   function hideTyping() {
     const el = document.getElementById('ai-typing');
     if (el) el.remove();
   }
 
+  function hideHero() {
+    if (!heroShown) return;
+    heroShown = false;
+    hero.classList.add('hide');
+  }
+
   async function send() {
     const msg = input.value.trim();
     if (!msg) return;
+    hideHero();
     addMsg(msg, 'user');
     history.push({ role: 'user', content: msg });
     input.value = '';
@@ -180,32 +144,82 @@
     input.focus();
   }
 
+  // ===== DRAG (desktop only) =====
+  let isDragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+  function isDesktop() { return window.innerWidth >= 520; }
+
+  head.addEventListener('mousedown', (e) => {
+    if (!isDesktop()) return;
+    if (e.target.closest('.ai-chat-close')) return;
+    e.preventDefault();
+    const r = panel.getBoundingClientRect();
+    panel.style.left = r.left + 'px';
+    panel.style.top = r.top + 'px';
+    panel.style.transform = 'none';
+    panel.classList.add('dragged', 'dragging');
+    startX = e.clientX; startY = e.clientY;
+    startLeft = r.left; startTop = r.top;
+    isDragging = true;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    let nl = startLeft + (e.clientX - startX);
+    let nt = startTop + (e.clientY - startY);
+    nl = Math.max(4, Math.min(window.innerWidth - w - 4, nl));
+    nt = Math.max(4, Math.min(window.innerHeight - h - 4, nt));
+    panel.style.left = nl + 'px';
+    panel.style.top = nt + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    panel.classList.remove('dragging');
+  });
+
+  function resetDrag() {
+    panel.classList.remove('dragged', 'dragging');
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.style.transform = '';
+  }
+
+  // ===== EVENTS =====
   bubble.addEventListener('click', () => {
-    resetPosition();
+    resetDrag();
     panel.classList.add('open');
     updateLang();
-    setTimeout(() => input.focus(), 250);
-    if (body.children.length === 0) {
-      addMsg(t(
-        `Hi! 👋 Saya AI assistant untuk hairiamri.buzz. Tanya apa-apa tentang servis landing page RM99 kami.`,
-        `Hi! 👋 I'm the AI assistant for hairiamri.buzz. Ask me anything about our RM99 landing page service.`
-      ), 'bot');
-    }
+    setTimeout(() => {
+      if (window.innerWidth >= 520) input.focus();
+    }, 300);
   });
+
   panel.querySelector('.ai-chat-close').addEventListener('click', () => {
     panel.classList.remove('open');
-    resetPosition();
+    resetDrag();
   });
+
+  panel.querySelector('.ai-chat-plus').addEventListener('click', () => {
+    // Reset conversation
+    if (messagesEl.children.length && confirm(t('Mula perbualan baru?', 'Start a new conversation?'))) {
+      messagesEl.innerHTML = '';
+      history = [];
+      heroShown = true;
+      hero.classList.remove('hide');
+    }
+  });
+
   sendBtn.addEventListener('click', send);
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   });
   input.addEventListener('input', () => {
     input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   });
 
   const observer = new MutationObserver(updateLang);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-current-lang'] });
+
   updateLang();
 })();
