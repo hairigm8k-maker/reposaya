@@ -1,1 +1,16 @@
-assets/video/videohero-original.mp4
+# Backup files
+*.orig
+*.pre-ai
+*.bak
+
+# Node
+node_modules/
+.wrangler/
+
+# Jangan commit folder backup
+reposaya/
+sdcard/
+
+# System
+.DS_Store
+*.log
