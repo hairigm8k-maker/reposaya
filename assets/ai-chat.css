@@ -278,27 +278,11 @@
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 10px 14px 14px;
+  padding: 10px 16px 14px;
   background: #050505;
   border-top: 1px solid rgba(255,255,255,.06);
   flex-shrink: 0;
 }
-.ai-chat-plus {
-  background: rgba(255,255,255,.08);
-  border: none;
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background .2s;
-}
-.ai-chat-plus:hover { background: rgba(255,255,255,.15); }
 .ai-chat-input-wrap {
   flex: 1;
   background: rgba(255,255,255,.06);

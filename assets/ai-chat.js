@@ -40,7 +40,6 @@
       <div class="ai-chat-messages" id="ai-chat-messages"></div>
     </div>
     <div class="ai-chat-foot">
-      <button class="ai-chat-plus" aria-label="More" type="button">+</button>
       <div class="ai-chat-input-wrap">
         <textarea class="ai-chat-input" id="ai-chat-input" rows="1" placeholder="Taip mesej..."></textarea>
         <button class="ai-chat-send" id="ai-chat-send" aria-label="Send">
@@ -197,16 +196,6 @@
   panel.querySelector('.ai-chat-close').addEventListener('click', () => {
     panel.classList.remove('open');
     resetDrag();
-  });
-
-  panel.querySelector('.ai-chat-plus').addEventListener('click', () => {
-    // Reset conversation
-    if (messagesEl.children.length && confirm(t('Mula perbualan baru?', 'Start a new conversation?'))) {
-      messagesEl.innerHTML = '';
-      history = [];
-      heroShown = true;
-      hero.classList.remove('hide');
-    }
   });
 
   sendBtn.addEventListener('click', send);
