@@ -1,6 +1,6 @@
 import { business } from './_data.js';
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct-fast';
+const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 function buildSystemPrompt(lang) {
   const b = business;
