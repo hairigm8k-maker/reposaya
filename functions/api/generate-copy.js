@@ -51,7 +51,7 @@ Context: ${type}
 Reply with JSON only.`;
 
     const response = await env.AI.run(
-      '@cf/meta/llama-3.2-11b-vision-instruct',
+      '@cf/llava-hf/llava-1.5-7b-hf',
       {
         messages: [
           {
