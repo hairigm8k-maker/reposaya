@@ -2507,6 +2507,10 @@ body.push-open .push-drawer {
 }
 
 .top-alert-close {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 10;
+  position: relative;
   position: absolute;
   right: 10px;
   top: 50%;

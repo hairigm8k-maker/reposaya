@@ -113,7 +113,14 @@
 </head>
 <body>
 
-
+<div class="top-alert" id="topAlert">
+  <span class="top-alert-text">
+    <span data-bm="Laman web ini baru dilancarkan. Sila luangkan masa untuk memberikan" data-en="This website has just launched. Please take a moment to provide">Laman web ini baru dilancarkan. Sila luangkan masa untuk memberikan</span>
+    <a href="#feedback" onclick="closeAlertAndScroll(event)" data-bm="maklum balas" data-en="feedback">maklum balas</a>
+    <span data-bm="— sumbangan anda amat kami hargai." data-en="— your contribution is greatly appreciated.">— sumbangan anda amat kami hargai.</span>
+  </span>
+  <button class="top-alert-close" onclick="closeAlert()" aria-label="Tutup">✕</button>
+</div>
 
 <header class="main-nav">
   <div class="nav-left">
@@ -762,7 +769,42 @@ gsap.utils.toArray([
 });
 </script>
 
+<script>
+function closeAlert() {
+  const alert = document.getElementById('topAlert');
+  if (alert) {
+    alert.style.height = alert.offsetHeight + 'px';
+    setTimeout(() => {
+      alert.style.height = '0';
+      alert.style.opacity = '0';
+      alert.style.paddingTop = '0';
+      alert.style.paddingBottom = '0';
+    }, 10);
+    setTimeout(() => { alert.style.display = 'none'; }, 400);
+    localStorage.setItem('alertDismissed_v2', 'true');
+  }
+}
 
+function closeAlertAndScroll(e) {
+  e.preventDefault();
+  closeAlert();
+  setTimeout(() => {
+    const target = document.querySelector('#feedback');
+    if (target) {
+      const y = target.getBoundingClientRect().top + window.pageYOffset - 40;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, 400);
+}
+
+// Auto-hide kalau dah dismiss sebelum ni
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('alertDismissed_v2') === 'true') {
+    const alert = document.getElementById('topAlert');
+    if (alert) alert.style.display = 'none';
+  }
+});
+</script>
 
 <script>
 const FEEDBACK_API = 'https://script.google.com/macros/s/AKfycbyDSmS57JpaW5KFoWI3OFgTB7_afAr5SWXJ3wLoozRE6QhxKO-PyaKDvs7JgCKOPynFEg/exec';
