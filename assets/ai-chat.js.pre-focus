@@ -123,8 +123,6 @@
     history.push({ role: 'user', content: msg });
     input.value = '';
     input.style.height = 'auto';
-    // Tutup keyboard kat mobile bila hantar mesej
-    if ('ontouchstart' in window) input.blur();
     sendBtn.disabled = true;
     showTyping();
     try {
@@ -142,6 +140,7 @@
       addMsg(t(`Maaf, ada masalah. Sila WhatsApp: ${WA_LINK}`, `Sorry, there's an issue. Please WhatsApp: ${WA_LINK}`), 'bot');
     }
     sendBtn.disabled = false;
+    input.focus();
   }
 
   // ===== DRAG (desktop only) =====
@@ -190,7 +189,7 @@
     panel.classList.add('open');
     updateLang();
     setTimeout(() => {
-      // Auto-focus dibuang — elak keyboard naik sendiri kat mobile
+      if (window.innerWidth >= 520) input.focus();
     }, 300);
   });
 
