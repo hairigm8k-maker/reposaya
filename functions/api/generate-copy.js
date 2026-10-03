@@ -59,7 +59,32 @@ Reply with JSON only.`;
       }
     );
 
-    const rawText = (response.response || '').trim();
+    // Robust response extraction — Llava & lain-lain boleh return format berbeza
+    let rawText = '';
+    if (typeof response === 'string') {
+      rawText = response;
+    } else if (response.response) {
+      rawText = String(response.response);
+    } else if (response.description) {
+      rawText = String(response.description);
+    } else if (response.generated_text) {
+      rawText = String(response.generated_text);
+    } else if (response.result) {
+      rawText = String(response.result);
+    } else {
+      // Fallback — dump seluruh response
+      rawText = JSON.stringify(response);
+    }
+    rawText = rawText.trim();
+
+    // Strip markdown code blocks
+    rawText = rawText
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/```\s*$/i, '')
+      .trim();
+
+    console.log('AI rawText:', rawText.slice(0, 500));
 
     // Robust JSON parsing
     let parsed = null;
