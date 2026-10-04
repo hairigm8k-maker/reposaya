@@ -783,6 +783,22 @@
             <option value="blank">Blank (kosong)</option>
           </select>
         </div>
+
+        <div class="field">
+          <label class="field-label">✨ AI Generate</label>
+          <div style="background:linear-gradient(135deg,#faf9f5 0%,#f5f0e8 100%);border:1px solid var(--hairline);border-radius:var(--radius-md);padding:16px;">
+            <textarea id="aiPrompt" placeholder="Contoh: Hantar email terima kasih untuk client yang beli pakej landing page RM99, sebut kami akan start dalam 24 jam." style="min-height:80px;font-size:14px;margin-bottom:10px;"></textarea>
+            <div style="display:flex;gap:8px;">
+              <select id="aiTone" style="flex:1;background:var(--canvas);border:1px solid var(--hairline);color:var(--ink);padding:8px 12px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;">
+                <option value="friendly, professional, warm">Mesra & Profesional</option>
+                <option value="formal, corporate, respectful">Formal & Korporat</option>
+                <option value="casual, fun, energetic">Santai & Ceria</option>
+                <option value="luxury, premium, elegant">Luxury & Premium</option>
+              </select>
+              <button class="btn-mini" id="aiGenBtn" style="padding:8px 18px;height:auto;font-size:13px;background:var(--primary);color:var(--on-primary);border:none;">✨ Generate</button>
+            </div>
+          </div>
+        </div>
         <div class="field">
           <label class="field-label">Subject</label>
           <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
@@ -1093,6 +1109,48 @@ $('templatePicker').addEventListener('change', (e) => {
   updatePreview();
   showStatus('success', '✓ Template: ' + tpl.label);
   setTimeout(hideStatus, 2000);
+});
+
+// ============ AI GENERATE ============
+$('aiGenBtn').addEventListener('click', async () => {
+  const prompt = $('aiPrompt').value.trim();
+  if (!prompt) return showStatus('error', 'Taip prompt dulu');
+
+  const btn = $('aiGenBtn');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  hideStatus();
+
+  try {
+    const token = loadToken();
+    const res = await fetch('/api/generate-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': token
+      },
+      body: JSON.stringify({
+        prompt,
+        tone: $('aiTone').value
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error || 'AI gagal generate');
+
+    $('bulkSubject').value = data.subject || '';
+    $('bulkBody').value = data.body || '';
+    updatePreview();
+    showStatus('success', '✨ AI generate berjaya! Review + edit ikut keperluan.');
+  } catch (e) {
+    showStatus('error', '✕ ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = origText;
 });
 
 function initRecipients() {
