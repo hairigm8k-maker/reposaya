@@ -773,6 +773,17 @@
       <div class="panel">
         <div class="section-label">Compose</div>
         <div class="field">
+          <label class="field-label">Template</label>
+          <select id="templatePicker" style="width:100%;background:var(--canvas);border:1px solid var(--hairline);color:var(--ink);padding:10px 14px;border-radius:var(--radius-md);font-size:15px;font-family:inherit;cursor:pointer;outline:none;">
+            <option value="">— Pilih template —</option>
+            <option value="thankyou">Terima Kasih</option>
+            <option value="invoice">Invoice / Order</option>
+            <option value="reminder">Reminder</option>
+            <option value="welcome">Welcome / Onboarding</option>
+            <option value="blank">Blank (kosong)</option>
+          </select>
+        </div>
+        <div class="field">
           <label class="field-label">Subject</label>
           <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
         </div>
@@ -829,7 +840,154 @@ window.onerror = function(msg, url, line) {
 const $ = id => document.getElementById(id);
 const TOKEN_KEY = 'mailer_token';
 
-const DEFAULT_HTML = `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;">
+// ============ TEMPLATES ============
+const HEADER_HTML = `<tr>
+    <td style="background:#111;border-radius:16px 16px 0 0;padding:32px 24px;text-align:center;">
+      <img src="https://hairiamri.buzz/assets/logoUtama/logoUtama.png" alt="" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;background:#fff;padding:4px;">
+      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;">{title}</h1>
+      <p style="margin:8px 0 0;color:#a1a1aa;font-size:13px;">{subtitle}</p>
+    </td>
+  </tr>`;
+
+const FOOTER_HTML = `<tr>
+    <td style="background:#111;padding:24px;border-radius:0 0 16px 16px;text-align:center;">
+      <p style="margin:0 0 10px;color:#fff;font-size:14px;font-weight:600;">Salam mesra,<br>Pasukan hairiamri.buzz</p>
+      <p style="margin:0;color:#666;font-size:11px;">{tarikh}, {masa}</p>
+    </td>
+  </tr>`;
+
+const WRAP_OPEN = `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">`;
+
+const WRAP_CLOSE = `</table>
+</td></tr>
+</table>`;
+
+const TEMPLATES = {
+  thankyou: {
+    subject: 'Terima kasih, {nama}! 🌸',
+    body: WRAP_OPEN + `
+  ` + HEADER_HTML.replace('{title}', 'Terima Kasih, {nama}! 🌸').replace('{subtitle}', 'Kami amat menghargai kepercayaan anda') + `
+  <tr>
+    <td style="background:#fff;padding:32px 24px;">
+      <p style="margin:0 0 16px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
+      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Terima kasih kerana memilih <b>hairiamri.buzz</b>. Kami amat menghargai kepercayaan anda terhadap perkhidmatan kami.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;border-left:4px solid #111;">
+        <tr><td style="padding:20px;">
+          <p style="margin:0 0 8px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">📦 Pakej</p>
+          <p style="margin:0;color:#111;font-size:18px;font-weight:700;">{harga}</p>
+        </td></tr>
+      </table>
+      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Pasukan kami akan mula bekerja <b>dalam 24 jam</b> dan akan menghubungi anda dalam masa <b>1-2 hari bekerja</b>.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;">
+        <tr><td align="center">
+          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+  ` + FOOTER_HTML + WRAP_CLOSE
+  },
+
+  invoice: {
+    subject: 'Order {nama} — Terima kasih',
+    body: WRAP_OPEN + `
+  ` + HEADER_HTML.replace('{title}', 'Order Diterima ✓').replace('{subtitle}', 'Kami telah menerima tempahan anda') + `
+  <tr>
+    <td style="background:#fff;padding:32px 24px;">
+      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
+      <p style="margin:0 0 24px;color:#444;font-size:15px;line-height:1.7;">Terima kasih! Kami telah menerima tempahan anda dan sedang memproses.</p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;overflow:hidden;">
+        <tr style="background:#f9fafb;">
+          <td style="padding:14px 20px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:#666;">Butiran</td>
+        </tr>
+        <tr>
+          <td style="padding:16px 20px;border-top:1px solid #eee;">
+            <table width="100%">
+              <tr><td style="color:#666;font-size:14px;">Pakej</td><td align="right" style="color:#111;font-size:14px;font-weight:700;">{harga}</td></tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 20px;border-top:1px solid #eee;">
+            <table width="100%">
+              <tr><td style="color:#666;font-size:14px;">Status</td><td align="right"><span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;">✓ Diterima</span></td></tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 20px;border-top:1px solid #eee;">
+            <table width="100%">
+              <tr><td style="color:#666;font-size:14px;">Timeline</td><td align="right" style="color:#111;font-size:14px;font-weight:700;">1-2 hari bekerja</td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin:24px 0 0;color:#444;font-size:15px;line-height:1.7;">Kami akan hubungi anda untuk langkah seterusnya.</p>
+    </td>
+  </tr>
+  ` + FOOTER_HTML + WRAP_CLOSE
+  },
+
+  reminder: {
+    subject: 'Peringatan — {nama}',
+    body: WRAP_OPEN + `
+  ` + HEADER_HTML.replace('{title}', 'Peringatan Mesra').replace('{subtitle}', 'Sedikit peringatan untuk anda') + `
+  <tr>
+    <td style="background:#fff;padding:32px 24px;">
+      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
+      <p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Kami perasan pakej <b>{harga}</b> anda masih dalam proses. Sila hubungi kami untuk langkah seterusnya.</p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef3c7;border-radius:10px;margin:20px 0;border-left:4px solid #d4a017;">
+        <tr><td style="padding:16px 20px;">
+          <p style="margin:0;color:#78350f;font-size:14px;line-height:1.6;">⏰ Sila balas email ini atau WhatsApp kami untuk meneruskan.</p>
+        </td></tr>
+      </table>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+        <tr><td align="center">
+          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp Kami</a>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+  ` + FOOTER_HTML + WRAP_CLOSE
+  },
+
+  welcome: {
+    subject: 'Selamat datang, {nama}! 👋',
+    body: WRAP_OPEN + `
+  ` + HEADER_HTML.replace('{title}', 'Selamat Datang! 👋').replace('{subtitle}', 'Kami teruja nak bekerja dengan anda') + `
+  <tr>
+    <td style="background:#fff;padding:32px 24px;">
+      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
+      <p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Selamat datang ke <b>hairiamri.buzz</b>! Kami teruja untuk membantu bisnes anda.</p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;">
+        <tr><td style="padding:20px;">
+          <p style="margin:0 0 12px;color:#111;font-size:14px;font-weight:700;">Langkah seterusnya:</p>
+          <p style="margin:0 0 8px;color:#444;font-size:14px;line-height:1.6;">1. Kami akan hubungi anda dalam 24 jam</p>
+          <p style="margin:0 0 8px;color:#444;font-size:14px;line-height:1.6;">2. Anda share logo & gambar</p>
+          <p style="margin:0;color:#444;font-size:14px;line-height:1.6;">3. Kami mula design</p>
+        </td></tr>
+      </table>
+
+      <p style="margin:20px 0 0;color:#444;font-size:15px;line-height:1.7;">Kalau ada apa-apa soalan, jangan segan hubungi kami ya 😊</p>
+    </td>
+  </tr>
+  ` + FOOTER_HTML + WRAP_CLOSE
+  },
+
+  blank: {
+    subject: '',
+    body: ''
+  }
+};
+
+const DEFAULT_HTML = TEMPLATES.thankyou.body;
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
   <tr>
@@ -1068,6 +1226,22 @@ function updatePreview() {
 
 const bulkBodyEl = $('bulkBody');
 if (bulkBodyEl) bulkBodyEl.addEventListener('input', updatePreview);
+
+// Template picker
+const tplPicker = $('templatePicker');
+if (tplPicker) {
+  tplPicker.addEventListener('change', (e) => {
+    const key = e.target.value;
+    if (!key) return;
+    const tpl = TEMPLATES[key];
+    if (!tpl) return;
+    $('bulkSubject').value = tpl.subject || '';
+    $('bulkBody').value = tpl.body || '';
+    updatePreview();
+    showStatus('success', '✓ Template dimuatkan: ' + e.target.options[e.target.selectedIndex].text);
+    setTimeout(hideStatus, 2000);
+  });
+}
 
 function initRecipients() {
   if (document.querySelectorAll('.recipient-row').length === 0) addRecipientRow();
