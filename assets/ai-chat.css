@@ -234,35 +234,6 @@
 }
 .ai-msg a { color: #6ab5ff; text-decoration: underline; }
 
-/* ========= INLINE WA BUTTON ========= */
-.ai-inline-wa {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 11px 18px;
-  background: #25d366 !important;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  border-radius: 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  font-family: 'Inter', system-ui, sans-serif;
-  transition: all .2s ease;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, .3);
-  white-space: nowrap;
-  width: 100%;
-  box-sizing: border-box;
-}
-.ai-inline-wa:hover {
-  background: #1ebe5a !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(37, 211, 102, .4);
-}
-.ai-inline-wa svg { flex-shrink: 0; color: #fff; }
-.ai-inline-wa span { color: #fff; white-space: nowrap; }
-
 /* ========= TYPING ========= */
 .ai-typing {
   align-self: flex-start;
