@@ -4,157 +4,222 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#faf9f5">
 <title>Mailer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #cc785c;
+    --primary-active: #a9583e;
+    --primary-disabled: #e6dfd8;
+    --ink: #141413;
+    --body: #3d3d3a;
+    --body-strong: #252523;
+    --muted: #6c6a64;
+    --muted-soft: #8e8b82;
+    --hairline: #e6dfd8;
+    --hairline-soft: #ebe6df;
+    --canvas: #faf9f5;
+    --surface-soft: #f5f0e8;
+    --surface-card: #efe9de;
+    --surface-cream-strong: #e8e0d2;
+    --surface-dark: #181715;
+    --surface-dark-elevated: #252320;
+    --surface-dark-soft: #1f1e1b;
+    --on-primary: #ffffff;
+    --on-dark: #faf9f5;
+    --on-dark-soft: #a09d96;
+    --success: #5db872;
+    --error: #c64545;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+  }
+
   html, body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: #08080a;
-    color: #e8e6e3;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--canvas);
+    color: var(--ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-    overflow-x: hidden;
+    font-size: 16px;
+    line-height: 1.55;
   }
 
-  /* Ambient background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 169, 97, 0.08), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139, 92, 246, 0.05), transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+  .display-font {
+    font-family: 'Cormorant Garamond', 'Tiempos Headline', Garamond, serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
   }
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 760px;
+  .code-font {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* TOP NAV */
+  .top-nav {
+    height: 64px;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline-soft);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background: rgba(250, 249, 245, 0.9);
+  }
+
+  .nav-inner {
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 48px 20px 80px;
-  }
-
-  /* HEADER */
-  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 32px;
-    border-bottom: 1px solid rgba(201, 169, 97, 0.1);
-    margin-bottom: 40px;
   }
 
   .brand {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
   }
 
-  .brand-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #c9a961 0%, #8b6914 100%);
-    padding: 2px;
+  .brand-mark {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(201, 169, 97, 0.15);
   }
 
-  .brand-logo img {
+  .brand-mark img {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
-    object-fit: cover;
-    background: #0a0a0a;
+    object-fit: contain;
+    border-radius: 6px;
   }
 
-  .brand-text .name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
+  .brand-name {
+    font-size: 16px;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    color: #f5f2ee;
-    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
   }
 
-  .brand-text .sub {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #c9a961;
-    margin-top: 6px;
+  .brand-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-left: 8px;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-link {
+    font-size: 14px;
     font-weight: 500;
-  }
-
-  .logout-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #888;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 10px 18px;
-    border-radius: 4px;
+    color: var(--muted);
+    text-decoration: none;
+    background: none;
+    border: none;
     cursor: pointer;
     font-family: inherit;
-    font-weight: 500;
-    transition: all .25s ease;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    transition: color .15s ease;
   }
 
-  .logout-btn:hover {
-    border-color: rgba(201, 169, 97, 0.4);
-    color: #c9a961;
+  .nav-link:hover { color: var(--ink); }
+
+  /* CONTAINER */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+
+  /* HERO */
+  .hero {
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 48px;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', 'Tiempos Headline', Garamond, serif;
+    font-weight: 500;
+    font-size: 48px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--body);
+    line-height: 1.55;
+    max-width: 540px;
   }
 
   /* AUTH */
   .auth-panel {
-    background: linear-gradient(180deg, rgba(20, 20, 24, 0.8) 0%, rgba(15, 15, 18, 0.6) 100%);
-    border: 1px solid rgba(201, 169, 97, 0.15);
-    border-radius: 20px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-xl);
     padding: 48px 40px;
     text-align: center;
     max-width: 440px;
-    margin: 80px auto;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    margin: 32px auto;
   }
 
   .auth-icon {
     width: 56px;
     height: 56px;
-    margin: 0 auto 20px;
+    margin: 0 auto 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(201, 169, 97, 0.2), rgba(201, 169, 97, 0.05));
-    border: 1px solid rgba(201, 169, 97, 0.3);
+    background: var(--surface-card);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 22px;
+    color: var(--primary);
   }
 
   .auth-title {
     font-family: 'Cormorant Garamond', serif;
     font-size: 28px;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    color: #f5f2ee;
-    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 6px;
   }
 
   .auth-sub {
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #666;
+    font-size: 14px;
+    color: var(--muted);
     margin-bottom: 32px;
   }
 
@@ -163,68 +228,73 @@
     display: flex;
     gap: 4px;
     padding: 4px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin-bottom: 28px;
+    background: var(--surface-soft);
+    border-radius: var(--radius-md);
+    margin-bottom: 32px;
+    width: fit-content;
   }
 
   .tab {
-    flex: 1;
     background: transparent;
-    color: #666;
+    color: var(--muted);
     border: none;
-    padding: 14px 20px;
-    font-size: 12px;
+    padding: 8px 20px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-family: inherit;
-    transition: all .25s ease;
+    transition: all .15s ease;
   }
 
   .tab.active {
-    background: linear-gradient(135deg, rgba(201, 169, 97, 0.15), rgba(201, 169, 97, 0.05));
-    color: #c9a961;
-    border: 1px solid rgba(201, 169, 97, 0.2);
+    background: var(--canvas);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(20,20,19,0.05);
   }
 
-  /* CARDS */
+  /* PANELS */
   .panel {
-    background: linear-gradient(180deg, rgba(18, 18, 22, 0.6) 0%, rgba(12, 12, 15, 0.4) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 28px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 32px;
     margin-bottom: 20px;
-    backdrop-filter: blur(10px);
+  }
+
+  .panel.dark {
+    background: var(--surface-dark);
+    border-color: var(--surface-dark);
+    color: var(--on-dark);
+  }
+
+  .panel.dark .field-label,
+  .panel.dark .section-label {
+    color: var(--on-dark-soft);
   }
 
   .section-label {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #c9a961;
-    margin-bottom: 16px;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .field {
-    margin-bottom: 18px;
-  }
+  /* FIELDS */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
 
   .field-label {
     display: block;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #555;
-    margin-bottom: 8px;
+    font-size: 13px;
     font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 8px;
   }
 
   input[type="text"],
@@ -232,111 +302,133 @@
   input[type="password"],
   textarea {
     width: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #e8e6e3;
-    padding: 14px 16px;
-    border-radius: 10px;
-    font-size: 14px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
     font-family: inherit;
-    transition: all .25s ease;
+    transition: all .15s ease;
     -webkit-appearance: none;
+    outline: none;
   }
 
   input:focus, textarea:focus {
-    outline: none;
-    border-color: rgba(201, 169, 97, 0.5);
-    background: rgba(201, 169, 97, 0.03);
-    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.15);
   }
 
   input::placeholder, textarea::placeholder {
-    color: #3a3a3a;
+    color: var(--muted-soft);
   }
 
   textarea {
     resize: vertical;
     min-height: 120px;
-    line-height: 1.6;
+    line-height: 1.55;
+    padding: 12px 14px;
   }
 
   textarea.code {
-    font-family: 'SF Mono', Menlo, Monaco, monospace;
-    font-size: 12px;
-    min-height: 240px;
-    color: #a8a8a8;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 260px;
+    background: var(--surface-dark);
+    color: var(--on-dark-soft);
+    border-color: var(--surface-dark);
+  }
+
+  textarea.code:focus {
+    border-color: var(--primary);
+  }
+
+  .panel.dark input[type="text"],
+  .panel.dark input[type="email"] {
+    background: var(--surface-dark-elevated);
+    border-color: var(--surface-dark-elevated);
+    color: var(--on-dark);
+  }
+
+  .panel.dark input::placeholder {
+    color: var(--on-dark-soft);
   }
 
   /* BUTTONS */
   .btn {
     width: 100%;
-    background: linear-gradient(135deg, #c9a961 0%, #a8853d 100%);
-    color: #0a0a0a;
+    background: var(--primary);
+    color: var(--on-primary);
     border: none;
-    padding: 16px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all .25s ease;
+    transition: all .15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    box-shadow: 0 8px 24px rgba(201, 169, 97, 0.2);
+    gap: 8px;
+    height: 40px;
+    line-height: 1;
   }
 
-  .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(201, 169, 97, 0.3);
+  .btn:hover { background: var(--primary-active); }
+  .btn:disabled { background: var(--primary-disabled); color: var(--muted); cursor: not-allowed; }
+
+  .btn.secondary {
+    background: var(--canvas);
+    color: var(--ink);
+    border: 1px solid var(--hairline);
   }
 
-  .btn:active { transform: translateY(0); }
-  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn.secondary:hover {
+    background: var(--surface-soft);
+    border-color: var(--hairline);
+  }
 
   .btn.ghost {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #888;
-    box-shadow: none;
-    padding: 10px 16px;
-    font-size: 10px;
+    color: var(--muted);
+    border: none;
+    padding: 8px 12px;
+    height: auto;
+    width: auto;
+    font-size: 13px;
   }
 
-  .btn.ghost:hover {
-    border-color: rgba(201, 169, 97, 0.4);
-    color: #c9a961;
-    box-shadow: none;
-    transform: none;
-  }
+  .btn.ghost:hover { color: var(--ink); background: transparent; }
 
   .btn-mini {
-    background: transparent;
-    border: 1px solid rgba(201, 169, 97, 0.3);
-    color: #c9a961;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    font-family: inherit;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
     font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
-    transition: all .2s ease;
+    transition: all .15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
   }
 
   .btn-mini:hover {
-    background: rgba(201, 169, 97, 0.1);
+    background: var(--surface-soft);
   }
 
   /* SPINNER */
   .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(0,0,0,0.2);
-    border-top-color: #0a0a0a;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--on-primary);
     border-radius: 50%;
     animation: spin .7s linear infinite;
   }
@@ -344,25 +436,23 @@
 
   /* STATUS */
   .status {
-    padding: 16px 20px;
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    margin-bottom: 20px;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    margin-bottom: 24px;
     display: none;
-    backdrop-filter: blur(10px);
-    letter-spacing: 0.3px;
+    line-height: 1.5;
   }
   .status.show { display: block; }
   .status.success {
-    background: rgba(74, 222, 128, 0.08);
-    border: 1px solid rgba(74, 222, 128, 0.2);
-    color: #4ade80;
+    background: rgba(93, 184, 114, 0.1);
+    border: 1px solid rgba(93, 184, 114, 0.25);
+    color: #3a7d4a;
   }
   .status.error {
-    background: rgba(248, 113, 113, 0.08);
-    border: 1px solid rgba(248, 113, 113, 0.2);
-    color: #f87171;
+    background: rgba(198, 69, 69, 0.08);
+    border: 1px solid rgba(198, 69, 69, 0.2);
+    color: var(--error);
   }
 
   /* RECIPIENT ROWS */
@@ -370,53 +460,54 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
   .recipient-row {
     display: grid;
-    grid-template-columns: 1.5fr 2fr 1fr 36px;
+    grid-template-columns: 1.4fr 2fr 1fr 32px;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     align-items: center;
   }
 
   .recipient-row input {
-    padding: 12px 14px;
-    font-size: 13px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    height: 40px;
   }
 
   .recipient-remove {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: #555;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    border: 1px solid var(--hairline);
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all .2s ease;
+    transition: all .15s ease;
     font-family: inherit;
     padding: 0;
+    line-height: 1;
   }
 
   .recipient-remove:hover {
-    border-color: rgba(248, 113, 113, 0.5);
-    color: #f87171;
+    border-color: var(--error);
+    color: var(--error);
   }
 
   /* PREVIEW */
   .preview-frame {
-    background: #f4f4f5;
-    border-radius: 12px;
-    padding: 24px;
-    max-height: 420px;
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    padding: 20px;
+    max-height: 440px;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--hairline-soft);
   }
   .preview-frame * { max-width: 100% !important; }
 
@@ -424,14 +515,14 @@
   .progress-bar {
     width: 100%;
     height: 3px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(250, 249, 245, 0.1);
     border-radius: 999px;
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #c9a961, #f5f2ee);
+    background: var(--primary);
     transition: width .4s ease;
     width: 0%;
   }
@@ -439,48 +530,48 @@
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
+    gap: 16px;
+    margin-bottom: 24px;
   }
 
   .stat {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 14px;
+    background: var(--surface-dark-elevated);
+    border-radius: var(--radius-md);
+    padding: 16px;
     text-align: center;
   }
 
   .stat-label {
-    font-size: 9px;
-    letter-spacing: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #555;
-    margin-bottom: 6px;
+    color: var(--on-dark-soft);
+    margin-bottom: 8px;
   }
 
   .stat-value {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 600;
-    color: #f5f2ee;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--on-dark);
     line-height: 1;
   }
 
-  .stat-value.gold { color: #c9a961; }
-  .stat-value.green { color: #4ade80; }
-  .stat-value.red { color: #f87171; }
+  .stat-value.green { color: var(--success); }
+  .stat-value.red { color: #e57373; }
 
   .log-list {
     max-height: 280px;
     overflow-y: auto;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    padding: 14px;
-    font-family: 'SF Mono', Menlo, monospace;
-    font-size: 11px;
+    background: var(--surface-dark-soft);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
     line-height: 1.7;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--on-dark-soft);
   }
 
   .log-item {
@@ -488,80 +579,134 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    color: #888;
+    border-bottom: 1px solid rgba(250, 249, 245, 0.05);
   }
 
   .log-item:last-child { border-bottom: none; }
-  .log-ok { color: #4ade80; }
-  .log-fail { color: #f87171; }
+  .log-ok { color: var(--success); }
+  .log-fail { color: #e57373; }
 
   .hidden { display: none !important; }
 
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.2), transparent);
-    margin: 40px 0;
+  /* CHECKBOX */
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
   }
 
+  .checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  .checkbox-row label {
+    font-size: 14px;
+    color: var(--body);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* FILE INPUT */
+  input[type="file"] {
+    width: 100%;
+    background: var(--surface-soft);
+    border: 1px dashed var(--hairline);
+    color: var(--muted);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+
+  input[type="file"]:hover {
+    background: var(--surface-card);
+    border-color: var(--primary);
+  }
+
+  .file-list {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* FOOTER */
   .footer {
+    padding: 32px 0 0;
+    margin-top: 64px;
+    border-top: 1px solid var(--hairline);
     text-align: center;
-    padding-top: 32px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
-    margin-top: 48px;
+    font-size: 13px;
+    color: var(--muted-soft);
+    line-height: 1.6;
   }
 
-  .footer-text {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #333;
-    line-height: 2;
-  }
-
-  @media (max-width: 520px) {
-    .container { padding: 32px 16px 60px; }
-    .panel { padding: 20px; }
-    .auth-panel { padding: 36px 24px; margin: 40px auto; }
+  /* MOBILE */
+  @media (max-width: 640px) {
+    .top-nav { padding: 0 16px; }
+    .container { padding: 40px 16px 64px; }
+    .hero-title { font-size: 34px; }
+    .panel { padding: 24px 20px; }
+    .auth-panel { padding: 36px 24px; }
     .recipient-row {
       grid-template-columns: 1fr 1fr;
       grid-template-areas: "name email" "price remove";
-      gap: 6px;
+      gap: 8px;
     }
     .recipient-row input:nth-child(1) { grid-area: name; }
     .recipient-row input:nth-child(2) { grid-area: email; }
     .recipient-row input:nth-child(3) { grid-area: price; }
     .recipient-remove { grid-area: remove; justify-self: end; }
-    .brand-text .name { font-size: 18px; }
-    .stats-grid { gap: 8px; }
-    .stat-value { font-size: 22px; }
+    .stats-grid { gap: 10px; }
+    .stat { padding: 12px; }
+    .stat-value { font-size: 24px; }
+    .brand-sub { display: none; }
   }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <div class="header">
+<nav class="top-nav">
+  <div class="nav-inner">
     <div class="brand">
-      <div class="brand-logo">
+      <div class="brand-mark">
         <img src="/assets/logoUtama/logoUtama.png" alt="">
       </div>
-      <div class="brand-text">
-        <div class="name">hairiamri.buzz</div>
-        <div class="sub">Mailer</div>
-      </div>
+      <span class="brand-name">hairiamri.buzz</span>
+      <span class="brand-sub">/ Mailer</span>
     </div>
-    <button class="logout-btn hidden" id="logoutBtn">Logout</button>
+    <div class="nav-right">
+      <button class="nav-link hidden" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="hero" id="heroSection">
+    <div class="hero-eyebrow">Mailer</div>
+    <h1 class="hero-title">Send with intention.</h1>
+    <p class="hero-sub">Personalized email delivery powered by feedback@hairiamri.buzz</p>
   </div>
 
+  <!-- AUTH -->
   <div class="auth-panel" id="authBox">
     <div class="auth-icon">🔒</div>
-    <div class="auth-title">Access</div>
-    <div class="auth-sub">Restricted</div>
-    <input type="password" id="tokenInput" placeholder="Token" autocomplete="off" style="margin-bottom:12px;text-align:center;letter-spacing:2px;">
-    <button class="btn" id="authBtn">Enter</button>
+    <div class="auth-title">Restricted Access</div>
+    <div class="auth-sub">Enter your access token to continue</div>
+    <div class="field">
+      <input type="password" id="tokenInput" placeholder="Access token" autocomplete="off" style="text-align:center;letter-spacing:2px;">
+    </div>
+    <button class="btn" id="authBtn">Continue</button>
   </div>
 
+  <!-- MAIN -->
   <div id="mainPanel" class="hidden">
 
     <div class="tabs">
@@ -574,35 +719,40 @@
     <!-- SINGLE -->
     <div class="section active" id="section-single">
       <div class="panel">
-        <div class="section-label">Single Message</div>
+        <div class="section-label">Message</div>
+
         <div class="field">
           <label class="field-label">To</label>
-          <input type="text" id="toInput" placeholder="email@example.com">
+          <input type="text" id="toInput" placeholder="recipient@example.com">
         </div>
+
         <div class="field">
           <label class="field-label">CC</label>
-          <input type="text" id="ccInput" placeholder="cc@example.com">
+          <input type="text" id="ccInput" placeholder="optional">
         </div>
+
         <div class="field">
           <label class="field-label">Subject</label>
-          <input type="text" id="subjectInput" placeholder="Subject">
+          <input type="text" id="subjectInput" placeholder="Your subject line">
         </div>
+
         <div class="field">
-          <label class="field-label">Message</label>
-          <textarea id="bodyInput" placeholder=""></textarea>
+          <label class="field-label">Body</label>
+          <textarea id="bodyInput" placeholder="Write your message..."></textarea>
         </div>
 
         <div class="field">
           <label class="field-label">Attachment</label>
-          <input type="file" id="fileInput" multiple style="padding:10px;color:#888;">
-          <div id="fileList" style="margin-top:8px;font-size:11px;color:#888;line-height:1.7;"></div>
+          <input type="file" id="fileInput" multiple>
+          <div class="file-list" id="fileList"></div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-          <input type="checkbox" id="htmlMode" style="width:16px;height:16px;accent-color:#c9a961;">
-          <label for="htmlMode" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#666;cursor:pointer;">HTML</label>
+        <div class="checkbox-row">
+          <input type="checkbox" id="htmlMode">
+          <label for="htmlMode">Send as HTML</label>
         </div>
-        <button class="btn" id="sendBtn"><span id="sendText">Send</span></button>
+
+        <button class="btn" id="sendBtn"><span id="sendText">Send email</span></button>
       </div>
     </div>
 
@@ -611,17 +761,21 @@
       <div class="panel">
         <div class="recipients-header">
           <div class="section-label" style="margin:0;">Recipients</div>
-          <button class="btn-mini" onclick="addRecipientRow()">+ Add</button>
+          <button class="btn-mini" onclick="addRecipientRow()">+ Add recipient</button>
         </div>
         <div id="recipientsList"></div>
       </div>
 
       <div class="panel">
-        <div class="section-label">Subject</div>
-        <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸" style="margin-bottom:24px;">
-
-        <div class="section-label">Body</div>
-        <textarea class="code" id="bulkBody"></textarea>
+        <div class="section-label">Compose</div>
+        <div class="field">
+          <label class="field-label">Subject</label>
+          <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
+        </div>
+        <div class="field">
+          <label class="field-label">Body (HTML)</label>
+          <textarea class="code" id="bulkBody"></textarea>
+        </div>
       </div>
 
       <div class="panel">
@@ -629,14 +783,14 @@
         <div class="preview-frame" id="previewBox"></div>
       </div>
 
-      <button class="btn" id="bulkSendBtn"><span id="bulkText">Send All</span></button>
+      <button class="btn" id="bulkSendBtn"><span id="bulkText">Send to all</span></button>
 
-      <div class="panel hidden" id="progressCard" style="margin-top:20px;">
+      <div class="panel dark hidden" id="progressCard" style="margin-top:20px;">
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
         <div class="stats-grid">
           <div class="stat">
             <div class="stat-label">Total</div>
-            <div class="stat-value gold" id="statTotal">0</div>
+            <div class="stat-value" id="statTotal">0</div>
           </div>
           <div class="stat">
             <div class="stat-label">Sent</div>
@@ -654,19 +808,16 @@
   </div>
 
   <div class="footer">
-    <div class="footer-text">
-      Internal · hairiamri.buzz<br>
-      feedback@hairiamri.buzz
-    </div>
+    Internal · feedback@hairiamri.buzz
   </div>
 
 </div>
 
 <script>
-window.onerror = function(msg, url, line, col) {
+window.onerror = function(msg, url, line) {
   const box = document.createElement('div');
-  box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:14px;font-family:monospace;font-size:12px;z-index:99999;word-break:break-word;';
-  box.textContent = '❌ ' + msg + ' @ L' + line;
+  box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#c64545;color:#fff;padding:14px;font-family:monospace;font-size:12px;z-index:99999;word-break:break-word;';
+  box.textContent = 'Error: ' + msg + ' @ L' + line;
   document.body.appendChild(box);
   setTimeout(() => box.remove(), 15000);
 };
@@ -782,7 +933,6 @@ async function sendEmail(payload) {
   return data;
 }
 
-// File reader helper
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -803,9 +953,9 @@ $('fileInput').addEventListener('change', () => {
   let html = '';
   for (const f of files) {
     total += f.size;
-    html += `• ${f.name} <span style="color:#555;">(${(f.size/1024).toFixed(1)} KB)</span><br>`;
+    html += `${f.name} <span style="color:var(--muted-soft);">(${(f.size/1024).toFixed(1)} KB)</span><br>`;
   }
-  html += `<div style="margin-top:6px;color:${total > 40*1024*1024 ? '#f87171' : '#666'};font-size:10px;">Total: ${(total/1024/1024).toFixed(2)} MB</div>`;
+  html += `<div style="margin-top:8px;color:${total > 40*1024*1024 ? 'var(--error)' : 'var(--muted-soft)'};font-size:12px;">Total: ${(total/1024/1024).toFixed(2)} MB</div>`;
   list.innerHTML = html;
 });
 
@@ -817,7 +967,7 @@ $('sendBtn').addEventListener('click', async () => {
   const html = $('htmlMode').checked;
   const files = $('fileInput').files;
 
-  if (!to || !subject || !body) return showStatus('error', 'Fill all fields');
+  if (!to || !subject || !body) return showStatus('error', 'Please fill in all required fields');
 
   hideStatus();
   const btn = $('sendBtn'), txt = $('sendText');
@@ -833,12 +983,12 @@ $('sendBtn').addEventListener('click', async () => {
 
     txt.innerHTML = '<span class="spinner"></span> Sending';
     const r = await sendEmail({ to, cc: cc || undefined, subject, body, html, attachments });
-    showStatus('success', '✓ ' + (r.message || 'Sent'));
+    showStatus('success', '✓ ' + (r.message || 'Email sent successfully'));
   } catch (e) {
     showStatus('error', '✕ ' + e.message);
   }
   btn.disabled = false;
-  txt.textContent = 'Send';
+  txt.textContent = 'Send email';
 });
 
 // ============ BULK ============
@@ -924,8 +1074,8 @@ $('bulkSendBtn').addEventListener('click', async () => {
   const subject = $('bulkSubject').value.trim();
   const body = $('bulkBody').value;
 
-  if (!recs.length) return showStatus('error', 'No recipients');
-  if (!subject || !body) return showStatus('error', 'Subject & body required');
+  if (!recs.length) return showStatus('error', 'Add at least one recipient');
+  if (!subject || !body) return showStatus('error', 'Subject and body are required');
 
   hideStatus();
   const btn = $('bulkSendBtn'), txt = $('bulkText');
@@ -962,7 +1112,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
       item.querySelector('span:last-child').innerHTML = `<span class="log-fail">✕</span>`;
       $('statFail').textContent = fail;
       const errBox = document.createElement('div');
-      errBox.style.cssText = 'background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15);color:#f87171;padding:8px;border-radius:6px;font-size:10px;margin-top:6px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
+      errBox.style.cssText = 'background:rgba(198,69,69,0.1);border:1px solid rgba(198,69,69,0.2);color:#e57373;padding:8px 10px;border-radius:6px;font-size:11px;margin-top:6px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
       errBox.textContent = r.email + '\n' + errMsg;
       $('logList').appendChild(errBox);
     }
@@ -974,8 +1124,8 @@ $('bulkSendBtn').addEventListener('click', async () => {
   }
 
   btn.disabled = false;
-  txt.textContent = 'Send All';
-  showStatus(ok > 0 ? 'success' : 'error', `Complete · ${ok} sent · ${fail} failed`);
+  txt.textContent = 'Send to all';
+  showStatus(ok > 0 ? 'success' : 'error', `${ok} sent · ${fail} failed`);
 });
 
 const initBulkBody = $('bulkBody');
