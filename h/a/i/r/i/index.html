@@ -4,201 +4,642 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<title>Mailer — Internal</title>
+<meta name="theme-color" content="#0a0a0a">
+<title>Mailer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { font-family: 'Inter', system-ui, sans-serif; background: #0a0a0a; color: #fff; -webkit-font-smoothing: antialiased; min-height: 100vh; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
-  .head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-  .head img { width: 36px; height: 36px; border-radius: 10px; }
-  .head h1 { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
-  .head p { font-size: 12px; color: #666; margin-top: 2px; }
-  .auth-box { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 24px; margin-bottom: 16px; }
-  .auth-box h2 { font-size: 15px; margin-bottom: 12px; }
-  .auth-box input { width: 100%; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 12px; }
-  .auth-box input:focus { outline: none; border-color: #6ab5ff; }
-  .tabs { display: flex; gap: 4px; background: #141414; padding: 4px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #222; }
-  .tab { flex: 1; background: transparent; color: #888; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .15s; }
-  .tab.active { background: #fff; color: #0a0a0a; }
-  .section { display: none; }
-  .section.active { display: block; }
-  .form-card { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 20px; margin-bottom: 14px; }
-  .label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 6px; }
-  .input, .textarea { width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a; color: #fff; padding: 11px 14px; border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 14px; transition: border-color .15s; }
-  .input:focus, .textarea:focus { outline: none; border-color: #6ab5ff; }
-  .textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
-  .textarea.code { font-family: 'SF Mono', Monaco, monospace; font-size: 12px; min-height: 200px; }
-  .hint { font-size: 11px; color: #555; margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
-  .row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
-  .row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6ab5ff; cursor: pointer; }
-  .row label { font-size: 13px; color: #ccc; cursor: pointer; user-select: none; }
-  .btn { width: 100%; background: #fff; color: #0a0a0a; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: opacity .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn:hover { opacity: .9; }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn.secondary { background: #222; color: #fff; padding: 10px; font-size: 13px; }
-  .btn.loading { background: #1a1a1a; color: #fff; }
-  .spinner { width: 16px; height: 16px; border: 2px solid #444; border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .status { padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; display: none; word-break: break-word; }
-  .status.show { display: block; }
-  .status.success { background: #0f2417; border: 1px solid #1e4a2e; color: #4ade80; }
-  .status.error { background: #1c0f0f; border: 1px solid #3a1f1f; color: #f87171; }
-  .logout { background: transparent; border: none; color: #666; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px 8px; }
-  .logout:hover { color: #f87171; }
-  .hidden { display: none !important; }
-  .preview-box { background: #f4f4f5; color: #111; padding: 20px; border-radius: 12px; max-height: 400px; overflow-y: auto; }
-  .preview-box * { max-width: 100% !important; }
-  .progress-bar { width: 100%; height: 6px; background: #222; border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
-  .progress-fill { height: 100%; background: #4ade80; transition: width .3s; width: 0%; }
-  .log-list { max-height: 300px; overflow-y: auto; background: #0a0a0a; border-radius: 10px; padding: 12px; font-family: 'SF Mono', Monaco, monospace; font-size: 11px; line-height: 1.6; }
-  .log-item { padding: 4px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; gap: 8px; }
-  .log-item:last-child { border-bottom: none; }
-  .log-ok { color: #4ade80; }
-  .log-fail { color: #f87171; }
-  .stats { display: flex; gap: 16px; font-size: 12px; color: #888; margin-bottom: 12px; }
-  .stats b { color: #fff; font-size: 16px; display: block; margin-top: 2px; }
-  .footer { text-align: center; font-size: 11px; color: #444; margin-top: 32px; line-height: 1.6; }
-  .btn-row { display: flex; gap: 8px; }
-  .recipient-row {
-    display: grid;
-    grid-template-columns: 2fr 3fr 1.2fr 32px;
-    gap: 6px;
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #08080a;
+    color: #e8e6e3;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 169, 97, 0.08), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139, 92, 246, 0.05), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(201, 169, 97, 0.1);
+    margin-bottom: 40px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #c9a961 0%, #8b6914 100%);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(201, 169, 97, 0.15);
+  }
+
+  .brand-logo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #0a0a0a;
+  }
+
+  .brand-text .name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: #f5f2ee;
+    line-height: 1;
+  }
+
+  .brand-text .sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #888;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all .25s ease;
+  }
+
+  .logout-btn:hover {
+    border-color: rgba(201, 169, 97, 0.4);
+    color: #c9a961;
+  }
+
+  /* AUTH */
+  .auth-panel {
+    background: linear-gradient(180deg, rgba(20, 20, 24, 0.8) 0%, rgba(15, 15, 18, 0.6) 100%);
+    border: 1px solid rgba(201, 169, 97, 0.15);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 440px;
+    margin: 80px auto;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  }
+
+  .auth-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(201, 169, 97, 0.2), rgba(201, 169, 97, 0.05));
+    border: 1px solid rgba(201, 169, 97, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .auth-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: #f5f2ee;
     margin-bottom: 8px;
+  }
+
+  .auth-sub {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 32px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    flex: 1;
+    background: transparent;
+    color: #666;
+    border: none;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .25s ease;
+  }
+
+  .tab.active {
+    background: linear-gradient(135deg, rgba(201, 169, 97, 0.15), rgba(201, 169, 97, 0.05));
+    color: #c9a961;
+    border: 1px solid rgba(201, 169, 97, 0.2);
+  }
+
+  /* CARDS */
+  .panel {
+    background: linear-gradient(180deg, rgba(18, 18, 22, 0.6) 0%, rgba(12, 12, 15, 0.4) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c9a961;
+    margin-bottom: 16px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
   }
-  .recipient-row input {
-    background: #0a0a0a;
-    border: 1px solid #2a2a2a;
-    color: #fff;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: inherit;
-    width: 100%;
-    margin: 0;
+
+  .field {
+    margin-bottom: 18px;
   }
-  .recipient-row input:focus {
-    outline: none;
-    border-color: #6ab5ff;
-  }
-  .recipient-row input::placeholder {
+
+  .field-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     color: #555;
-    font-size: 12px;
+    margin-bottom: 8px;
+    font-weight: 500;
   }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #e8e6e3;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all .25s ease;
+    -webkit-appearance: none;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: rgba(201, 169, 97, 0.5);
+    background: rgba(201, 169, 97, 0.03);
+    box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.05);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #3a3a3a;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  textarea.code {
+    font-family: 'SF Mono', Menlo, Monaco, monospace;
+    font-size: 12px;
+    min-height: 240px;
+    color: #a8a8a8;
+  }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a961 0%, #a8853d 100%);
+    color: #0a0a0a;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(201, 169, 97, 0.2);
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 32px rgba(201, 169, 97, 0.3);
+  }
+
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  .btn.ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #888;
+    box-shadow: none;
+    padding: 10px 16px;
+    font-size: 10px;
+  }
+
+  .btn.ghost:hover {
+    border-color: rgba(201, 169, 97, 0.4);
+    color: #c9a961;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .btn-mini {
+    background: transparent;
+    border: 1px solid rgba(201, 169, 97, 0.3);
+    color: #c9a961;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+
+  .btn-mini:hover {
+    background: rgba(201, 169, 97, 0.1);
+  }
+
+  /* SPINNER */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #0a0a0a;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* STATUS */
+  .status {
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    display: none;
+    backdrop-filter: blur(10px);
+    letter-spacing: 0.3px;
+  }
+  .status.show { display: block; }
+  .status.success {
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+  }
+  .status.error {
+    background: rgba(248, 113, 113, 0.08);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    color: #f87171;
+  }
+
+  /* RECIPIENT ROWS */
+  .recipients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .recipient-row {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 1fr 36px;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+
+  .recipient-row input {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
   .recipient-remove {
     background: transparent;
-    border: 1px solid #2a2a2a;
-    color: #666;
-    width: 32px;
-    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #555;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all .15s;
+    transition: all .2s ease;
     font-family: inherit;
+    padding: 0;
   }
+
   .recipient-remove:hover {
-    border-color: #f87171;
+    border-color: rgba(248, 113, 113, 0.5);
     color: #f87171;
   }
+
+  /* PREVIEW */
+  .preview-frame {
+    background: #f4f4f5;
+    border-radius: 12px;
+    padding: 24px;
+    max-height: 420px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .preview-frame * { max-width: 100% !important; }
+
+  /* PROGRESS */
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a961, #f5f2ee);
+    transition: width .4s ease;
+    width: 0%;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .stat {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #f5f2ee;
+    line-height: 1;
+  }
+
+  .stat-value.gold { color: #c9a961; }
+  .stat-value.green { color: #4ade80; }
+  .stat-value.red { color: #f87171; }
+
+  .log-list {
+    max-height: 280px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .log-item {
+    padding: 6px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: #888;
+  }
+
+  .log-item:last-child { border-bottom: none; }
+  .log-ok { color: #4ade80; }
+  .log-fail { color: #f87171; }
+
+  .hidden { display: none !important; }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201, 169, 97, 0.2), transparent);
+    margin: 40px 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 48px;
+  }
+
+  .footer-text {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #333;
+    line-height: 2;
+  }
+
   @media (max-width: 520px) {
+    .container { padding: 32px 16px 60px; }
+    .panel { padding: 20px; }
+    .auth-panel { padding: 36px 24px; margin: 40px auto; }
     .recipient-row {
       grid-template-columns: 1fr 1fr;
-      grid-template-areas: 
-        "name email"
-        "price remove";
+      grid-template-areas: "name email" "price remove";
+      gap: 6px;
     }
     .recipient-row input:nth-child(1) { grid-area: name; }
     .recipient-row input:nth-child(2) { grid-area: email; }
     .recipient-row input:nth-child(3) { grid-area: price; }
     .recipient-remove { grid-area: remove; justify-self: end; }
+    .brand-text .name { font-size: 18px; }
+    .stats-grid { gap: 8px; }
+    .stat-value { font-size: 22px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="container">
 
-  <div class="head">
-    <img src="/assets/logoUtama/logoUtama.png" alt="Logo">
-    <div style="flex:1">
-      <h1>Mailer</h1>
-      <p>feedback@hairiamri.buzz</p>
+  <div class="header">
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="/assets/logoUtama/logoUtama.png" alt="">
+      </div>
+      <div class="brand-text">
+        <div class="name">hairiamri.buzz</div>
+        <div class="sub">Mailer</div>
+      </div>
     </div>
-    <button class="logout hidden" id="logoutBtn">Logout</button>
+    <button class="logout-btn hidden" id="logoutBtn">Logout</button>
   </div>
 
-  <div class="auth-box" id="authBox">
-    <h2>🔐 Masukkan Token</h2>
-    <input type="password" id="tokenInput" placeholder="Admin token..." autocomplete="off">
-    <button class="btn" id="authBtn">Unlock</button>
+  <div class="auth-panel" id="authBox">
+    <div class="auth-icon">🔒</div>
+    <div class="auth-title">Access</div>
+    <div class="auth-sub">Restricted</div>
+    <input type="password" id="tokenInput" placeholder="Token" autocomplete="off" style="margin-bottom:12px;text-align:center;letter-spacing:2px;">
+    <button class="btn" id="authBtn">Enter</button>
   </div>
 
-  <div id="mailerMain" class="hidden">
+  <div id="mainPanel" class="hidden">
 
     <div class="tabs">
       <button class="tab active" data-tab="single">Single</button>
-      <button class="tab" data-tab="bulk">Bulk Send</button>
+      <button class="tab" data-tab="bulk">Bulk</button>
     </div>
 
     <div class="status" id="statusBox"></div>
 
     <!-- SINGLE -->
     <div class="section active" id="section-single">
-      <div class="form-card">
-        <label class="label">Kepada (To)</label>
-        <input type="text" class="input" id="toInput" placeholder="email@example.com">
-        <label class="label">CC (optional)</label>
-        <input type="text" class="input" id="ccInput" placeholder="cc@example.com">
-        <label class="label">Subject</label>
-        <input type="text" class="input" id="subjectInput" placeholder="Tajuk email...">
-        <label class="label">Mesej</label>
-        <textarea class="textarea" id="bodyInput" placeholder="Tulis mesej..."></textarea>
-        <div class="row">
-          <input type="checkbox" id="htmlMode">
-          <label for="htmlMode">Hantar sebagai HTML</label>
+      <div class="panel">
+        <div class="section-label">Single Message</div>
+        <div class="field">
+          <label class="field-label">To</label>
+          <input type="text" id="toInput" placeholder="email@example.com">
         </div>
-        <button class="btn" id="sendBtn"><span id="sendText">📧 Hantar Email</span></button>
+        <div class="field">
+          <label class="field-label">CC</label>
+          <input type="text" id="ccInput" placeholder="cc@example.com">
+        </div>
+        <div class="field">
+          <label class="field-label">Subject</label>
+          <input type="text" id="subjectInput" placeholder="Subject">
+        </div>
+        <div class="field">
+          <label class="field-label">Message</label>
+          <textarea id="bodyInput" placeholder=""></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <input type="checkbox" id="htmlMode" style="width:16px;height:16px;accent-color:#c9a961;">
+          <label for="htmlMode" style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#666;cursor:pointer;">HTML</label>
+        </div>
+        <button class="btn" id="sendBtn"><span id="sendText">Send</span></button>
       </div>
     </div>
 
     <!-- BULK -->
     <div class="section" id="section-bulk">
-      <div class="form-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <label class="label" style="margin:0;">Senarai Penerima</label>
-          <button class="btn secondary" style="width:auto;padding:6px 12px;font-size:12px;" onclick="addRecipientRow()">+ Tambah</button>
+      <div class="panel">
+        <div class="recipients-header">
+          <div class="section-label" style="margin:0;">Recipients</div>
+          <button class="btn-mini" onclick="addRecipientRow()">+ Add</button>
         </div>
-
         <div id="recipientsList"></div>
-
-        <label class="label" style="margin-top:14px;">Subject Template</label>
-        <input type="text" class="input" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
-
-        <label class="label">Body (HTML)</label>
-        <textarea class="textarea code" id="bulkBody"></textarea>
-        <p class="hint">Placeholder: <b>{nama}</b> <b>{email}</b> <b>{harga}</b> <b>{tarikh}</b> <b>{masa}</b></p>
-
-        <button class="btn" id="bulkSendBtn"><span id="bulkText">📨 Hantar Semua</span></button>
       </div>
 
-      <div class="form-card">
-        <div class="label">Preview (Penerima #1)</div>
-        <div class="preview-box" id="previewBox"></div>
+      <div class="panel">
+        <div class="section-label">Subject</div>
+        <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸" style="margin-bottom:24px;">
+
+        <div class="section-label">Body</div>
+        <textarea class="code" id="bulkBody"></textarea>
       </div>
 
-      <div class="form-card hidden" id="progressCard">
-        <div class="stats">
-          <div>Total<b id="statTotal">0</b></div>
-          <div>Berjaya<b id="statOk" style="color:#4ade80;">0</b></div>
-          <div>Gagal<b id="statFail" style="color:#f87171;">0</b></div>
-        </div>
+      <div class="panel">
+        <div class="section-label">Preview</div>
+        <div class="preview-frame" id="previewBox"></div>
+      </div>
+
+      <button class="btn" id="bulkSendBtn"><span id="bulkText">Send All</span></button>
+
+      <div class="panel hidden" id="progressCard" style="margin-top:20px;">
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Total</div>
+            <div class="stat-value gold" id="statTotal">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Sent</div>
+            <div class="stat-value green" id="statOk">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Failed</div>
+            <div class="stat-value red" id="statFail">0</div>
+          </div>
+        </div>
         <div class="log-list" id="logList"></div>
       </div>
     </div>
@@ -206,73 +647,91 @@
   </div>
 
   <div class="footer">
-    Internal tool · feedback@hairiamri.buzz<br>
-    Page ini tidak diindeks.
+    <div class="footer-text">
+      Internal · hairiamri.buzz<br>
+      feedback@hairiamri.buzz
+    </div>
   </div>
+
 </div>
 
 <script>
-// Error display untuk Android (takde F12)
-window.onerror = function(msg, url, line, col, err) {
+window.onerror = function(msg, url, line, col) {
   const box = document.createElement('div');
-  box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:14px;font-family:monospace;font-size:12px;z-index:99999;line-height:1.5;word-break:break-word;';
-  box.textContent = '❌ ERROR: ' + msg + '\nL' + line + ':' + col;
+  box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:14px;font-family:monospace;font-size:12px;z-index:99999;word-break:break-word;';
+  box.textContent = '❌ ' + msg + ' @ L' + line;
   document.body.appendChild(box);
   setTimeout(() => box.remove(), 15000);
 };
 
-window.addEventListener('unhandledrejection', function(e) {
-  const box = document.createElement('div');
-  box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:14px;font-family:monospace;font-size:12px;z-index:99999;line-height:1.5;word-break:break-word;';
-  box.textContent = '❌ PROMISE ERROR: ' + (e.reason?.message || e.reason || 'Unknown');
-  document.body.appendChild(box);
-  setTimeout(() => box.remove(), 15000);
-});
-
 const $ = id => document.getElementById(id);
 const TOKEN_KEY = 'mailer_token';
-const DEFAULT_HTML = `<div style="font-family:Arial,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f4f4f5;">
-  <div style="background:#fff;border-radius:12px;padding:32px;">
-    <h2 style="color:#111;margin:0 0 20px;">Terima kasih, {nama}! 🌸</h2>
-    <p style="color:#444;line-height:1.7;">Terima kasih kerana mempercayai kami.</p>
-    <p style="color:#444;line-height:1.7;">Pakej yang anda beli: <b>{harga}</b></p>
-    <p style="color:#444;line-height:1.7;">Kami akan hubungi anda dalam masa <b>1-2 hari bekerja</b> untuk langkah seterusnya.</p>
-    <p style="color:#444;line-height:1.7;">Kalau ada apa-apa pertanyaan, boleh WhatsApp kami di <a href="https://wa.me/60172131814" style="color:#0a7cff;">+60 17-213 1814</a>.</p>
-    <p style="color:#888;font-size:13px;margin-top:30px;">Salam mesra,<br><b style="color:#111;">hairiamri.buzz</b><br><a href="https://hairiamri.buzz" style="color:#0a7cff;">hairiamri.buzz</a></p>
-    <p style="color:#aaa;font-size:11px;margin-top:20px;border-top:1px solid #eee;padding-top:14px;">Dihantar pada {tarikh}, {masa}</p>
-  </div>
-</div>`;
+
+const DEFAULT_HTML = `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <tr>
+    <td style="background:#111;border-radius:16px 16px 0 0;padding:32px 24px;text-align:center;">
+      <img src="https://hairiamri.buzz/assets/logoUtama/logoUtama.png" alt="" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;background:#fff;padding:4px;">
+      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;">Terima Kasih, {nama}! 🌸</h1>
+      <p style="margin:8px 0 0;color:#a1a1aa;font-size:13px;">Kami amat menghargai kepercayaan anda</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#fff;padding:32px 24px;">
+      <p style="margin:0 0 16px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
+      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Terima kasih kerana memilih <b>hairiamri.buzz</b>. Kami amat menghargai kepercayaan anda terhadap perkhidmatan kami.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;border-left:4px solid #111;">
+        <tr><td style="padding:20px;">
+          <p style="margin:0 0 8px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">📦 Pakej</p>
+          <p style="margin:0;color:#111;font-size:18px;font-weight:700;">{harga}</p>
+        </td></tr>
+      </table>
+      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Pasukan kami akan mula bekerja <b>dalam 24 jam</b> dan akan menghubungi anda dalam masa <b>1-2 hari bekerja</b>.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;">
+        <tr><td align="center">
+          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#111;padding:24px;border-radius:0 0 16px 16px;text-align:center;">
+      <p style="margin:0 0 10px;color:#fff;font-size:14px;font-weight:600;">Salam mesra,<br>Pasukan hairiamri.buzz</p>
+      <p style="margin:0;color:#666;font-size:11px;">{tarikh}, {masa}</p>
+    </td>
+  </tr>
+</table>
+</td></tr>
+</table>`;
 
 // ============ AUTH ============
 function loadToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
 function saveToken(t) { localStorage.setItem(TOKEN_KEY, t); }
 function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
-function showForm() {
+function showMain() {
   $('authBox').classList.add('hidden');
-  $('mailerMain').classList.remove('hidden');
+  $('mainPanel').classList.remove('hidden');
   $('logoutBtn').classList.remove('hidden');
 }
 function showAuth() {
   $('authBox').classList.remove('hidden');
-  $('mailerMain').classList.add('hidden');
+  $('mainPanel').classList.add('hidden');
   $('logoutBtn').classList.add('hidden');
 }
 
-if (loadToken()) showForm(); else showAuth();
+if (loadToken()) showMain(); else showAuth();
 
-const authBtnEl = $('authBtn');
-if (authBtnEl) authBtnEl.addEventListener('click', () => {
+$('authBtn').addEventListener('click', () => {
   const t = $('tokenInput').value.trim();
-  if (!t) return alert('Masukkan token');
+  if (!t) return;
   saveToken(t);
-  showForm();
+  showMain();
 });
-const tokenInputEl = $('tokenInput');
-if (tokenInputEl) tokenInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') $('authBtn').click(); });
-const logoutBtnEl = $('logoutBtn');
-if (logoutBtnEl) logoutBtnEl.addEventListener('click', () => {
-  if (confirm('Logout?')) { clearToken(); showAuth(); $('tokenInput').value = ''; }
+$('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('authBtn').click(); });
+$('logoutBtn').addEventListener('click', () => {
+  clearToken(); showAuth(); $('tokenInput').value = '';
 });
 
 // ============ TABS ============
@@ -299,10 +758,10 @@ function showStatus(type, msg) {
 }
 function hideStatus() { $('statusBox').classList.remove('show'); }
 
-// ============ SEND API ============
+// ============ SEND ============
 async function sendEmail(payload) {
   const token = loadToken();
-  if (!token) { showAuth(); throw new Error('Token missing'); }
+  if (!token) { showAuth(); throw new Error('No token'); }
 
   const res = await fetch('/api/send-email', {
     method: 'POST',
@@ -311,45 +770,36 @@ async function sendEmail(payload) {
   });
   const data = await res.json();
 
-  if (res.status === 401) {
-    clearToken(); showAuth();
-    throw new Error('Token salah. Login semula.');
-  }
-  if (!data.ok) {
-    const errMsg = data.error || data.details?.message || 'Gagal hantar';
-    console.error('Backend error:', data);
-    throw new Error(errMsg);
-  }
+  if (res.status === 401) { clearToken(); showAuth(); throw new Error('Unauthorized'); }
+  if (!data.ok) throw new Error(data.error || data.details?.message || 'Failed');
   return data;
 }
 
-// ============ SINGLE SEND ============
-const sendBtnEl = $('sendBtn');
-if (sendBtnEl) sendBtnEl.addEventListener('click', async () => {
+$('sendBtn').addEventListener('click', async () => {
   const to = $('toInput').value.trim();
   const cc = $('ccInput').value.trim();
   const subject = $('subjectInput').value.trim();
   const body = $('bodyInput').value;
   const html = $('htmlMode').checked;
 
-  if (!to || !subject || !body) return showStatus('error', 'Sila isi To, Subject, dan Mesej.');
+  if (!to || !subject || !body) return showStatus('error', 'Fill all fields');
 
   hideStatus();
   const btn = $('sendBtn'), txt = $('sendText');
-  btn.disabled = true; btn.classList.add('loading');
-  txt.innerHTML = '<span class="spinner"></span> Menghantar...';
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner"></span> Sending';
 
   try {
     const r = await sendEmail({ to, cc: cc || undefined, subject, body, html });
-    showStatus('success', '✅ ' + (r.message || 'Email dihantar!'));
+    showStatus('success', '✓ ' + (r.message || 'Sent'));
   } catch (e) {
-    showStatus('error', '❌ ' + e.message);
+    showStatus('error', '✕ ' + e.message);
   }
-  btn.disabled = false; btn.classList.remove('loading');
-  txt.textContent = '📧 Hantar Email';
+  btn.disabled = false;
+  txt.textContent = 'Send';
 });
 
-// ============ BULK — DYNAMIC FORM ============
+// ============ BULK ============
 let recipientCounter = 0;
 
 function createRecipientRow(name = '', email = '', price = '') {
@@ -358,15 +808,12 @@ function createRecipientRow(name = '', email = '', price = '') {
   row.className = 'recipient-row';
   row.dataset.id = id;
   row.innerHTML = `
-    <input type="text" placeholder="Nama" value="${escapeAttr(name)}" data-field="name">
-    <input type="email" placeholder="email@example.com" value="${escapeAttr(email)}" data-field="email">
-    <input type="text" placeholder="Harga (RM)" value="${escapeAttr(price)}" data-field="price">
-    <button class="recipient-remove" onclick="removeRecipientRow('${id}')" title="Buang">✕</button>
+    <input type="text" placeholder="Name" value="${escapeAttr(name)}" data-field="name">
+    <input type="email" placeholder="Email" value="${escapeAttr(email)}" data-field="email">
+    <input type="text" placeholder="RM" value="${escapeAttr(price)}" data-field="price">
+    <button class="recipient-remove" onclick="removeRecipientRow('${id}')">✕</button>
   `;
-  // Attach input listener untuk live preview
-  row.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('input', updatePreview);
-  });
+  row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updatePreview));
   return row;
 }
 
@@ -374,23 +821,17 @@ function addRecipientRow(name = '', email = '', price = '') {
   const list = $('recipientsList');
   list.appendChild(createRecipientRow(name, email, price));
   updatePreview();
-  // Auto-scroll ke row baru
   list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  // Focus field pertama
   setTimeout(() => list.lastChild.querySelector('input').focus(), 100);
 }
 
 function removeRecipientRow(id) {
   const row = document.querySelector(`.recipient-row[data-id="${id}"]`);
-  if (row) {
-    row.remove();
-    updatePreview();
-  }
+  if (row) { row.remove(); updatePreview(); }
 }
 
 function getRecipients() {
-  const rows = document.querySelectorAll('.recipient-row');
-  return Array.from(rows).map(row => ({
+  return Array.from(document.querySelectorAll('.recipient-row')).map(row => ({
     name: row.querySelector('[data-field="name"]').value.trim(),
     email: row.querySelector('[data-field="email"]').value.trim(),
     price: row.querySelector('[data-field="price"]').value.trim()
@@ -404,9 +845,15 @@ function escapeAttr(s) {
 function getPlaceholders(r) {
   const now = new Date();
   const tz = { timeZone: 'Asia/Kuala_Lumpur' };
-  const tarikh = now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' });
-  const masa = now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' });
-  return { nama: r.name, name: r.name, email: r.email, harga: r.price, price: r.price, tarikh, date: tarikh, masa, time: masa };
+  return {
+    nama: r.name, name: r.name,
+    email: r.email,
+    harga: r.price, price: r.price,
+    tarikh: now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' }),
+    date: now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' }),
+    masa: now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' }),
+    time: now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' })
+  };
 }
 
 function replacePlaceholders(text, r) {
@@ -420,30 +867,29 @@ function updatePreview() {
   if (!bodyEl || !previewEl) return;
   const recs = getRecipients();
   const first = recs[0] || { name: 'Ahmad', email: 'ahmad@example.com', price: '99' };
-  const html = replacePlaceholders(bodyEl.value, first);
-  previewEl.innerHTML = html;
+  previewEl.innerHTML = replacePlaceholders(bodyEl.value, first);
 }
 
 const bulkBodyEl = $('bulkBody');
 if (bulkBodyEl) bulkBodyEl.addEventListener('input', updatePreview);
 
-const bulkSendBtnEl = $('bulkSendBtn');
-if (bulkSendBtnEl) bulkSendBtnEl.addEventListener('click', async () => {
+function initRecipients() {
+  if (document.querySelectorAll('.recipient-row').length === 0) addRecipientRow();
+}
+
+$('bulkSendBtn').addEventListener('click', async () => {
   const recs = getRecipients();
   const subject = $('bulkSubject').value.trim();
   const body = $('bulkBody').value;
 
-  if (!recs.length) return showStatus('error', 'Tiada penerima sah. Format: nama | email | harga');
-  if (!subject || !body) return showStatus('error', 'Isi Subject dan Body.');
-
-  if (!confirm(`Hantar email ke ${recs.length} orang?`)) return;
+  if (!recs.length) return showStatus('error', 'No recipients');
+  if (!subject || !body) return showStatus('error', 'Subject & body required');
 
   hideStatus();
   const btn = $('bulkSendBtn'), txt = $('bulkText');
-  btn.disabled = true; btn.classList.add('loading');
-  txt.innerHTML = '<span class="spinner"></span> Menghantar...';
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner"></span> Sending';
 
-  // Reset progress
   $('progressCard').classList.remove('hidden');
   $('logList').innerHTML = '';
   $('statTotal').textContent = recs.length;
@@ -460,40 +906,36 @@ if (bulkSendBtnEl) bulkSendBtnEl.addEventListener('click', async () => {
 
     const item = document.createElement('div');
     item.className = 'log-item';
-    item.innerHTML = `<span>${r.name || r.email}</span><span class="log-pending">⏳</span>`;
+    item.innerHTML = `<span>${r.name || r.email}</span><span>⋯</span>`;
     $('logList').appendChild(item);
 
     try {
       await sendEmail({ to: r.email, subject: finalSubject, body: finalBody, html: true });
       ok++;
-      item.querySelector('span:last-child').innerHTML = '<span class="log-ok">✅</span>';
+      item.querySelector('span:last-child').innerHTML = '<span class="log-ok">✓</span>';
       $('statOk').textContent = ok;
     } catch (e) {
       fail++;
       const errMsg = (e && e.message) ? e.message : String(e);
-      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">❌ ${errMsg.slice(0, 80)}</span>`;
+      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">✕</span>`;
       $('statFail').textContent = fail;
-      console.error('Send failed for', r.email, errMsg);
-      // Log ke page
       const errBox = document.createElement('div');
-      errBox.style.cssText = 'background:#1c0f0f;border:1px solid #3a1f1f;color:#f87171;padding:10px;border-radius:8px;font-size:11px;margin-top:8px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
-      errBox.textContent = '❌ ' + r.email + '\n' + errMsg;
+      errBox.style.cssText = 'background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15);color:#f87171;padding:8px;border-radius:6px;font-size:10px;margin-top:6px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
+      errBox.textContent = r.email + '\n' + errMsg;
       $('logList').appendChild(errBox);
     }
 
     $('progressFill').style.width = ((i + 1) / recs.length * 100) + '%';
     $('logList').scrollTop = $('logList').scrollHeight;
 
-    // Rate limit — Resend max 2/sec
     if (i < recs.length - 1) await new Promise(r => setTimeout(r, 600));
   }
 
-  btn.disabled = false; btn.classList.remove('loading');
-  txt.textContent = '📨 Hantar Semua';
-  showStatus(ok > 0 ? 'success' : 'error', `Selesai! Berjaya: ${ok}, Gagal: ${fail}`);
+  btn.disabled = false;
+  txt.textContent = 'Send All';
+  showStatus(ok > 0 ? 'success' : 'error', `Complete · ${ok} sent · ${fail} failed`);
 });
 
-// Init preview
 const initBulkBody = $('bulkBody');
 if (initBulkBody && !initBulkBody.value) initBulkBody.value = DEFAULT_HTML;
 initRecipients();
