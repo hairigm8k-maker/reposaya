@@ -150,14 +150,10 @@ $('form').addEventListener('submit', async (e) => {
     const newRef = push(submissionsRef);
     await set(newRef, data);
 
-    // Simpan untuk page terima baca
-    sessionStorage.setItem('formData', JSON.stringify(data));
-    sessionStorage.setItem('firebaseKey', newRef.key);
-
     status.className = 'status show ok';
     status.textContent = '✅ Berjaya! Redirecting...';
     setTimeout(() => {
-      window.location.href = '/pageterima';
+      window.location.href = '/pageterima?key=' + newRef.key;
     }, 800);
   } catch (err) {
     console.error('Firebase error:', err);

@@ -43,13 +43,6 @@
     border-radius: 10px; margin-bottom: 12px;
     font-family: 'SF Mono', monospace; font-size: 12px; color: #6ab5ff;
   }
-  .fb-key {
-    text-align: center; padding: 10px;
-    background: #1a0f24; border: 1px solid #2a1f4a;
-    border-radius: 10px; margin-bottom: 16px;
-    font-family: 'SF Mono', monospace; font-size: 11px; color: #a78bfa;
-    word-break: break-all;
-  }
   a.btn {
     display: block; text-align: center;
     background: #fff; color: #0a0a0a;
@@ -61,62 +54,106 @@
     color: #666; font-size: 14px;
   }
   .empty a { color: #6ab5ff; }
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: #666; font-size: 14px;
+  }
+  .spinner {
+    width: 24px; height: 24px; margin: 0 auto 16px;
+    border: 3px solid #222; border-top-color: #6ab5ff;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <div class="wrap" id="content">
-  <div class="empty">Loading...</div>
+  <div class="loading">
+    <div class="spinner"></div>
+    Loading...
+  </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k",
+  authDomain: "fikri-2a880.firebaseapp.com",
+  databaseURL: "https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fikri-2a880",
+  storageBucket: "fikri-2a880.firebasestorage.app",
+  messagingSenderId: "844408547984",
+  appId: "1:844408547984:web:63336207d709bb9f090615",
+  measurementId: "G-1Y114DL775"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 const $ = id => document.getElementById(id);
 
-const raw = sessionStorage.getItem('formData');
-const fbKey = sessionStorage.getItem('firebaseKey');
+const params = new URLSearchParams(window.location.search);
+const key = params.get('key');
 
-if (!raw) {
+if (!key) {
   $('content').innerHTML = '<div class="empty">⚠️ Takde data. Sila isi form dulu.<br><br><a href="/test-form">Kembali ke form</a></div>';
 } else {
-  const d = JSON.parse(raw);
-  const submittedDate = d.submittedAt ? new Date(d.submittedAt).toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) : '-';
+  loadData(key);
+}
 
-  $('content').innerHTML = `
-    <div class="check">✓</div>
-    <h1>Berjaya Disimpan</h1>
-    <p class="sub">Data telah dimasukkan ke Firebase</p>
+async function loadData(key) {
+  try {
+    const snap = await get(ref(db, 'submissions/' + key));
 
-    <div class="ref">Ref ID: ${d.refId || '-'}</div>
-    ${fbKey ? '<div class="fb-key">Firebase Key: ' + fbKey + '</div>' : ''}
+    if (!snap.exists()) {
+      $('content').innerHTML = '<div class="empty">⚠️ Data tak jumpa.<br><br><a href="/test-form">Kembali ke form</a></div>';
+      return;
+    }
 
-    <div class="card">
-      <div class="row">
-        <span class="label">Nama</span>
-        <span class="val">${d.nama || '-'}</span>
-      </div>
-      <div class="row">
-        <span class="label">No IC</span>
-        <span class="val mono">${d.ic || '-'}</span>
-      </div>
-      <div class="row">
-        <span class="label">Alamat</span>
-        <span class="val">${d.alamat || '-'}</span>
-      </div>
-      <div class="row">
-        <span class="label">Telefon</span>
-        <span class="val mono">${d.telefon || '-'}</span>
-      </div>
-      <div class="row">
-        <span class="label">Email</span>
-        <span class="val">${d.email || '-'}</span>
-      </div>
-      <div class="row">
-        <span class="label">Dihantar</span>
-        <span class="val">${submittedDate}</span>
-      </div>
-    </div>
+    const d = snap.val();
+    const submittedDate = d.submittedAt ? new Date(d.submittedAt).toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' }) : '-';
 
-    <a href="/test-form" class="btn">Isi Form Baru</a>
-  `;
+    $('content').innerHTML = `
+      <div class="check">✓</div>
+      <h1>Berjaya Disimpan</h1>
+      <p class="sub">Data telah disimpan ke Firebase</p>
+
+      <div class="ref">Ref ID: ${d.refId || '-'}</div>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">Nama</span>
+          <span class="val">${d.nama || '-'}</span>
+        </div>
+        <div class="row">
+          <span class="label">No IC</span>
+          <span class="val mono">${d.ic || '-'}</span>
+        </div>
+        <div class="row">
+          <span class="label">Alamat</span>
+          <span class="val">${d.alamat || '-'}</span>
+        </div>
+        <div class="row">
+          <span class="label">Telefon</span>
+          <span class="val mono">${d.telefon || '-'}</span>
+        </div>
+        <div class="row">
+          <span class="label">Email</span>
+          <span class="val">${d.email || '-'}</span>
+        </div>
+        <div class="row">
+          <span class="label">Dihantar</span>
+          <span class="val">${submittedDate}</span>
+        </div>
+      </div>
+
+      <a href="/test-form" class="btn">Isi Form Baru</a>
+    `;
+  } catch (err) {
+    console.error('Firebase read error:', err);
+    $('content').innerHTML = '<div class="empty">❌ Gagal baca dari Firebase.<br><br>Error: ' + (err.message || 'Unknown') + '<br><br><a href="/test-form">Kembali ke form</a></div>';
+  }
 }
 </script>
 </body>
