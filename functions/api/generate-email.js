@@ -70,7 +70,24 @@ Example output:
       temperature: 0.7
     });
 
-    const rawText = (response.response || '').trim();
+    // Robust response extraction
+    let rawText = '';
+    if (typeof response === 'string') {
+      rawText = response;
+    } else if (response && typeof response.response === 'string') {
+      rawText = response.response;
+    } else if (response && response.response && typeof response.response === 'object') {
+      rawText = JSON.stringify(response.response);
+    } else if (response && typeof response.result === 'string') {
+      rawText = response.result;
+    } else if (response && typeof response.description === 'string') {
+      rawText = response.description;
+    } else {
+      rawText = JSON.stringify(response || {});
+    }
+    rawText = String(rawText).trim();
+
+    console.log('AI raw response type:', typeof response, 'rawText:', rawText.slice(0, 300));
 
     // Robust JSON parsing
     let parsed = null;
