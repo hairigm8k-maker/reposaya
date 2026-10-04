@@ -10,198 +10,58 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: #0a0a0a;
-    color: #fff;
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-  }
-  .wrap {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
-  .head {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
+  html, body { font-family: 'Inter', system-ui, sans-serif; background: #0a0a0a; color: #fff; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  .head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
   .head img { width: 36px; height: 36px; border-radius: 10px; }
-  .head h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -.02em;
-  }
-  .head p {
-    font-size: 12px;
-    color: #666;
-    margin-top: 2px;
-  }
-
-  .auth-box {
-    background: #141414;
-    border: 1px solid #222;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-  .auth-box h2 {
-    font-size: 15px;
-    margin-bottom: 12px;
-  }
-  .auth-box input {
-    width: 100%;
-    background: #0a0a0a;
-    border: 1px solid #333;
-    color: #fff;
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-family: inherit;
-    margin-bottom: 12px;
-  }
+  .head h1 { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+  .head p { font-size: 12px; color: #666; margin-top: 2px; }
+  .auth-box { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+  .auth-box h2 { font-size: 15px; margin-bottom: 12px; }
+  .auth-box input { width: 100%; background: #0a0a0a; border: 1px solid #333; color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 12px; }
   .auth-box input:focus { outline: none; border-color: #6ab5ff; }
-
-  .form-card {
-    background: #141414;
-    border: 1px solid #222;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 14px;
-  }
-  .label {
-    display: block;
-    font-size: 11px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
-  .input, .textarea {
-    width: 100%;
-    background: #0a0a0a;
-    border: 1px solid #2a2a2a;
-    color: #fff;
-    padding: 11px 14px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-family: inherit;
-    margin-bottom: 14px;
-    transition: border-color .15s;
-  }
+  .tabs { display: flex; gap: 4px; background: #141414; padding: 4px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #222; }
+  .tab { flex: 1; background: transparent; color: #888; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .15s; }
+  .tab.active { background: #fff; color: #0a0a0a; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .form-card { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+  .label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 6px; }
+  .input, .textarea { width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a; color: #fff; padding: 11px 14px; border-radius: 10px; font-size: 14px; font-family: inherit; margin-bottom: 14px; transition: border-color .15s; }
   .input:focus, .textarea:focus { outline: none; border-color: #6ab5ff; }
-  .textarea {
-    resize: vertical;
-    min-height: 180px;
-    line-height: 1.5;
-  }
-
-  .row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-  .row input[type="checkbox"] {
-    width: 18px; height: 18px;
-    accent-color: #6ab5ff;
-    cursor: pointer;
-  }
-  .row label {
-    font-size: 13px;
-    color: #ccc;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .btn {
-    width: 100%;
-    background: #fff;
-    color: #0a0a0a;
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    transition: opacity .15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
+  .textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  .textarea.code { font-family: 'SF Mono', Monaco, monospace; font-size: 12px; min-height: 200px; }
+  .hint { font-size: 11px; color: #555; margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
+  .row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6ab5ff; cursor: pointer; }
+  .row label { font-size: 13px; color: #ccc; cursor: pointer; user-select: none; }
+  .btn { width: 100%; background: #fff; color: #0a0a0a; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: opacity .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn:hover { opacity: .9; }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn.secondary {
-    background: #222;
-    color: #fff;
-    padding: 10px;
-    font-size: 13px;
-  }
+  .btn.secondary { background: #222; color: #fff; padding: 10px; font-size: 13px; }
   .btn.loading { background: #1a1a1a; color: #fff; }
-
-  .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid #444;
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
+  .spinner { width: 16px; height: 16px; border: 2px solid #444; border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .status {
-    padding: 14px;
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    margin-bottom: 14px;
-    display: none;
-    word-break: break-word;
-  }
+  .status { padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; display: none; word-break: break-word; }
   .status.show { display: block; }
-  .status.success {
-    background: #0f2417;
-    border: 1px solid #1e4a2e;
-    color: #4ade80;
-  }
-  .status.error {
-    background: #1c0f0f;
-    border: 1px solid #3a1f1f;
-    color: #f87171;
-  }
-
-  .hint {
-    font-size: 11px;
-    color: #555;
-    margin-top: -10px;
-    margin-bottom: 14px;
-    line-height: 1.5;
-  }
-
-  .footer {
-    text-align: center;
-    font-size: 11px;
-    color: #444;
-    margin-top: 32px;
-    line-height: 1.6;
-  }
-
-  .logout {
-    background: transparent;
-    border: none;
-    color: #666;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    padding: 4px 8px;
-  }
+  .status.success { background: #0f2417; border: 1px solid #1e4a2e; color: #4ade80; }
+  .status.error { background: #1c0f0f; border: 1px solid #3a1f1f; color: #f87171; }
+  .logout { background: transparent; border: none; color: #666; font-size: 12px; cursor: pointer; font-family: inherit; padding: 4px 8px; }
   .logout:hover { color: #f87171; }
-
   .hidden { display: none !important; }
+  .preview-box { background: #f4f4f5; color: #111; padding: 20px; border-radius: 12px; max-height: 400px; overflow-y: auto; }
+  .preview-box * { max-width: 100% !important; }
+  .progress-bar { width: 100%; height: 6px; background: #222; border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+  .progress-fill { height: 100%; background: #4ade80; transition: width .3s; width: 0%; }
+  .log-list { max-height: 300px; overflow-y: auto; background: #0a0a0a; border-radius: 10px; padding: 12px; font-family: 'SF Mono', Monaco, monospace; font-size: 11px; line-height: 1.6; }
+  .log-item { padding: 4px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; gap: 8px; }
+  .log-item:last-child { border-bottom: none; }
+  .log-ok { color: #4ade80; }
+  .log-fail { color: #f87171; }
+  .stats { display: flex; gap: 16px; font-size: 12px; color: #888; margin-bottom: 12px; }
+  .stats b { color: #fff; font-size: 16px; display: block; margin-top: 2px; }
+  .footer { text-align: center; font-size: 11px; color: #444; margin-top: 32px; line-height: 1.6; }
+  .btn-row { display: flex; gap: 8px; }
 </style>
 </head>
 <body>
@@ -211,218 +71,296 @@
     <img src="/assets/logoUtama/logoUtama.png" alt="Logo">
     <div style="flex:1">
       <h1>Mailer</h1>
-      <p>Send email sebagai feedback@hairiamri.buzz</p>
+      <p>feedback@hairiamri.buzz</p>
     </div>
     <button class="logout hidden" id="logoutBtn">Logout</button>
   </div>
 
-  <!-- AUTH -->
   <div class="auth-box" id="authBox">
     <h2>🔐 Masukkan Token</h2>
     <input type="password" id="tokenInput" placeholder="Admin token..." autocomplete="off">
     <button class="btn" id="authBtn">Unlock</button>
-    <p class="hint" style="margin-top:12px;margin-bottom:0;">Token disimpan dalam device kau sahaja.</p>
   </div>
 
-  <!-- FORM -->
-  <div id="mailerForm" class="hidden">
+  <div id="mailerMain" class="hidden">
+
+    <div class="tabs">
+      <button class="tab active" data-tab="single">Single</button>
+      <button class="tab" data-tab="bulk">Bulk Send</button>
+    </div>
 
     <div class="status" id="statusBox"></div>
 
-    <div class="form-card">
-      <label class="label">Kepada (To)</label>
-      <input type="text" class="input" id="toInput" placeholder="email@example.com atau a@x.com, b@y.com">
-      <p class="hint">Boleh letak banyak email, pisah dengan koma.</p>
-
-      <label class="label">CC (optional)</label>
-      <input type="text" class="input" id="ccInput" placeholder="cc@example.com">
-      <p class="hint">Untuk tembus orang lain.</p>
-
-      <label class="label">Reply-To (optional)</label>
-      <input type="text" class="input" id="replyToInput" placeholder="kalau nak user reply ke email lain">
-      <p class="hint">Kosongkan kalau nak reply ke feedback@hairiamri.buzz.</p>
-
-      <label class="label">Subject</label>
-      <input type="text" class="input" id="subjectInput" placeholder="Tajuk email...">
-
-      <label class="label">Mesej</label>
-      <textarea class="textarea" id="bodyInput" placeholder="Tulis mesej kau di sini..."></textarea>
-
-      <div class="row">
-        <input type="checkbox" id="htmlMode">
-        <label for="htmlMode">Hantar sebagai HTML (advanced)</label>
+    <!-- SINGLE -->
+    <div class="section active" id="section-single">
+      <div class="form-card">
+        <label class="label">Kepada (To)</label>
+        <input type="text" class="input" id="toInput" placeholder="email@example.com">
+        <label class="label">CC (optional)</label>
+        <input type="text" class="input" id="ccInput" placeholder="cc@example.com">
+        <label class="label">Subject</label>
+        <input type="text" class="input" id="subjectInput" placeholder="Tajuk email...">
+        <label class="label">Mesej</label>
+        <textarea class="textarea" id="bodyInput" placeholder="Tulis mesej..."></textarea>
+        <div class="row">
+          <input type="checkbox" id="htmlMode">
+          <label for="htmlMode">Hantar sebagai HTML</label>
+        </div>
+        <button class="btn" id="sendBtn"><span id="sendText">📧 Hantar Email</span></button>
       </div>
-
-      <button class="btn" id="sendBtn">
-        <span id="sendText">📧 Hantar Email</span>
-      </button>
     </div>
 
-    <div style="display:flex; gap:8px;">
-      <button class="btn secondary" onclick="clearForm()">Clear Form</button>
-      <button class="btn secondary" onclick="testSend()">Test Send (ke sendiri)</button>
+    <!-- BULK -->
+    <div class="section" id="section-bulk">
+      <div class="form-card">
+        <label class="label">Senarai Penerima</label>
+        <textarea class="textarea" id="recipientsInput" placeholder="Ahmad | ahmad@gmail.com | 99
+Siti | siti@example.com | 199
+Ali | ali@example.com | 299"></textarea>
+        <p class="hint">Format: <b>nama | email | harga</b> — satu baris satu orang. Harga boleh kosong.</p>
+
+        <label class="label">Subject Template</label>
+        <input type="text" class="input" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
+
+        <label class="label">Body (HTML)</label>
+        <textarea class="textarea code" id="bulkBody"></textarea>
+        <p class="hint">Placeholder: <b>{nama}</b> <b>{email}</b> <b>{harga}</b> <b>{tarikh}</b> <b>{masa}</b></p>
+
+        <button class="btn" id="bulkSendBtn"><span id="bulkText">📨 Hantar Semua</span></button>
+      </div>
+
+      <div class="form-card">
+        <div class="label">Preview (Penerima #1)</div>
+        <div class="preview-box" id="previewBox"></div>
+      </div>
+
+      <div class="form-card hidden" id="progressCard">
+        <div class="stats">
+          <div>Total<b id="statTotal">0</b></div>
+          <div>Berjaya<b id="statOk" style="color:#4ade80;">0</b></div>
+          <div>Gagal<b id="statFail" style="color:#f87171;">0</b></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="log-list" id="logList"></div>
+      </div>
     </div>
 
   </div>
 
   <div class="footer">
     Internal tool · feedback@hairiamri.buzz<br>
-    Page ini tidak diindeks oleh search engine.
+    Page ini tidak diindeks.
   </div>
-
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 const TOKEN_KEY = 'mailer_token';
+const DEFAULT_HTML = `<div style="font-family:Arial,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f4f4f5;">
+  <div style="background:#fff;border-radius:12px;padding:32px;">
+    <h2 style="color:#111;margin:0 0 20px;">Terima kasih, {nama}! 🌸</h2>
+    <p style="color:#444;line-height:1.7;">Terima kasih kerana mempercayai kami.</p>
+    <p style="color:#444;line-height:1.7;">Pakej yang anda beli: <b>{harga}</b></p>
+    <p style="color:#444;line-height:1.7;">Kami akan hubungi anda dalam masa <b>1-2 hari bekerja</b> untuk langkah seterusnya.</p>
+    <p style="color:#444;line-height:1.7;">Kalau ada apa-apa pertanyaan, boleh WhatsApp kami di <a href="https://wa.me/60172131814" style="color:#0a7cff;">+60 17-213 1814</a>.</p>
+    <p style="color:#888;font-size:13px;margin-top:30px;">Salam mesra,<br><b style="color:#111;">hairiamri.buzz</b><br><a href="https://hairiamri.buzz" style="color:#0a7cff;">hairiamri.buzz</a></p>
+    <p style="color:#aaa;font-size:11px;margin-top:20px;border-top:1px solid #eee;padding-top:14px;">Dihantar pada {tarikh}, {masa}</p>
+  </div>
+</div>`;
 
-// Check token dalam storage
-function loadToken() {
-  return localStorage.getItem(TOKEN_KEY) || '';
-}
+// ============ AUTH ============
+function loadToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+function saveToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
-function saveToken(t) {
-  localStorage.setItem(TOKEN_KEY, t);
-}
-
-function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
-// Show form kalau dah login
 function showForm() {
   $('authBox').classList.add('hidden');
-  $('mailerForm').classList.remove('hidden');
+  $('mailerMain').classList.remove('hidden');
   $('logoutBtn').classList.remove('hidden');
 }
-
 function showAuth() {
   $('authBox').classList.remove('hidden');
-  $('mailerForm').classList.add('hidden');
+  $('mailerMain').classList.add('hidden');
   $('logoutBtn').classList.add('hidden');
 }
 
-// Init
-if (loadToken()) {
-  showForm();
-} else {
-  showAuth();
-}
+if (loadToken()) showForm(); else showAuth();
 
-// Auth
 $('authBtn').addEventListener('click', () => {
   const t = $('tokenInput').value.trim();
   if (!t) return alert('Masukkan token');
   saveToken(t);
   showForm();
 });
-
-$('tokenInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') $('authBtn').click();
-});
-
+$('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('authBtn').click(); });
 $('logoutBtn').addEventListener('click', () => {
-  if (confirm('Logout?')) {
-    clearToken();
-    showAuth();
-    $('tokenInput').value = '';
-  }
+  if (confirm('Logout?')) { clearToken(); showAuth(); $('tokenInput').value = ''; }
 });
 
-// Status
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    $('section-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'bulk' && !$('bulkBody').value) {
+      $('bulkBody').value = DEFAULT_HTML;
+      updatePreview();
+    }
+  });
+});
+
+// ============ STATUS ============
 function showStatus(type, msg) {
   const box = $('statusBox');
   box.className = 'status show ' + type;
   box.textContent = msg;
   setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
+function hideStatus() { $('statusBox').classList.remove('show'); }
 
-function hideStatus() {
-  $('statusBox').classList.remove('show');
-}
-
-// Send
+// ============ SEND API ============
 async function sendEmail(payload) {
   const token = loadToken();
-  if (!token) {
-    showAuth();
-    throw new Error('Token tidak ditemui');
-  }
+  if (!token) { showAuth(); throw new Error('Token missing'); }
 
   const res = await fetch('/api/send-email', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Admin-Token': token
-    },
+    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
     body: JSON.stringify(payload)
   });
-
   const data = await res.json();
 
   if (res.status === 401) {
-    clearToken();
-    showAuth();
-    throw new Error('Token salah atau expired. Sila login semula.');
+    clearToken(); showAuth();
+    throw new Error('Token salah. Login semula.');
   }
-
-  if (!data.ok) {
-    throw new Error(data.error || 'Gagal hantar email');
-  }
-
+  if (!data.ok) throw new Error(data.error || 'Gagal hantar');
   return data;
 }
 
+// ============ SINGLE SEND ============
 $('sendBtn').addEventListener('click', async () => {
   const to = $('toInput').value.trim();
   const cc = $('ccInput').value.trim();
-  const replyTo = $('replyToInput').value.trim();
   const subject = $('subjectInput').value.trim();
   const body = $('bodyInput').value;
   const html = $('htmlMode').checked;
 
-  if (!to || !subject || !body) {
-    return showStatus('error', 'Sila isi To, Subject, dan Mesej.');
-  }
+  if (!to || !subject || !body) return showStatus('error', 'Sila isi To, Subject, dan Mesej.');
 
   hideStatus();
-  const btn = $('sendBtn');
-  const txt = $('sendText');
-  btn.disabled = true;
-  btn.classList.add('loading');
+  const btn = $('sendBtn'), txt = $('sendText');
+  btn.disabled = true; btn.classList.add('loading');
   txt.innerHTML = '<span class="spinner"></span> Menghantar...';
 
   try {
-    const result = await sendEmail({ to, cc: cc || undefined, replyTo: replyTo || undefined, subject, body, html });
-    showStatus('success', '✅ ' + (result.message || 'Email berjaya dihantar!'));
-  } catch (err) {
-    showStatus('error', '❌ ' + err.message);
+    const r = await sendEmail({ to, cc: cc || undefined, subject, body, html });
+    showStatus('success', '✅ ' + (r.message || 'Email dihantar!'));
+  } catch (e) {
+    showStatus('error', '❌ ' + e.message);
   }
-
-  btn.disabled = false;
-  btn.classList.remove('loading');
+  btn.disabled = false; btn.classList.remove('loading');
   txt.textContent = '📧 Hantar Email';
 });
 
-function clearForm() {
-  $('toInput').value = '';
-  $('ccInput').value = '';
-  $('replyToInput').value = '';
-  $('subjectInput').value = '';
-  $('bodyInput').value = '';
-  $('htmlMode').checked = false;
-  hideStatus();
+// ============ BULK ============
+function parseRecipients(text) {
+  return text.split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split('|').map(s => s.trim());
+      return { name: parts[0] || '', email: parts[1] || '', price: parts[2] || '' };
+    })
+    .filter(r => r.email);
 }
 
-async function testSend() {
-  const email = prompt('Hantar email test ke:');
-  if (!email) return;
-  $('toInput').value = email;
-  $('subjectInput').value = 'Test Email dari Mailer';
-  $('bodyInput').value = 'Ini email test.\n\nKalau kau terima ni, sistem berfungsi dengan baik.\n\n— hairiamri.buzz';
-  $('htmlMode').checked = false;
-  $('sendBtn').click();
+function getPlaceholders(r) {
+  const now = new Date();
+  const tz = { timeZone: 'Asia/Kuala_Lumpur' };
+  const tarikh = now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' });
+  const masa = now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' });
+  return { nama: r.name, name: r.name, email: r.email, harga: r.price, price: r.price, tarikh, date: tarikh, masa, time: masa };
 }
+
+function replacePlaceholders(text, r) {
+  const p = getPlaceholders(r);
+  return String(text).replace(/\{(\w+)\}/g, (m, k) => p[k.toLowerCase()] !== undefined ? p[k.toLowerCase()] : m);
+}
+
+function updatePreview() {
+  const recs = parseRecipients($('recipientsInput').value);
+  const first = recs[0] || { name: 'Ahmad', email: 'ahmad@example.com', price: '99' };
+  const html = replacePlaceholders($('bulkBody').value, first);
+  $('previewBox').innerHTML = html;
+}
+
+$('recipientsInput').addEventListener('input', updatePreview);
+$('bulkBody').addEventListener('input', updatePreview);
+
+$('bulkSendBtn').addEventListener('click', async () => {
+  const recs = parseRecipients($('recipientsInput').value);
+  const subject = $('bulkSubject').value.trim();
+  const body = $('bulkBody').value;
+
+  if (!recs.length) return showStatus('error', 'Tiada penerima sah. Format: nama | email | harga');
+  if (!subject || !body) return showStatus('error', 'Isi Subject dan Body.');
+
+  if (!confirm(`Hantar email ke ${recs.length} orang?`)) return;
+
+  hideStatus();
+  const btn = $('bulkSendBtn'), txt = $('bulkText');
+  btn.disabled = true; btn.classList.add('loading');
+  txt.innerHTML = '<span class="spinner"></span> Menghantar...';
+
+  // Reset progress
+  $('progressCard').classList.remove('hidden');
+  $('logList').innerHTML = '';
+  $('statTotal').textContent = recs.length;
+  $('statOk').textContent = '0';
+  $('statFail').textContent = '0';
+  $('progressFill').style.width = '0%';
+
+  let ok = 0, fail = 0;
+
+  for (let i = 0; i < recs.length; i++) {
+    const r = recs[i];
+    const finalSubject = replacePlaceholders(subject, r);
+    const finalBody = replacePlaceholders(body, r);
+
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    item.innerHTML = `<span>${r.name || r.email}</span><span class="log-pending">⏳</span>`;
+    $('logList').appendChild(item);
+
+    try {
+      await sendEmail({ to: r.email, subject: finalSubject, body: finalBody, html: true });
+      ok++;
+      item.querySelector('span:last-child').innerHTML = '<span class="log-ok">✅</span>';
+      $('statOk').textContent = ok;
+    } catch (e) {
+      fail++;
+      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">❌ ${e.message.slice(0, 40)}</span>`;
+      $('statFail').textContent = fail;
+    }
+
+    $('progressFill').style.width = ((i + 1) / recs.length * 100) + '%';
+    $('logList').scrollTop = $('logList').scrollHeight;
+
+    // Rate limit — Resend max 2/sec
+    if (i < recs.length - 1) await new Promise(r => setTimeout(r, 600));
+  }
+
+  btn.disabled = false; btn.classList.remove('loading');
+  txt.textContent = '📨 Hantar Semua';
+  showStatus(ok > 0 ? 'success' : 'error', `Selesai! Berjaya: ${ok}, Gagal: ${fail}`);
+});
+
+// Init preview
+$('bulkBody').value = DEFAULT_HTML;
+updatePreview();
 </script>
 </body>
 </html>
