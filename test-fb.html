@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Firebase Test</title>
+<style>
+  body { font-family: monospace; background: #0a0a0a; color: #fff; padding: 20px; }
+  button { padding: 12px 20px; font-size: 16px; margin: 10px 0; cursor: pointer; }
+  #out { background: #141414; padding: 16px; border-radius: 8px; margin-top: 16px; min-height: 60px; white-space: pre-wrap; word-break: break-all; }
+  .ok { color: #4ade80; }
+  .err { color: #f87171; }
+</style>
+</head>
+<body>
+<h2>Firebase Test</h2>
+<button id="btn">Test Write</button>
+<div id="out">Ready.</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, push, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k",
+  authDomain: "fikri-2a880.firebaseapp.com",
+  databaseURL: "https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fikri-2a880",
+  storageBucket: "fikri-2a880.storage.app",
+  messagingSenderId: "844408547984",
+  appId: "1:844408547984:web:63336207d709bb9f090615"
+};
+
+const out = document.getElementById('out');
+
+try {
+  out.textContent = 'Initializing...\n';
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  out.textContent += '✓ Firebase initialized\n';
+  out.textContent += '✓ Database: ' + firebaseConfig.databaseURL + '\n';
+
+  document.getElementById('btn').addEventListener('click', async () => {
+    out.textContent += '\n--- Writing to /test-data ---\n';
+    try {
+      const r = ref(db, 'test-data');
+      const newRef = push(r);
+      await set(newRef, { hello: 'world', time: Date.now(), msg: 'test from ' + navigator.userAgent.slice(0, 30) });
+      out.textContent += '✅ SUCCESS!\n';
+      out.textContent += 'Key: ' + newRef.key + '\n';
+      out.textContent += 'Check Firebase Console → Data\n';
+    } catch (err) {
+      out.textContent += '❌ ERROR: ' + err.message + '\n';
+      out.textContent += 'Code: ' + (err.code || 'n/a') + '\n';
+      console.error(err);
+    }
+  });
+} catch (err) {
+  out.textContent = '❌ INIT ERROR: ' + err.message;
+  out.textContent += '\nStack: ' + (err.stack || '');
+  console.error(err);
+}
+</script>
+</body>
+</html>
