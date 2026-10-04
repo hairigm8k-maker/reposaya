@@ -261,14 +261,17 @@ function showAuth() {
 
 if (loadToken()) showForm(); else showAuth();
 
-$('authBtn').addEventListener('click', () => {
+const authBtnEl = $('authBtn');
+if (authBtnEl) authBtnEl.addEventListener('click', () => {
   const t = $('tokenInput').value.trim();
   if (!t) return alert('Masukkan token');
   saveToken(t);
   showForm();
 });
-$('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('authBtn').click(); });
-$('logoutBtn').addEventListener('click', () => {
+const tokenInputEl = $('tokenInput');
+if (tokenInputEl) tokenInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') $('authBtn').click(); });
+const logoutBtnEl = $('logoutBtn');
+if (logoutBtnEl) logoutBtnEl.addEventListener('click', () => {
   if (confirm('Logout?')) { clearToken(); showAuth(); $('tokenInput').value = ''; }
 });
 
@@ -279,9 +282,10 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     tab.classList.add('active');
     $('section-' + tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === 'bulk' && !$('bulkBody').value) {
-      $('bulkBody').value = DEFAULT_HTML;
-      updatePreview();
+    if (tab.dataset.tab === 'bulk') {
+      const bb = $('bulkBody');
+      if (bb && !bb.value) bb.value = DEFAULT_HTML;
+      setTimeout(updatePreview, 50);
     }
   });
 });
@@ -316,7 +320,8 @@ async function sendEmail(payload) {
 }
 
 // ============ SINGLE SEND ============
-$('sendBtn').addEventListener('click', async () => {
+const sendBtnEl = $('sendBtn');
+if (sendBtnEl) sendBtnEl.addEventListener('click', async () => {
   const to = $('toInput').value.trim();
   const cc = $('ccInput').value.trim();
   const subject = $('subjectInput').value.trim();
@@ -406,17 +411,20 @@ function replacePlaceholders(text, r) {
 }
 
 function updatePreview() {
+  const bodyEl = $('bulkBody');
+  const previewEl = $('previewBox');
+  if (!bodyEl || !previewEl) return;
   const recs = getRecipients();
   const first = recs[0] || { name: 'Ahmad', email: 'ahmad@example.com', price: '99' };
-  const html = replacePlaceholders($('bulkBody').value, first);
-  $('previewBox').innerHTML = html;
+  const html = replacePlaceholders(bodyEl.value, first);
+  previewEl.innerHTML = html;
 }
 
-$('recipientsInput').addEventListener('input', updatePreview);
-$('bulkBody').addEventListener('input', updatePreview);
+const bulkBodyEl = $('bulkBody');
+if (bulkBodyEl) bulkBodyEl.addEventListener('input', updatePreview);
 
-$('bulkSendBtn').addEventListener('click', async () => {
-  alert('Button ditekan! Debug: dapat ' + getRecipients().length + ' penerima');
+const bulkSendBtnEl = $('bulkSendBtn');
+if (bulkSendBtnEl) bulkSendBtnEl.addEventListener('click', async () => {
   const recs = getRecipients();
   const subject = $('bulkSubject').value.trim();
   const body = $('bulkBody').value;
@@ -475,7 +483,8 @@ $('bulkSendBtn').addEventListener('click', async () => {
 });
 
 // Init preview
-$('bulkBody').value = DEFAULT_HTML;
+const initBulkBody = $('bulkBody');
+if (initBulkBody && !initBulkBody.value) initBulkBody.value = DEFAULT_HTML;
 initRecipients();
 updatePreview();
 </script>
