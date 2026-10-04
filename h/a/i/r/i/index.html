@@ -315,7 +315,11 @@ async function sendEmail(payload) {
     clearToken(); showAuth();
     throw new Error('Token salah. Login semula.');
   }
-  if (!data.ok) throw new Error(data.error || 'Gagal hantar');
+  if (!data.ok) {
+    const errMsg = data.error || data.details?.message || 'Gagal hantar';
+    console.error('Backend error:', data);
+    throw new Error(errMsg);
+  }
   return data;
 }
 
@@ -466,8 +470,15 @@ if (bulkSendBtnEl) bulkSendBtnEl.addEventListener('click', async () => {
       $('statOk').textContent = ok;
     } catch (e) {
       fail++;
-      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">❌ ${e.message.slice(0, 40)}</span>`;
+      const errMsg = (e && e.message) ? e.message : String(e);
+      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">❌ ${errMsg.slice(0, 80)}</span>`;
       $('statFail').textContent = fail;
+      console.error('Send failed for', r.email, errMsg);
+      // Log ke page
+      const errBox = document.createElement('div');
+      errBox.style.cssText = 'background:#1c0f0f;border:1px solid #3a1f1f;color:#f87171;padding:10px;border-radius:8px;font-size:11px;margin-top:8px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
+      errBox.textContent = '❌ ' + r.email + '\n' + errMsg;
+      $('logList').appendChild(errBox);
     }
 
     $('progressFill').style.width = ((i + 1) / recs.length * 100) + '%';
