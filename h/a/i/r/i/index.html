@@ -62,6 +62,63 @@
   .stats b { color: #fff; font-size: 16px; display: block; margin-top: 2px; }
   .footer { text-align: center; font-size: 11px; color: #444; margin-top: 32px; line-height: 1.6; }
   .btn-row { display: flex; gap: 8px; }
+  .recipient-row {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1.2fr 32px;
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+  .recipient-row input {
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+    margin: 0;
+  }
+  .recipient-row input:focus {
+    outline: none;
+    border-color: #6ab5ff;
+  }
+  .recipient-row input::placeholder {
+    color: #555;
+    font-size: 12px;
+  }
+  .recipient-remove {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .recipient-remove:hover {
+    border-color: #f87171;
+    color: #f87171;
+  }
+  @media (max-width: 520px) {
+    .recipient-row {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: 
+        "name email"
+        "price remove";
+    }
+    .recipient-row input:nth-child(1) { grid-area: name; }
+    .recipient-row input:nth-child(2) { grid-area: email; }
+    .recipient-row input:nth-child(3) { grid-area: price; }
+    .recipient-remove { grid-area: remove; justify-self: end; }
+  }
 </style>
 </head>
 <body>
@@ -113,13 +170,14 @@
     <!-- BULK -->
     <div class="section" id="section-bulk">
       <div class="form-card">
-        <label class="label">Senarai Penerima</label>
-        <textarea class="textarea" id="recipientsInput" placeholder="Ahmad | ahmad@gmail.com | 99
-Siti | siti@example.com | 199
-Ali | ali@example.com | 299"></textarea>
-        <p class="hint">Format: <b>nama | email | harga</b> — satu baris satu orang. Harga boleh kosong.</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <label class="label" style="margin:0;">Senarai Penerima</label>
+          <button class="btn secondary" style="width:auto;padding:6px 12px;font-size:12px;" onclick="addRecipientRow()">+ Tambah</button>
+        </div>
 
-        <label class="label">Subject Template</label>
+        <div id="recipientsList"></div>
+
+        <label class="label" style="margin-top:14px;">Subject Template</label>
         <input type="text" class="input" id="bulkSubject" value="Terima kasih, {nama}! 🌸">
 
         <label class="label">Body (HTML)</label>
@@ -265,16 +323,56 @@ $('sendBtn').addEventListener('click', async () => {
   txt.textContent = '📧 Hantar Email';
 });
 
-// ============ BULK ============
-function parseRecipients(text) {
-  return text.split('\n')
-    .map(l => l.trim())
-    .filter(Boolean)
-    .map(line => {
-      const parts = line.split('|').map(s => s.trim());
-      return { name: parts[0] || '', email: parts[1] || '', price: parts[2] || '' };
-    })
-    .filter(r => r.email);
+// ============ BULK — DYNAMIC FORM ============
+let recipientCounter = 0;
+
+function createRecipientRow(name = '', email = '', price = '') {
+  const id = 'r' + (++recipientCounter);
+  const row = document.createElement('div');
+  row.className = 'recipient-row';
+  row.dataset.id = id;
+  row.innerHTML = `
+    <input type="text" placeholder="Nama" value="${escapeAttr(name)}" data-field="name">
+    <input type="email" placeholder="email@example.com" value="${escapeAttr(email)}" data-field="email">
+    <input type="text" placeholder="Harga (RM)" value="${escapeAttr(price)}" data-field="price">
+    <button class="recipient-remove" onclick="removeRecipientRow('${id}')" title="Buang">✕</button>
+  `;
+  // Attach input listener untuk live preview
+  row.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', updatePreview);
+  });
+  return row;
+}
+
+function addRecipientRow(name = '', email = '', price = '') {
+  const list = $('recipientsList');
+  list.appendChild(createRecipientRow(name, email, price));
+  updatePreview();
+  // Auto-scroll ke row baru
+  list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // Focus field pertama
+  setTimeout(() => list.lastChild.querySelector('input').focus(), 100);
+}
+
+function removeRecipientRow(id) {
+  const row = document.querySelector(`.recipient-row[data-id="${id}"]`);
+  if (row) {
+    row.remove();
+    updatePreview();
+  }
+}
+
+function getRecipients() {
+  const rows = document.querySelectorAll('.recipient-row');
+  return Array.from(rows).map(row => ({
+    name: row.querySelector('[data-field="name"]').value.trim(),
+    email: row.querySelector('[data-field="email"]').value.trim(),
+    price: row.querySelector('[data-field="price"]').value.trim()
+  })).filter(r => r.email);
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function getPlaceholders(r) {
@@ -291,7 +389,7 @@ function replacePlaceholders(text, r) {
 }
 
 function updatePreview() {
-  const recs = parseRecipients($('recipientsInput').value);
+  const recs = getRecipients();
   const first = recs[0] || { name: 'Ahmad', email: 'ahmad@example.com', price: '99' };
   const html = replacePlaceholders($('bulkBody').value, first);
   $('previewBox').innerHTML = html;
@@ -301,7 +399,7 @@ $('recipientsInput').addEventListener('input', updatePreview);
 $('bulkBody').addEventListener('input', updatePreview);
 
 $('bulkSendBtn').addEventListener('click', async () => {
-  const recs = parseRecipients($('recipientsInput').value);
+  const recs = getRecipients();
   const subject = $('bulkSubject').value.trim();
   const body = $('bulkBody').value;
 
@@ -360,6 +458,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
 
 // Init preview
 $('bulkBody').value = DEFAULT_HTML;
+initRecipients();
 updatePreview();
 </script>
 </body>
