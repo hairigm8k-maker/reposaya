@@ -81,8 +81,8 @@
   // ===== LANGUAGE =====
   function updateLang() {
     greetEl.textContent = t('Ha? Apa kau nak?', 'What do you want?');
-    subEl.textContent = t('Tanya laju, aku busy.', 'Ask fast, I\'m busy.');
-    input.placeholder = t('Taip laju...', 'Type fast...');
+    subEl.textContent = t('Tanya cptla bodoh, aku busy.', 'Ask fast, I\'m busy.');
+    input.placeholder = t('Taip cpt lansial...', 'Type fast...');
     waLink.textContent = t('Kalau malas taip, WhatsApp je →', 'Can\'t be bothered? WhatsApp →');
     renderSuggestions();
   }

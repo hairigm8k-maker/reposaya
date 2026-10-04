@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Mailer — Internal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .head img { width: 36px; height: 36px; border-radius: 10px; }
+  .head h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+  .head p {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  .auth-box {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .auth-box h2 {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .auth-box input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 12px;
+  }
+  .auth-box input:focus { outline: none; border-color: #6ab5ff; }
+
+  .form-card {
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .input, .textarea {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 14px;
+    transition: border-color .15s;
+  }
+  .input:focus, .textarea:focus { outline: none; border-color: #6ab5ff; }
+  .textarea {
+    resize: vertical;
+    min-height: 180px;
+    line-height: 1.5;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .row input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: #6ab5ff;
+    cursor: pointer;
+  }
+  .row label {
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .btn {
+    width: 100%;
+    background: #fff;
+    color: #0a0a0a;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:hover { opacity: .9; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.secondary {
+    background: #222;
+    color: #fff;
+    padding: 10px;
+    font-size: 13px;
+  }
+  .btn.loading { background: #1a1a1a; color: #fff; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid #444;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status {
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    display: none;
+    word-break: break-word;
+  }
+  .status.show { display: block; }
+  .status.success {
+    background: #0f2417;
+    border: 1px solid #1e4a2e;
+    color: #4ade80;
+  }
+  .status.error {
+    background: #1c0f0f;
+    border: 1px solid #3a1f1f;
+    color: #f87171;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: #555;
+    margin-top: -10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #444;
+    margin-top: 32px;
+    line-height: 1.6;
+  }
+
+  .logout {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 4px 8px;
+  }
+  .logout:hover { color: #f87171; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <img src="/assets/logoUtama/logoUtama.png" alt="Logo">
+    <div style="flex:1">
+      <h1>Mailer</h1>
+      <p>Send email sebagai feedback@hairiamri.buzz</p>
+    </div>
+    <button class="logout hidden" id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- AUTH -->
+  <div class="auth-box" id="authBox">
+    <h2>🔐 Masukkan Token</h2>
+    <input type="password" id="tokenInput" placeholder="Admin token..." autocomplete="off">
+    <button class="btn" id="authBtn">Unlock</button>
+    <p class="hint" style="margin-top:12px;margin-bottom:0;">Token disimpan dalam device kau sahaja.</p>
+  </div>
+
+  <!-- FORM -->
+  <div id="mailerForm" class="hidden">
+
+    <div class="status" id="statusBox"></div>
+
+    <div class="form-card">
+      <label class="label">Kepada (To)</label>
+      <input type="text" class="input" id="toInput" placeholder="email@example.com atau a@x.com, b@y.com">
+      <p class="hint">Boleh letak banyak email, pisah dengan koma.</p>
+
+      <label class="label">CC (optional)</label>
+      <input type="text" class="input" id="ccInput" placeholder="cc@example.com">
+      <p class="hint">Untuk tembus orang lain.</p>
+
+      <label class="label">Reply-To (optional)</label>
+      <input type="text" class="input" id="replyToInput" placeholder="kalau nak user reply ke email lain">
+      <p class="hint">Kosongkan kalau nak reply ke feedback@hairiamri.buzz.</p>
+
+      <label class="label">Subject</label>
+      <input type="text" class="input" id="subjectInput" placeholder="Tajuk email...">
+
+      <label class="label">Mesej</label>
+      <textarea class="textarea" id="bodyInput" placeholder="Tulis mesej kau di sini..."></textarea>
+
+      <div class="row">
+        <input type="checkbox" id="htmlMode">
+        <label for="htmlMode">Hantar sebagai HTML (advanced)</label>
+      </div>
+
+      <button class="btn" id="sendBtn">
+        <span id="sendText">📧 Hantar Email</span>
+      </button>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <button class="btn secondary" onclick="clearForm()">Clear Form</button>
+      <button class="btn secondary" onclick="testSend()">Test Send (ke sendiri)</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Internal tool · feedback@hairiamri.buzz<br>
+    Page ini tidak diindeks oleh search engine.
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = 'mailer_token';
+
+// Check token dalam storage
+function loadToken() {
+  return localStorage.getItem(TOKEN_KEY) || '';
+}
+
+function saveToken(t) {
+  localStorage.setItem(TOKEN_KEY, t);
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+// Show form kalau dah login
+function showForm() {
+  $('authBox').classList.add('hidden');
+  $('mailerForm').classList.remove('hidden');
+  $('logoutBtn').classList.remove('hidden');
+}
+
+function showAuth() {
+  $('authBox').classList.remove('hidden');
+  $('mailerForm').classList.add('hidden');
+  $('logoutBtn').classList.add('hidden');
+}
+
+// Init
+if (loadToken()) {
+  showForm();
+} else {
+  showAuth();
+}
+
+// Auth
+$('authBtn').addEventListener('click', () => {
+  const t = $('tokenInput').value.trim();
+  if (!t) return alert('Masukkan token');
+  saveToken(t);
+  showForm();
+});
+
+$('tokenInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('authBtn').click();
+});
+
+$('logoutBtn').addEventListener('click', () => {
+  if (confirm('Logout?')) {
+    clearToken();
+    showAuth();
+    $('tokenInput').value = '';
+  }
+});
+
+// Status
+function showStatus(type, msg) {
+  const box = $('statusBox');
+  box.className = 'status show ' + type;
+  box.textContent = msg;
+  setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+function hideStatus() {
+  $('statusBox').classList.remove('show');
+}
+
+// Send
+async function sendEmail(payload) {
+  const token = loadToken();
+  if (!token) {
+    showAuth();
+    throw new Error('Token tidak ditemui');
+  }
+
+  const res = await fetch('/api/send-email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Token': token
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (res.status === 401) {
+    clearToken();
+    showAuth();
+    throw new Error('Token salah atau expired. Sila login semula.');
+  }
+
+  if (!data.ok) {
+    throw new Error(data.error || 'Gagal hantar email');
+  }
+
+  return data;
+}
+
+$('sendBtn').addEventListener('click', async () => {
+  const to = $('toInput').value.trim();
+  const cc = $('ccInput').value.trim();
+  const replyTo = $('replyToInput').value.trim();
+  const subject = $('subjectInput').value.trim();
+  const body = $('bodyInput').value;
+  const html = $('htmlMode').checked;
+
+  if (!to || !subject || !body) {
+    return showStatus('error', 'Sila isi To, Subject, dan Mesej.');
+  }
+
+  hideStatus();
+  const btn = $('sendBtn');
+  const txt = $('sendText');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  txt.innerHTML = '<span class="spinner"></span> Menghantar...';
+
+  try {
+    const result = await sendEmail({ to, cc: cc || undefined, replyTo: replyTo || undefined, subject, body, html });
+    showStatus('success', '✅ ' + (result.message || 'Email berjaya dihantar!'));
+  } catch (err) {
+    showStatus('error', '❌ ' + err.message);
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  txt.textContent = '📧 Hantar Email';
+});
+
+function clearForm() {
+  $('toInput').value = '';
+  $('ccInput').value = '';
+  $('replyToInput').value = '';
+  $('subjectInput').value = '';
+  $('bodyInput').value = '';
+  $('htmlMode').checked = false;
+  hideStatus();
+}
+
+async function testSend() {
+  const email = prompt('Hantar email test ke:');
+  if (!email) return;
+  $('toInput').value = email;
+  $('subjectInput').value = 'Test Email dari Mailer';
+  $('bodyInput').value = 'Ini email test.\n\nKalau kau terima ni, sistem berfungsi dengan baik.\n\n— hairiamri.buzz';
+  $('htmlMode').checked = false;
+  $('sendBtn').click();
+}
+</script>
+</body>
+</html>
