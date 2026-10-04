@@ -791,6 +791,11 @@
           <label class="field-label">Body (HTML)</label>
           <textarea class="code" id="bulkBody"></textarea>
         </div>
+        <div class="field">
+          <label class="field-label">Attachment (untuk semua penerima)</label>
+          <input type="file" id="bulkFileInput" multiple>
+          <div class="file-list" id="bulkFileList"></div>
+        </div>
       </div>
 
       <div class="panel">
@@ -1064,6 +1069,20 @@ function updatePreview() {
 
 $('bulkBody').addEventListener('input', updatePreview);
 
+// Bulk file input listener
+$('bulkFileInput').addEventListener('change', () => {
+  const files = $('bulkFileInput').files;
+  const list = $('bulkFileList');
+  if (!files.length) { list.innerHTML = ''; return; }
+  let total = 0, html = '';
+  for (const f of files) {
+    total += f.size;
+    html += f.name + ' <span style="color:var(--muted-soft);">(' + (f.size/1024).toFixed(1) + ' KB)</span><br>';
+  }
+  html += '<div style="margin-top:8px;color:' + (total > 40*1024*1024 ? 'var(--error)' : 'var(--muted-soft)') + ';font-size:12px;">Total: ' + (total/1024/1024).toFixed(2) + ' MB</div>';
+  list.innerHTML = html;
+});
+
 // Template picker
 $('templatePicker').addEventListener('change', (e) => {
   const key = e.target.value;
@@ -1084,6 +1103,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
   const recs = getRecipients();
   const subject = $('bulkSubject').value.trim();
   const body = $('bulkBody').value;
+  const files = $('bulkFileInput').files;
 
   if (!recs.length) return showStatus('error', 'Add at least one recipient');
   if (!subject || !body) return showStatus('error', 'Subject and body required');
@@ -1092,6 +1112,13 @@ $('bulkSendBtn').addEventListener('click', async () => {
   const btn = $('bulkSendBtn'), txt = $('bulkText');
   btn.disabled = true;
   txt.innerHTML = '<span class="spinner"></span> Sending';
+
+  // Prepare attachments once (same file untuk semua)
+  let attachments;
+  if (files.length) {
+    txt.innerHTML = '<span class="spinner"></span> Attaching';
+    attachments = await Promise.all(Array.from(files).map(fileToBase64));
+  }
 
   $('progressCard').classList.remove('hidden');
   $('logList').innerHTML = '';
@@ -1112,7 +1139,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
     $('logList').appendChild(item);
 
     try {
-      await sendEmail({ to: r.email, subject: finalSubject, body: finalBody, html: true });
+      await sendEmail({ to: r.email, subject: finalSubject, body: finalBody, html: true, attachments });
       ok++;
       item.querySelector('span:last-child').innerHTML = '<span class="log-ok">✓</span>';
       $('statOk').textContent = ok;
