@@ -13,8 +13,8 @@
   function t(bm, en) { return getLang() === 'en' ? en : bm; }
 
   const suggestions = {
-    bm: ['Berapa harga?', 'Cara nak order', 'Berapa hari siap?', 'Ada portfolio?'],
-    en: ['How much?', 'How to order', 'Delivery time?', 'Portfolio?']
+    bm: ['Berapa harga?', 'Nak order', 'Siap bila?', 'Ada contoh?'],
+    en: ['How much?', 'Order', 'When done?', 'Samples?']
   };
 
   const bubble = document.createElement('button');
@@ -27,7 +27,7 @@
   panel.innerHTML = `
     <div class="ai-chat-head" id="ai-chat-head">
       <img src="${LOGO}" alt="Logo" class="ai-chat-head-logo">
-      <div class="ai-chat-title">hairiamri.buzz</div>
+      <div class="ai-chat-title">Herry</div>
       <button class="ai-chat-close" aria-label="Close">✕</button>
     </div>
     <div class="ai-chat-body" id="ai-chat-body">
@@ -80,10 +80,10 @@
 
   // ===== LANGUAGE =====
   function updateLang() {
-    greetEl.textContent = t('Hi! 👋', 'Hi! 👋');
-    subEl.textContent = t('Bagaimana saya boleh bantu anda hari ini?', 'How can I help you today?');
-    input.placeholder = t('Taip mesej...', 'Type a message...');
-    waLink.textContent = t('Atau chat kami di WhatsApp →', 'Or chat us on WhatsApp →');
+    greetEl.textContent = t('Ha? Apa kau nak?', 'What do you want?');
+    subEl.textContent = t('Tanya laju, aku busy.', 'Ask fast, I\'m busy.');
+    input.placeholder = t('Taip laju...', 'Type fast...');
+    waLink.textContent = t('Kalau malas taip, WhatsApp je →', 'Can\'t be bothered? WhatsApp →');
     renderSuggestions();
   }
 
