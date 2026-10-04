@@ -339,22 +339,7 @@
 .ai-chat-wa-link:hover { color: #888; }
 
 
-/* Inline WhatsApp button dalam chat message */
-.ai-inline-wa {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  padding: 10px 14px;
-  background: #25d366;
-  color: #fff !important;
-  text-decoration: none !important;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all .2s ease;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
-}
+
 .ai-inline-wa:hover {
   background: #1ebe5a;
   transform: translateY(-1px);
@@ -362,4 +347,39 @@
 }
 .ai-inline-wa svg {
   color: #fff;
+}
+
+
+/* ========================================
+   Inline WhatsApp button dalam chat
+   ======================================== */
+.ai-inline-wa {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #25d366 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all .2s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  border: none;
+}
+.ai-inline-wa:hover {
+  background: #1ebe5a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+.ai-inline-wa svg {
+  color: #fff;
+  flex-shrink: 0;
+}
+.ai-inline-wa span {
+  color: #fff;
+  white-space: nowrap;
 }
