@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Test Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a; color: #fff;
+    min-height: 100vh; padding: 24px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 500px; margin: 0 auto; }
+  h1 { font-size: 22px; margin-bottom: 8px; }
+  p.sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  label {
+    display: block; font-size: 12px; color: #888;
+    margin-bottom: 6px; text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 600;
+  }
+  input, textarea {
+    width: 100%; background: #141414;
+    border: 1px solid #222; color: #fff;
+    padding: 12px 14px; border-radius: 10px;
+    font-size: 14px; font-family: inherit;
+    outline: none;
+  }
+  input:focus, textarea:focus { border-color: #6ab5ff; }
+  textarea { min-height: 80px; resize: vertical; }
+  button {
+    width: 100%; background: #fff; color: #0a0a0a;
+    border: none; padding: 14px; border-radius: 10px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    margin-top: 8px;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .status {
+    padding: 12px; border-radius: 10px;
+    font-size: 13px; margin-bottom: 16px;
+    display: none;
+  }
+  .status.show { display: block; }
+  .status.ok { background: #0f2417; color: #4ade80; border: 1px solid #1e4a2e; }
+  .status.err { background: #1c0f0f; color: #f87171; border: 1px solid #3a1f1f; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Test Form</h1>
+  <p class="sub">Isi & hantar untuk test backend</p>
+
+  <div class="status" id="status"></div>
+
+  <form id="form">
+    <div class="field">
+      <label>Nama Penuh</label>
+      <input type="text" name="nama" required placeholder="Ahmad bin Ali">
+    </div>
+
+    <div class="field">
+      <label>Nombor IC</label>
+      <input type="text" name="ic" required placeholder="990101-01-1234" pattern="[0-9]{6}-[0-9]{2}-[0-9]{4}">
+    </div>
+
+    <div class="field">
+      <label>Alamat</label>
+      <textarea name="alamat" required placeholder="No 1, Jalan Contoh, 50000 Kuala Lumpur"></textarea>
+    </div>
+
+    <div class="field">
+      <label>No Telefon</label>
+      <input type="tel" name="telefon" required placeholder="0123456789">
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" name="email" required placeholder="email@example.com">
+    </div>
+
+    <button type="submit" id="btn">Hantar</button>
+  </form>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('btn');
+  const status = $('status');
+  status.className = 'status';
+  
+  btn.disabled = true;
+  btn.textContent = 'Menghantar...';
+
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+
+  try {
+    const res = await fetch('/api/test-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    if (result.ok) {
+      // Simpan ke sessionStorage untuk page terima baca
+      sessionStorage.setItem('formData', JSON.stringify(result.data));
+      status.className = 'status show ok';
+      status.textContent = '✅ Berjaya! Redirecting...';
+      setTimeout(() => {
+        window.location.href = '/pageterima';
+      }, 800);
+    } else {
+      throw new Error(result.error || 'Gagal hantar');
+    }
+  } catch (err) {
+    status.className = 'status show err';
+    status.textContent = '❌ ' + err.message;
+    btn.disabled = false;
+    btn.textContent = 'Hantar';
+  }
+});
+</script>
+</body>
+</html>
