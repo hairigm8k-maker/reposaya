@@ -617,6 +617,20 @@
       </div>
 
       <div class="panel">
+        <div class="section-label">
+          <span>Template</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-mini" onclick="saveTemplate()">Save</button>
+            <button class="btn-mini" onclick="loadTemplatePrompt()">Manage</button>
+          </div>
+        </div>
+        <select id="templateSelect" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);color:#e8e6e3;padding:14px 16px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:24px;appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23c9a961%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 16px center;background-size:12px;padding-right:40px;">
+          <option value="">— Default —</option>
+        </select>
+        <input type="hidden" id="templateName">
+      </div>
+
+      <div class="panel">
         <div class="section-label">Subject</div>
         <input type="text" id="bulkSubject" value="Terima kasih, {nama}! 🌸" style="margin-bottom:24px;">
 
@@ -978,9 +992,104 @@ $('bulkSendBtn').addEventListener('click', async () => {
   showStatus(ok > 0 ? 'success' : 'error', `Complete · ${ok} sent · ${fail} failed`);
 });
 
+// ============ TEMPLATE MANAGEMENT ============
+const TEMPLATES_KEY = 'mailer_templates';
+
+function getTemplates() {
+  try {
+    return JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '{}');
+  } catch { return {}; }
+}
+
+function setTemplates(obj) {
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(obj));
+  renderTemplateList();
+}
+
+function renderTemplateList() {
+  const sel = $('templateSelect');
+  if (!sel) return;
+  const templates = getTemplates();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Default —</option>';
+  Object.keys(templates).sort().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  if (current && templates[current]) sel.value = current;
+}
+
+$('templateSelect').addEventListener('change', (e) => {
+  const name = e.target.value;
+  if (!name) {
+    // Reset to default
+    $('bulkSubject').value = 'Terima kasih, {nama}! 🌸';
+    $('bulkBody').value = DEFAULT_HTML;
+    updatePreview();
+    return;
+  }
+  const templates = getTemplates();
+  const t = templates[name];
+  if (t) {
+    $('bulkSubject').value = t.subject || '';
+    $('bulkBody').value = t.body || '';
+    updatePreview();
+    showStatus('success', '✓ Template loaded: ' + name);
+    setTimeout(hideStatus, 2000);
+  }
+});
+
+function saveTemplate() {
+  const subject = $('bulkSubject').value.trim();
+  const body = $('bulkBody').value;
+  if (!body) return showStatus('error', 'Body kosong');
+
+  const name = prompt('Nama template:', $('templateSelect').value || 'Template ' + new Date().toLocaleDateString('ms-MY'));
+  if (!name) return;
+
+  const templates = getTemplates();
+  templates[name] = { subject, body, savedAt: new Date().toISOString() };
+  setTemplates(templates);
+  $('templateSelect').value = name;
+  showStatus('success', '✓ Template saved: ' + name);
+  setTimeout(hideStatus, 2000);
+}
+
+function loadTemplatePrompt() {
+  const templates = getTemplates();
+  const names = Object.keys(templates);
+  if (!names.length) {
+    return showStatus('error', 'Tiada template tersimpan');
+  }
+  const list = names.map((n, i) => `${i+1}. ${n}`).join('\n');
+  const choice = prompt('Template tersimpan:\n\n' + list + '\n\nTaip nombor untuk LOAD, atau "d" + nombor untuk DELETE (cth: d2):');
+  if (!choice) return;
+
+  if (choice.toLowerCase().startsWith('d')) {
+    const idx = parseInt(choice.slice(1)) - 1;
+    if (names[idx]) {
+      if (confirm('Delete template "' + names[idx] + '"?')) {
+        delete templates[names[idx]];
+        setTemplates(templates);
+        showStatus('success', '✓ Deleted: ' + names[idx]);
+        setTimeout(hideStatus, 2000);
+      }
+    }
+  } else {
+    const idx = parseInt(choice) - 1;
+    if (names[idx]) {
+      $('templateSelect').value = names[idx];
+      $('templateSelect').dispatchEvent(new Event('change'));
+    }
+  }
+}
+
 const initBulkBody = $('bulkBody');
 if (initBulkBody && !initBulkBody.value) initBulkBody.value = DEFAULT_HTML;
 initRecipients();
+renderTemplateList();
 updatePreview();
 </script>
 </body>
