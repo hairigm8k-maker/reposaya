@@ -106,7 +106,7 @@
     
     el.innerHTML = clean;
     
-    if (who === 'bot' && mentionsWA) {
+    if (who === 'bot') {
       const btn = document.createElement('a');
       btn.className = 'ai-inline-wa';
       btn.href = 'https://wa.me/60172131814';
