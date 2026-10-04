@@ -19,13 +19,13 @@
     en: ['How much?', 'Order', 'When done?', 'Samples?']
   };
 
-  // ============ BUBBLE ============
+  // Bubble
   var bubble = document.createElement('button');
   bubble.id = 'ai-chat-bubble';
   bubble.setAttribute('aria-label', 'Chat');
   bubble.innerHTML = '<img src="' + LOGO + '" alt="Chat" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">';
 
-  // ============ PANEL ============
+  // Panel
   var panel = document.createElement('div');
   panel.id = 'ai-chat-panel';
   panel.innerHTML = [
@@ -67,7 +67,7 @@
   var subEl = panel.querySelector('#ai-sub');
   var waLink = panel.querySelector('#ai-wa-link');
 
-  // ============ SUGGESTIONS ============
+  // Suggestions
   function renderSuggestions() {
     suggestEl.innerHTML = '';
     var list = suggestions[getLang()] || suggestions.bm;
@@ -83,7 +83,7 @@
     });
   }
 
-  // ============ LANGUAGE ============
+  // Language
   function updateLang() {
     greetEl.textContent = t('Ha? Apa kau nak?', 'What do you want?');
     subEl.textContent = t('Tanya laju, aku busy.', "Ask fast, I'm busy.");
@@ -92,20 +92,23 @@
     renderSuggestions();
   }
 
-  // ============ ADD MESSAGE ============
+  // Add message — link WA auto jadi clickable
   function addMsg(text, who) {
     var el = document.createElement('div');
     el.className = 'ai-msg ' + who;
 
-    var clean = String(text)
-      .replace(/https?:\/\/wa\.me\/[^\s]+/gi, '')
-      .replace(/wa\.me\/[^\s]+/gi, '')
-      .trim();
+    var clean = String(text);
 
-    clean = clean.replace(/(https?:\/\/(?!wa\.me)[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+    // Auto-convert wa.me atau WhatsApp mention jadi clickable link
+    // Kalau AI tulis "WhatsApp" tapi takde URL, tambah link
+    clean = clean.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+    // Kalau takde URL tapi ada mention WhatsApp, inject link kat hujung
+    if (who === 'bot' && !/https?:\/\//i.test(text) && /whatsapp|wa\.me|ws/i.test(text)) {
+      clean += ' <a href="' + WA_LINK + '" target="_blank">' + WA_LINK + '</a>';
+    }
 
     el.innerHTML = clean;
-
     messagesEl.appendChild(el);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return el;
@@ -130,7 +133,7 @@
     hero.classList.add('hide');
   }
 
-  // ============ SEND ============
+  // Send
   function send() {
     var msg = input.value.trim();
     if (!msg) return;
@@ -168,7 +171,7 @@
       });
   }
 
-  // ============ EVENTS ============
+  // Events
   bubble.addEventListener('click', function () {
     resetDrag();
     panel.classList.add('open');
@@ -198,7 +201,7 @@
     input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   });
 
-  // ============ DRAG (desktop) ============
+  // Drag (desktop)
   var isDragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
   function isDesktop() { return window.innerWidth >= 520; }
@@ -238,7 +241,7 @@
     panel.style.transform = '';
   }
 
-  // ============ LANGUAGE OBSERVER ============
+  // Language observer
   var observer = new MutationObserver(updateLang);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-current-lang'] });
 
