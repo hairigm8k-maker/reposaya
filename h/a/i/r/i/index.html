@@ -828,6 +828,7 @@
 
 </div>
 
+
 <script>
 window.onerror = function(msg, url, line) {
   const box = document.createElement('div');
@@ -841,189 +842,44 @@ const $ = id => document.getElementById(id);
 const TOKEN_KEY = 'mailer_token';
 
 // ============ TEMPLATES ============
-const HEADER_HTML = `<tr>
-    <td style="background:#111;border-radius:16px 16px 0 0;padding:32px 24px;text-align:center;">
-      <img src="https://hairiamri.buzz/assets/logoUtama/logoUtama.png" alt="" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;background:#fff;padding:4px;">
-      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;">{title}</h1>
-      <p style="margin:8px 0 0;color:#a1a1aa;font-size:13px;">{subtitle}</p>
-    </td>
-  </tr>`;
+const HEADER = '<tr><td style="background:#111;border-radius:16px 16px 0 0;padding:32px 24px;text-align:center;"><img src="https://hairiamri.buzz/assets/logoUtama/logoUtama.png" alt="" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;background:#fff;padding:4px;"><h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;">{TITLE}</h1><p style="margin:8px 0 0;color:#a1a1aa;font-size:13px;">{SUB}</p></td></tr>';
+const FOOTER = '<tr><td style="background:#111;padding:24px;border-radius:0 0 16px 16px;text-align:center;"><p style="margin:0 0 10px;color:#fff;font-size:14px;font-weight:600;">Salam mesra,<br>Pasukan hairiamri.buzz</p><p style="margin:0;color:#666;font-size:11px;">{tarikh}, {masa}</p></td></tr>';
+const OPEN = '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,\'Segoe UI\',Roboto,sans-serif;"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">';
+const CLOSE = '</table></td></tr></table>';
 
-const FOOTER_HTML = `<tr>
-    <td style="background:#111;padding:24px;border-radius:0 0 16px 16px;text-align:center;">
-      <p style="margin:0 0 10px;color:#fff;font-size:14px;font-weight:600;">Salam mesra,<br>Pasukan hairiamri.buzz</p>
-      <p style="margin:0;color:#666;font-size:11px;">{tarikh}, {masa}</p>
-    </td>
-  </tr>`;
-
-const WRAP_OPEN = `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">`;
-
-const WRAP_CLOSE = `</table>
-</td></tr>
-</table>`;
+function hdr(title, sub) {
+  return HEADER.replace('{TITLE}', title).replace('{SUB}', sub);
+}
 
 const TEMPLATES = {
   thankyou: {
+    label: 'Terima Kasih',
     subject: 'Terima kasih, {nama}! 🌸',
-    body: WRAP_OPEN + `
-  ` + HEADER_HTML.replace('{title}', 'Terima Kasih, {nama}! 🌸').replace('{subtitle}', 'Kami amat menghargai kepercayaan anda') + `
-  <tr>
-    <td style="background:#fff;padding:32px 24px;">
-      <p style="margin:0 0 16px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
-      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Terima kasih kerana memilih <b>hairiamri.buzz</b>. Kami amat menghargai kepercayaan anda terhadap perkhidmatan kami.</p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;border-left:4px solid #111;">
-        <tr><td style="padding:20px;">
-          <p style="margin:0 0 8px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">📦 Pakej</p>
-          <p style="margin:0;color:#111;font-size:18px;font-weight:700;">{harga}</p>
-        </td></tr>
-      </table>
-      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Pasukan kami akan mula bekerja <b>dalam 24 jam</b> dan akan menghubungi anda dalam masa <b>1-2 hari bekerja</b>.</p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;">
-        <tr><td align="center">
-          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
-        </td></tr>
-      </table>
-    </td>
-  </tr>
-  ` + FOOTER_HTML + WRAP_CLOSE
+    body: OPEN + hdr('Terima Kasih, {nama}! 🌸', 'Kami amat menghargai kepercayaan anda') + '<tr><td style="background:#fff;padding:32px 24px;"><p style="margin:0 0 16px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p><p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Terima kasih kerana memilih <b>hairiamri.buzz</b>. Kami amat menghargai kepercayaan anda.</p><table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;border-left:4px solid #111;"><tr><td style="padding:20px;"><p style="margin:0 0 8px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">📦 Pakej</p><p style="margin:0;color:#111;font-size:18px;font-weight:700;">{harga}</p></td></tr></table><p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Pasukan kami akan mula bekerja <b>dalam 24 jam</b>.</p><table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;"><tr><td align="center"><a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a></td></tr></table></td></tr>' + FOOTER + CLOSE
   },
-
   invoice: {
+    label: 'Invoice / Order',
     subject: 'Order {nama} — Terima kasih',
-    body: WRAP_OPEN + `
-  ` + HEADER_HTML.replace('{title}', 'Order Diterima ✓').replace('{subtitle}', 'Kami telah menerima tempahan anda') + `
-  <tr>
-    <td style="background:#fff;padding:32px 24px;">
-      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
-      <p style="margin:0 0 24px;color:#444;font-size:15px;line-height:1.7;">Terima kasih! Kami telah menerima tempahan anda dan sedang memproses.</p>
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;overflow:hidden;">
-        <tr style="background:#f9fafb;">
-          <td style="padding:14px 20px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:#666;">Butiran</td>
-        </tr>
-        <tr>
-          <td style="padding:16px 20px;border-top:1px solid #eee;">
-            <table width="100%">
-              <tr><td style="color:#666;font-size:14px;">Pakej</td><td align="right" style="color:#111;font-size:14px;font-weight:700;">{harga}</td></tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:16px 20px;border-top:1px solid #eee;">
-            <table width="100%">
-              <tr><td style="color:#666;font-size:14px;">Status</td><td align="right"><span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;">✓ Diterima</span></td></tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:16px 20px;border-top:1px solid #eee;">
-            <table width="100%">
-              <tr><td style="color:#666;font-size:14px;">Timeline</td><td align="right" style="color:#111;font-size:14px;font-weight:700;">1-2 hari bekerja</td></tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-
-      <p style="margin:24px 0 0;color:#444;font-size:15px;line-height:1.7;">Kami akan hubungi anda untuk langkah seterusnya.</p>
-    </td>
-  </tr>
-  ` + FOOTER_HTML + WRAP_CLOSE
+    body: OPEN + hdr('Order Diterima ✓', 'Kami telah menerima tempahan anda') + '<tr><td style="background:#fff;padding:32px 24px;"><p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p><p style="margin:0 0 24px;color:#444;font-size:15px;line-height:1.7;">Terima kasih! Kami telah menerima tempahan anda.</p><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:12px;"><tr style="background:#f9fafb;"><td style="padding:14px 20px;font-size:12px;text-transform:uppercase;font-weight:700;color:#666;">Butiran</td></tr><tr><td style="padding:16px 20px;border-top:1px solid #eee;"><table width="100%"><tr><td style="color:#666;font-size:14px;">Pakej</td><td align="right" style="color:#111;font-size:14px;font-weight:700;">{harga}</td></tr></table></td></tr><tr><td style="padding:16px 20px;border-top:1px solid #eee;"><table width="100%"><tr><td style="color:#666;font-size:14px;">Status</td><td align="right"><span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;">✓ Diterima</span></td></tr></table></td></tr></table></td></tr>' + FOOTER + CLOSE
   },
-
   reminder: {
+    label: 'Reminder',
     subject: 'Peringatan — {nama}',
-    body: WRAP_OPEN + `
-  ` + HEADER_HTML.replace('{title}', 'Peringatan Mesra').replace('{subtitle}', 'Sedikit peringatan untuk anda') + `
-  <tr>
-    <td style="background:#fff;padding:32px 24px;">
-      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
-      <p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Kami perasan pakej <b>{harga}</b> anda masih dalam proses. Sila hubungi kami untuk langkah seterusnya.</p>
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef3c7;border-radius:10px;margin:20px 0;border-left:4px solid #d4a017;">
-        <tr><td style="padding:16px 20px;">
-          <p style="margin:0;color:#78350f;font-size:14px;line-height:1.6;">⏰ Sila balas email ini atau WhatsApp kami untuk meneruskan.</p>
-        </td></tr>
-      </table>
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
-        <tr><td align="center">
-          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp Kami</a>
-        </td></tr>
-      </table>
-    </td>
-  </tr>
-  ` + FOOTER_HTML + WRAP_CLOSE
+    body: OPEN + hdr('Peringatan Mesra', 'Sedikit peringatan untuk anda') + '<tr><td style="background:#fff;padding:32px 24px;"><p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p><p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Kami perasan pakej <b>{harga}</b> anda masih dalam proses.</p><table width="100%" cellpadding="0" cellspacing="0" style="background:#fef3c7;border-radius:10px;margin:20px 0;border-left:4px solid #d4a017;"><tr><td style="padding:16px 20px;"><p style="margin:0;color:#78350f;font-size:14px;">⏰ Sila hubungi kami untuk meneruskan.</p></td></tr></table><table width="100%" style="margin:24px 0;"><tr><td align="center"><a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a></td></tr></table></td></tr>' + FOOTER + CLOSE
   },
-
   welcome: {
+    label: 'Welcome',
     subject: 'Selamat datang, {nama}! 👋',
-    body: WRAP_OPEN + `
-  ` + HEADER_HTML.replace('{title}', 'Selamat Datang! 👋').replace('{subtitle}', 'Kami teruja nak bekerja dengan anda') + `
-  <tr>
-    <td style="background:#fff;padding:32px 24px;">
-      <p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
-      <p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Selamat datang ke <b>hairiamri.buzz</b>! Kami teruja untuk membantu bisnes anda.</p>
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;">
-        <tr><td style="padding:20px;">
-          <p style="margin:0 0 12px;color:#111;font-size:14px;font-weight:700;">Langkah seterusnya:</p>
-          <p style="margin:0 0 8px;color:#444;font-size:14px;line-height:1.6;">1. Kami akan hubungi anda dalam 24 jam</p>
-          <p style="margin:0 0 8px;color:#444;font-size:14px;line-height:1.6;">2. Anda share logo & gambar</p>
-          <p style="margin:0;color:#444;font-size:14px;line-height:1.6;">3. Kami mula design</p>
-        </td></tr>
-      </table>
-
-      <p style="margin:20px 0 0;color:#444;font-size:15px;line-height:1.7;">Kalau ada apa-apa soalan, jangan segan hubungi kami ya 😊</p>
-    </td>
-  </tr>
-  ` + FOOTER_HTML + WRAP_CLOSE
+    body: OPEN + hdr('Selamat Datang! 👋', 'Kami teruja nak bekerja dengan anda') + '<tr><td style="background:#fff;padding:32px 24px;"><p style="margin:0 0 20px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p><p style="margin:0 0 20px;color:#444;font-size:15px;line-height:1.7;">Selamat datang ke <b>hairiamri.buzz</b>!</p><table width="100%" style="background:#f9fafb;border-radius:12px;margin:20px 0;"><tr><td style="padding:20px;"><p style="margin:0 0 12px;color:#111;font-size:14px;font-weight:700;">Langkah seterusnya:</p><p style="margin:0 0 8px;color:#444;font-size:14px;">1. Kami hubungi dalam 24 jam</p><p style="margin:0 0 8px;color:#444;font-size:14px;">2. Share logo & gambar</p><p style="margin:0;color:#444;font-size:14px;">3. Kami mula design</p></td></tr></table></td></tr>' + FOOTER + CLOSE
   },
-
   blank: {
+    label: 'Blank (Kosong)',
     subject: '',
     body: ''
   }
 };
 
-const DEFAULT_HTML = TEMPLATES.thankyou.body;
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr>
-    <td style="background:#111;border-radius:16px 16px 0 0;padding:32px 24px;text-align:center;">
-      <img src="https://hairiamri.buzz/assets/logoUtama/logoUtama.png" alt="" width="56" height="56" style="border-radius:14px;display:block;margin:0 auto 14px;background:#fff;padding:4px;">
-      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;letter-spacing:-.02em;">Terima Kasih, {nama}! 🌸</h1>
-      <p style="margin:8px 0 0;color:#a1a1aa;font-size:13px;">Kami amat menghargai kepercayaan anda</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="background:#fff;padding:32px 24px;">
-      <p style="margin:0 0 16px;color:#222;font-size:15px;line-height:1.7;">Hai <b>{nama}</b>,</p>
-      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Terima kasih kerana memilih <b>hairiamri.buzz</b>. Kami amat menghargai kepercayaan anda terhadap perkhidmatan kami.</p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:12px;margin:20px 0;border-left:4px solid #111;">
-        <tr><td style="padding:20px;">
-          <p style="margin:0 0 8px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">📦 Pakej</p>
-          <p style="margin:0;color:#111;font-size:18px;font-weight:700;">{harga}</p>
-        </td></tr>
-      </table>
-      <p style="margin:0 0 16px;color:#444;font-size:15px;line-height:1.7;">Pasukan kami akan mula bekerja <b>dalam 24 jam</b> dan akan menghubungi anda dalam masa <b>1-2 hari bekerja</b>.</p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 20px;">
-        <tr><td align="center">
-          <a href="https://wa.me/60172131814" style="display:inline-block;background:#111;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">💬 WhatsApp</a>
-        </td></tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td style="background:#111;padding:24px;border-radius:0 0 16px 16px;text-align:center;">
-      <p style="margin:0 0 10px;color:#fff;font-size:14px;font-weight:600;">Salam mesra,<br>Pasukan hairiamri.buzz</p>
-      <p style="margin:0;color:#666;font-size:11px;">{tarikh}, {masa}</p>
-    </td>
-  </tr>
-</table>
-</td></tr>
-</table>`;
+let DEFAULT_HTML = TEMPLATES.thankyou.body;
 
 // ============ AUTH ============
 function loadToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
@@ -1082,14 +938,12 @@ function hideStatus() { $('statusBox').classList.remove('show'); }
 async function sendEmail(payload) {
   const token = loadToken();
   if (!token) { showAuth(); throw new Error('No token'); }
-
   const res = await fetch('/api/send-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
     body: JSON.stringify(payload)
   });
   const data = await res.json();
-
   if (res.status === 401) { clearToken(); showAuth(); throw new Error('Unauthorized'); }
   if (!data.ok) throw new Error(data.error || data.details?.message || 'Failed');
   return data;
@@ -1098,10 +952,7 @@ async function sendEmail(payload) {
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result.split(',')[1];
-      resolve({ filename: file.name, content: base64 });
-    };
+    reader.onload = () => resolve({ filename: file.name, content: reader.result.split(',')[1] });
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -1111,13 +962,12 @@ $('fileInput').addEventListener('change', () => {
   const files = $('fileInput').files;
   const list = $('fileList');
   if (!files.length) { list.innerHTML = ''; return; }
-  let total = 0;
-  let html = '';
+  let total = 0, html = '';
   for (const f of files) {
     total += f.size;
-    html += `${f.name} <span style="color:var(--muted-soft);">(${(f.size/1024).toFixed(1)} KB)</span><br>`;
+    html += f.name + ' <span style="color:var(--muted-soft);">(' + (f.size/1024).toFixed(1) + ' KB)</span><br>';
   }
-  html += `<div style="margin-top:8px;color:${total > 40*1024*1024 ? 'var(--error)' : 'var(--muted-soft)'};font-size:12px;">Total: ${(total/1024/1024).toFixed(2)} MB</div>`;
+  html += '<div style="margin-top:8px;color:var(--muted-soft);font-size:12px;">Total: ' + (total/1024/1024).toFixed(2) + ' MB</div>';
   list.innerHTML = html;
 });
 
@@ -1142,10 +992,9 @@ $('sendBtn').addEventListener('click', async () => {
       txt.innerHTML = '<span class="spinner"></span> Attaching';
       attachments = await Promise.all(Array.from(files).map(fileToBase64));
     }
-
     txt.innerHTML = '<span class="spinner"></span> Sending';
     const r = await sendEmail({ to, cc: cc || undefined, subject, body, html, attachments });
-    showStatus('success', '✓ ' + (r.message || 'Email sent successfully'));
+    showStatus('success', '✓ ' + (r.message || 'Email sent'));
   } catch (e) {
     showStatus('error', '✕ ' + e.message);
   }
@@ -1156,22 +1005,17 @@ $('sendBtn').addEventListener('click', async () => {
 // ============ BULK ============
 let recipientCounter = 0;
 
-function createRecipientRow(name = '', email = '', price = '') {
+function createRecipientRow(name, email, price) {
   const id = 'r' + (++recipientCounter);
   const row = document.createElement('div');
   row.className = 'recipient-row';
   row.dataset.id = id;
-  row.innerHTML = `
-    <input type="text" placeholder="Name" value="${escapeAttr(name)}" data-field="name">
-    <input type="email" placeholder="Email" value="${escapeAttr(email)}" data-field="email">
-    <input type="text" placeholder="RM" value="${escapeAttr(price)}" data-field="price">
-    <button class="recipient-remove" onclick="removeRecipientRow('${id}')">✕</button>
-  `;
+  row.innerHTML = '<input type="text" placeholder="Name" value="' + escapeAttr(name || '') + '" data-field="name"><input type="email" placeholder="Email" value="' + escapeAttr(email || '') + '" data-field="email"><input type="text" placeholder="RM" value="' + escapeAttr(price || '') + '" data-field="price"><button class="recipient-remove" onclick="removeRecipientRow(\'' + id + '\')">✕</button>';
   row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updatePreview));
   return row;
 }
 
-function addRecipientRow(name = '', email = '', price = '') {
+function addRecipientRow(name, email, price) {
   const list = $('recipientsList');
   list.appendChild(createRecipientRow(name, email, price));
   updatePreview();
@@ -1180,7 +1024,7 @@ function addRecipientRow(name = '', email = '', price = '') {
 }
 
 function removeRecipientRow(id) {
-  const row = document.querySelector(`.recipient-row[data-id="${id}"]`);
+  const row = document.querySelector('.recipient-row[data-id="' + id + '"]');
   if (row) { row.remove(); updatePreview(); }
 }
 
@@ -1199,15 +1043,9 @@ function escapeAttr(s) {
 function getPlaceholders(r) {
   const now = new Date();
   const tz = { timeZone: 'Asia/Kuala_Lumpur' };
-  return {
-    nama: r.name, name: r.name,
-    email: r.email,
-    harga: r.price, price: r.price,
-    tarikh: now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' }),
-    date: now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' }),
-    masa: now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' }),
-    time: now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' })
-  };
+  const dateStr = now.toLocaleDateString('ms-MY', { ...tz, day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('ms-MY', { ...tz, hour: '2-digit', minute: '2-digit' });
+  return { nama: r.name, name: r.name, email: r.email, harga: r.price, price: r.price, tarikh: dateStr, date: dateStr, masa: timeStr, time: timeStr };
 }
 
 function replacePlaceholders(text, r) {
@@ -1224,24 +1062,19 @@ function updatePreview() {
   previewEl.innerHTML = replacePlaceholders(bodyEl.value, first);
 }
 
-const bulkBodyEl = $('bulkBody');
-if (bulkBodyEl) bulkBodyEl.addEventListener('input', updatePreview);
+$('bulkBody').addEventListener('input', updatePreview);
 
 // Template picker
-const tplPicker = $('templatePicker');
-if (tplPicker) {
-  tplPicker.addEventListener('change', (e) => {
-    const key = e.target.value;
-    if (!key) return;
-    const tpl = TEMPLATES[key];
-    if (!tpl) return;
-    $('bulkSubject').value = tpl.subject || '';
-    $('bulkBody').value = tpl.body || '';
-    updatePreview();
-    showStatus('success', '✓ Template dimuatkan: ' + e.target.options[e.target.selectedIndex].text);
-    setTimeout(hideStatus, 2000);
-  });
-}
+$('templatePicker').addEventListener('change', (e) => {
+  const key = e.target.value;
+  if (!key || !TEMPLATES[key]) return;
+  const tpl = TEMPLATES[key];
+  $('bulkSubject').value = tpl.subject;
+  $('bulkBody').value = tpl.body;
+  updatePreview();
+  showStatus('success', '✓ Template: ' + tpl.label);
+  setTimeout(hideStatus, 2000);
+});
 
 function initRecipients() {
   if (document.querySelectorAll('.recipient-row').length === 0) addRecipientRow();
@@ -1253,7 +1086,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
   const body = $('bulkBody').value;
 
   if (!recs.length) return showStatus('error', 'Add at least one recipient');
-  if (!subject || !body) return showStatus('error', 'Subject and body are required');
+  if (!subject || !body) return showStatus('error', 'Subject and body required');
 
   hideStatus();
   const btn = $('bulkSendBtn'), txt = $('bulkText');
@@ -1273,10 +1106,9 @@ $('bulkSendBtn').addEventListener('click', async () => {
     const r = recs[i];
     const finalSubject = replacePlaceholders(subject, r);
     const finalBody = replacePlaceholders(body, r);
-
     const item = document.createElement('div');
     item.className = 'log-item';
-    item.innerHTML = `<span>${r.name || r.email}</span><span>⋯</span>`;
+    item.innerHTML = '<span>' + (r.name || r.email) + '</span><span>⋯</span>';
     $('logList').appendChild(item);
 
     try {
@@ -1287,7 +1119,7 @@ $('bulkSendBtn').addEventListener('click', async () => {
     } catch (e) {
       fail++;
       const errMsg = (e && e.message) ? e.message : String(e);
-      item.querySelector('span:last-child').innerHTML = `<span class="log-fail">✕</span>`;
+      item.querySelector('span:last-child').innerHTML = '<span class="log-fail">✕</span>';
       $('statFail').textContent = fail;
       const errBox = document.createElement('div');
       errBox.style.cssText = 'background:rgba(198,69,69,0.1);border:1px solid rgba(198,69,69,0.2);color:#e57373;padding:8px 10px;border-radius:6px;font-size:11px;margin-top:6px;font-family:monospace;word-break:break-word;white-space:pre-wrap;';
@@ -1297,17 +1129,16 @@ $('bulkSendBtn').addEventListener('click', async () => {
 
     $('progressFill').style.width = ((i + 1) / recs.length * 100) + '%';
     $('logList').scrollTop = $('logList').scrollHeight;
-
     if (i < recs.length - 1) await new Promise(r => setTimeout(r, 600));
   }
 
   btn.disabled = false;
   txt.textContent = 'Send to all';
-  showStatus(ok > 0 ? 'success' : 'error', `${ok} sent · ${fail} failed`);
+  showStatus(ok > 0 ? 'success' : 'error', ok + ' sent · ' + fail + ' failed');
 });
 
-const initBulkBody = $('bulkBody');
-if (initBulkBody && !initBulkBody.value) initBulkBody.value = DEFAULT_HTML;
+// Init
+if (!$('bulkBody').value) $('bulkBody').value = DEFAULT_HTML;
 initRecipients();
 updatePreview();
 </script>
