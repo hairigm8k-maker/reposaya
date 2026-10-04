@@ -48,34 +48,35 @@
   .status.show { display: block; }
   .status.ok { background: #0f2417; color: #4ade80; border: 1px solid #1e4a2e; }
   .status.err { background: #1c0f0f; color: #f87171; border: 1px solid #3a1f1f; }
+  .status.loading { background: #0f1a24; color: #6ab5ff; border: 1px solid #1f3a4a; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Test Form</h1>
-  <p class="sub">Isi & hantar untuk test backend</p>
+  <p class="sub">Isi & hantar — data masuk Firebase</p>
 
   <div class="status" id="status"></div>
 
   <form id="form">
     <div class="field">
       <label>Nama Penuh</label>
-      <input type="text" name="nama" required placeholder="Ahmad bin Ali">
+      <input type="text" name="nama" required placeholder="Ahmad bin Ali" maxlength="100">
     </div>
 
     <div class="field">
-      <label>Nombor IC</label>
+      <label>Nombor IC (12 digit)</label>
       <input type="text" name="ic" required placeholder="990101011234" pattern="[0-9]{12}" maxlength="12" inputmode="numeric">
     </div>
 
     <div class="field">
       <label>Alamat</label>
-      <textarea name="alamat" required placeholder="No 1, Jalan Contoh, 50000 Kuala Lumpur"></textarea>
+      <textarea name="alamat" required placeholder="No 1, Jalan Contoh, 50000 Kuala Lumpur" maxlength="500"></textarea>
     </div>
 
     <div class="field">
       <label>No Telefon</label>
-      <input type="tel" name="telefon" required placeholder="0123456789">
+      <input type="tel" name="telefon" required placeholder="0123456789" maxlength="20">
     </div>
 
     <div class="field">
@@ -87,7 +88,25 @@
   </form>
 </div>
 
-<script>
+<!-- Firebase SDK v10 (modular via CDN) -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, push, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-AJp-CHodVdfHBGiAHTFHSBWYZh3p44k",
+  authDomain: "fikri-2a880.firebaseapp.com",
+  databaseURL: "https://fikri-2a880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fikri-2a880",
+  storageBucket: "fikri-2a880.firebasestorage.app",
+  messagingSenderId: "844408547984",
+  appId: "1:844408547984:web:63336207d709bb9f090615",
+  measurementId: "G-1Y114DL775"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const $ = id => document.getElementById(id);
 
 $('form').addEventListener('submit', async (e) => {
@@ -98,32 +117,52 @@ $('form').addEventListener('submit', async (e) => {
   
   btn.disabled = true;
   btn.textContent = 'Menghantar...';
+  status.className = 'status show loading';
+  status.textContent = '⏳ Menghantar ke Firebase...';
 
   const formData = new FormData(e.target);
-  const data = Object.fromEntries(formData.entries());
+  const raw = Object.fromEntries(formData.entries());
+
+  // Validate IC (12 digit)
+  const icClean = raw.ic.replace(/\D/g, '');
+  if (icClean.length !== 12) {
+    status.className = 'status show err';
+    status.textContent = '❌ IC mesti 12 digit';
+    btn.disabled = false;
+    btn.textContent = 'Hantar';
+    return;
+  }
+
+  // Prepare data
+  const data = {
+    nama: raw.nama.trim(),
+    ic: icClean,
+    alamat: raw.alamat.trim(),
+    telefon: raw.telefon.trim(),
+    email: raw.email.trim(),
+    submittedAt: Date.now(),
+    refId: 'TEST-' + Date.now().toString(36).toUpperCase()
+  };
 
   try {
-    const res = await fetch('/api/test-submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
+    // Push ke Firebase — auto-generate key
+    const submissionsRef = ref(db, 'submissions');
+    const newRef = push(submissionsRef);
+    await set(newRef, data);
 
-    if (result.ok) {
-      // Simpan ke sessionStorage untuk page terima baca
-      sessionStorage.setItem('formData', JSON.stringify(result.data));
-      status.className = 'status show ok';
-      status.textContent = '✅ Berjaya! Redirecting...';
-      setTimeout(() => {
-        window.location.href = '/pageterima';
-      }, 800);
-    } else {
-      throw new Error(result.error || 'Gagal hantar');
-    }
+    // Simpan untuk page terima baca
+    sessionStorage.setItem('formData', JSON.stringify(data));
+    sessionStorage.setItem('firebaseKey', newRef.key);
+
+    status.className = 'status show ok';
+    status.textContent = '✅ Berjaya! Redirecting...';
+    setTimeout(() => {
+      window.location.href = '/pageterima';
+    }, 800);
   } catch (err) {
+    console.error('Firebase error:', err);
     status.className = 'status show err';
-    status.textContent = '❌ ' + err.message;
+    status.textContent = '❌ ' + (err.message || 'Gagal hantar');
     btn.disabled = false;
     btn.textContent = 'Hantar';
   }
