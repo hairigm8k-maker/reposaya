@@ -225,7 +225,7 @@
   <p class="pakej-publish">Siarkan Perniagaan anda di</p>
   <img src="assets/googlelogo.png" alt="Google" class="google-logo">
   <div class="pakej-video-wrap">
-    <h3 class="pakej-video-heading">Beza Landing Page<br>Dengan Website?</h3>
+    <h3 class="pakej-video-heading" data-bm="Beza Landing Page<br>Dengan Website?" data-en="Difference Between<br>Landing Page &amp; Website?">Beza Landing Page<br>Dengan Website?</h3>
     <div class="pakej-video">
       <iframe
         src="https://www.youtube.com/embed/nQ2f79bi_QE"
@@ -450,11 +450,13 @@ function setLang(lang) {
 
   // Update semua element dengan data-bm/data-en
   document.querySelectorAll('[data-bm][data-en]').forEach(el => {
-    // Skip button (dah handle berasingan)
-    if (el.tagName === 'BUTTON' && !el.disabled) {
-      el.textContent = el.dataset[lang];
-    } else if (el.tagName !== 'BUTTON') {
-      el.textContent = el.dataset[lang];
+    const val = el.dataset[lang];
+    if (!val) return;
+    // Guna innerHTML supaya <br>, <b>, dll render betul
+    if (val.includes('<')) {
+      el.innerHTML = val;
+    } else {
+      el.textContent = val;
     }
   });
 
