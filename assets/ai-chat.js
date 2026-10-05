@@ -126,8 +126,13 @@
     var el = document.createElement('div');
     el.className = 'ai-msg ' + who;
 
-    var clean = String(text)
-      .trim();
+    var clean = String(text);
+
+    // Convert SEMUA URL jadi clickable link
+    clean = clean.replace(
+      /(https?:\/\/[^\s<>]+)/gi,
+      '<a href="$1" target="_blank" rel="noopener">$1</a>'
+    );
 
     el.innerHTML = clean;
 

@@ -415,3 +415,18 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Force link style dalam chat */
+.ai-msg a {
+  color: #14b8a6 !important;
+  text-decoration: underline !important;
+  word-break: break-all;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+.ai-msg a:hover {
+  color: #5eead4 !important;
+}
+.ai-msg.user a {
+  color: #14b8a6 !important;
+}
