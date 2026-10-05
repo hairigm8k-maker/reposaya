@@ -2,7 +2,6 @@
   if (window.__aiChatLoaded) return;
   window.__aiChatLoaded = true;
 
-  var WA_LINK = 'https://wa.me/60172131814';
   var LOGO = 'assets/iconcs.png';
   var history = [];
   var heroShown = true;
@@ -13,32 +12,55 @@
   function t(bm, en) {
     return getLang() === 'en' ? en : bm;
   }
+  function getGreeting() {
+    var hour = new Date().getHours();
+    var label = 'Morning';
+    if (hour >= 12 && hour < 18) label = 'Afternoon';
+    else if (hour >= 18) label = 'Evening';
+    else if (hour < 5) label = 'Hello';
+    if (getLang() === 'en') return label;
+    if (hour >= 5 && hour < 12) return 'Selamat pagi';
+    if (hour >= 12 && hour < 15) return 'Selamat tengah hari';
+    if (hour >= 15 && hour < 19) return 'Selamat petang';
+    return 'Selamat malam';
+  }
 
   var suggestions = {
     bm: ['Berapa harga?', 'Nak order', 'Siap bila?', 'Ada contoh?'],
-    en: ['How much?', 'Order', 'When done?', 'Samples?']
+    en: ['Price?', 'Order', 'Delivery?', 'Samples?']
   };
 
   // Bubble
   var bubble = document.createElement('button');
   bubble.id = 'ai-chat-bubble';
   bubble.setAttribute('aria-label', 'Chat');
-  bubble.innerHTML = '<img src="' + LOGO + '" alt="Chat" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">';
+  bubble.innerHTML = '<img src="' + LOGO + '" alt="Chat">';
 
   // Panel
   var panel = document.createElement('div');
   panel.id = 'ai-chat-panel';
   panel.innerHTML = [
-    '<div class="ai-chat-head" id="ai-chat-head">',
-    '  <img src="' + LOGO + '" alt="" class="ai-chat-head-logo">',
-    '  <div class="ai-chat-title">Herry</div>',
-    '  <button class="ai-chat-close" aria-label="Close">✕</button>',
+    '<div class="ai-chat-head">',
+    '  <div class="ai-chat-head-info">',
+    '    <div class="ai-chat-head-name">Alina</div>',
+    '    <div class="ai-chat-head-sub" id="ai-head-sub">How can I help you today?</div>',
+    '  </div>',
+    '  <div class="ai-chat-head-actions">',
+    '    <button class="ai-chat-head-btn" id="ai-refresh" aria-label="New chat" title="Mula chat baru">',
+    '      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><polyline points="21 3 21 9 15 9"></polyline></svg>',
+    '    </button>',
+    '    <button class="ai-chat-head-btn" id="ai-close" aria-label="Close">',
+    '      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+    '    </button>',
+    '  </div>',
     '</div>',
-    '<div class="ai-chat-body">',
+    '<div class="ai-chat-body" id="ai-chat-body">',
     '  <div class="ai-chat-hero" id="ai-chat-hero">',
-    '    <div class="ai-orb"></div>',
-    '    <h2 class="ai-chat-greet" id="ai-greet">Ha? Apa kau nak?</h2>',
-    '    <p class="ai-chat-sub" id="ai-sub">Tanya laju, aku busy.</p>',
+    '    <div class="ai-chat-hero-icon">',
+    '      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8 5.9 1.9-5.9 1.9L12 18l-1.9-5.4L4.2 10.7l5.9-1.9z"></path><path d="M19 4v3"></path><path d="M20.5 5.5h-3"></path></svg>',
+    '    </div>',
+    '    <h2 class="ai-chat-greet" id="ai-greet">Morning, user.</h2>',
+    '    <p class="ai-chat-sub" id="ai-sub">What are we working on today? Press send to start a new conversation.</p>',
     '    <div class="ai-suggestions" id="ai-suggestions"></div>',
     '  </div>',
     '  <div class="ai-chat-messages" id="ai-chat-messages"></div>',
@@ -46,18 +68,21 @@
     '<div class="ai-chat-foot">',
     '  <div class="ai-chat-input-wrap">',
     '    <textarea class="ai-chat-input" id="ai-chat-input" rows="1" placeholder="Taip mesej..."></textarea>',
-    '    <button class="ai-chat-send" id="ai-chat-send" aria-label="Send">',
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>',
-    '    </button>',
+    '    <div class="ai-chat-input-actions">',
+    '      <button class="ai-chat-plus" aria-label="Attach" type="button">',
+    '        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    '      </button>',
+    '      <button class="ai-chat-send" id="ai-chat-send" aria-label="Send">',
+    '        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>',
+    '      </button>',
+    '    </div>',
     '  </div>',
-    '</div>',
-    '<a class="ai-chat-wa-link" href="' + WA_LINK + '" target="_blank" id="ai-wa-link">Atau chat kami di WhatsApp →</a>'
+    '</div>'
   ].join('');
 
   document.body.appendChild(bubble);
   document.body.appendChild(panel);
 
-  var head = panel.querySelector('#ai-chat-head');
   var hero = panel.querySelector('#ai-chat-hero');
   var messagesEl = panel.querySelector('#ai-chat-messages');
   var input = panel.querySelector('#ai-chat-input');
@@ -65,9 +90,9 @@
   var suggestEl = panel.querySelector('#ai-suggestions');
   var greetEl = panel.querySelector('#ai-greet');
   var subEl = panel.querySelector('#ai-sub');
-  var waLink = panel.querySelector('#ai-wa-link');
+  var headSubEl = panel.querySelector('#ai-head-sub');
+  var refreshBtn = panel.querySelector('#ai-refresh');
 
-  // Suggestions
   function renderSuggestions() {
     suggestEl.innerHTML = '';
     var list = suggestions[getLang()] || suggestions.bm;
@@ -83,42 +108,42 @@
     });
   }
 
-  // Language
   function updateLang() {
-    greetEl.textContent = t('Ha? Apa kau nak?', 'What do you want?');
-    subEl.textContent = t('Tanya laju, aku busy.', "Ask fast, I'm busy.");
-    input.placeholder = t('Taip laju...', 'Type fast...');
-    waLink.textContent = t('Atau chat kami di WhatsApp →', 'Or chat us on WhatsApp →');
+    var greet = getGreeting();
+    greetEl.textContent = getLang() === 'en'
+      ? greet + ', user.'
+      : greet + ', user.';
+    subEl.textContent = t(
+      'Apa yang kita nak buat hari ini? Tekan hantar untuk mula perbualan baru.',
+      'What are we working on today? Press send to start a new conversation.'
+    );
+    headSubEl.textContent = t('Boleh saya bantu?', 'How can I help you today?');
+    input.placeholder = t('Taip mesej...', 'Type a message...');
     renderSuggestions();
   }
 
-  // Add message — link WA auto jadi clickable
   function addMsg(text, who) {
     var el = document.createElement('div');
     el.className = 'ai-msg ' + who;
 
-    var clean = String(text);
+    var clean = String(text)
+      .replace(/https?:\/\/wa\.me\/[^\s]+/gi, '')
+      .trim();
 
-    // Auto-convert wa.me atau WhatsApp mention jadi clickable link
-    // Kalau AI tulis "WhatsApp" tapi takde URL, tambah link
-    clean = clean.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-
-    // Kalau takde URL tapi ada mention WhatsApp, inject link kat hujung
-    if (who === 'bot' && !/https?:\/\//i.test(text) && /whatsapp|wa\.me|ws/i.test(text)) {
-      clean += ' <a href="' + WA_LINK + '" target="_blank">' + WA_LINK + '</a>';
-    }
-
+    clean = clean.replace(/(https?:\/\/(?!wa\.me)[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
     el.innerHTML = clean;
+
     messagesEl.appendChild(el);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return el;
   }
 
   function showTyping() {
+    var label = t('Alina sedang menaip', 'Alina is typing');
     var el = document.createElement('div');
     el.className = 'ai-typing';
     el.id = 'ai-typing';
-    el.innerHTML = '<span></span><span></span><span></span>';
+    el.innerHTML = '<div class="ai-typing-dots"><span></span><span></span><span></span></div><div class="ai-typing-label">' + label + '</div>';
     messagesEl.appendChild(el);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
@@ -133,7 +158,11 @@
     hero.classList.add('hide');
   }
 
-  // Send
+  function showHero() {
+    heroShown = true;
+    hero.classList.remove('hide');
+  }
+
   function send() {
     var msg = input.value.trim();
     if (!msg) return;
@@ -171,22 +200,23 @@
       });
   }
 
-  // Events
   bubble.addEventListener('click', function () {
-    resetDrag();
     panel.classList.add('open');
     updateLang();
-    if (messagesEl.children.length === 0) {
-      addMsg(t(
-        'Hai! 👋 Aku Herry. Tanya apa-apa pasal servis landing page RM99 kami.',
-        "Hi! 👋 I'm Herry. Ask me anything about our RM99 landing page service."
-      ), 'bot');
-    }
   });
 
-  panel.querySelector('.ai-chat-close').addEventListener('click', function () {
+  panel.querySelector('#ai-close').addEventListener('click', function () {
     panel.classList.remove('open');
-    resetDrag();
+  });
+
+  refreshBtn.addEventListener('click', function () {
+    refreshBtn.classList.add('spinning');
+    setTimeout(function () { refreshBtn.classList.remove('spinning'); }, 600);
+
+    messagesEl.innerHTML = '';
+    history = [];
+    showHero();
+    updateLang();
   });
 
   sendBtn.addEventListener('click', send);
@@ -201,47 +231,6 @@
     input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   });
 
-  // Drag (desktop)
-  var isDragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
-
-  function isDesktop() { return window.innerWidth >= 520; }
-
-  head.addEventListener('mousedown', function (e) {
-    if (!isDesktop()) return;
-    if (e.target.closest('.ai-chat-close')) return;
-    e.preventDefault();
-    var r = panel.getBoundingClientRect();
-    panel.style.left = r.left + 'px';
-    panel.style.top = r.top + 'px';
-    panel.style.transform = 'none';
-    panel.classList.add('dragged', 'dragging');
-    startX = e.clientX; startY = e.clientY;
-    startLeft = r.left; startTop = r.top;
-    isDragging = true;
-  });
-  document.addEventListener('mousemove', function (e) {
-    if (!isDragging) return;
-    var w = panel.offsetWidth, h = panel.offsetHeight;
-    var nl = startLeft + (e.clientX - startX);
-    var nt = startTop + (e.clientY - startY);
-    nl = Math.max(4, Math.min(window.innerWidth - w - 4, nl));
-    nt = Math.max(4, Math.min(window.innerHeight - h - 4, nt));
-    panel.style.left = nl + 'px';
-    panel.style.top = nt + 'px';
-  });
-  document.addEventListener('mouseup', function () {
-    isDragging = false;
-    panel.classList.remove('dragging');
-  });
-
-  function resetDrag() {
-    panel.classList.remove('dragged', 'dragging');
-    panel.style.left = '';
-    panel.style.top = '';
-    panel.style.transform = '';
-  }
-
-  // Language observer
   var observer = new MutationObserver(updateLang);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-current-lang'] });
 
