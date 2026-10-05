@@ -127,10 +127,8 @@
     el.className = 'ai-msg ' + who;
 
     var clean = String(text)
-      .replace(/https?:\/\/wa\.me\/[^\s]+/gi, '')
       .trim();
 
-    clean = clean.replace(/(https?:\/\/(?!wa\.me)[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
     el.innerHTML = clean;
 
     messagesEl.appendChild(el);
