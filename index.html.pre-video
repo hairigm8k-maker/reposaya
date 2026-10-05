@@ -224,19 +224,6 @@
 
   <p class="pakej-publish">Siarkan Perniagaan anda di</p>
   <img src="assets/googlelogo.png" alt="Google" class="google-logo">
-  <div class="pakej-video-wrap">
-    <p class="pakej-video-title">Tengok Contoh Kami</p>
-    <div class="pakej-video">
-      <iframe
-        src="https://www.youtube.com/embed/nQ2f79bi_QE"
-        title="Contoh landing page"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen
-        loading="lazy"></iframe>
-    </div>
-  </div>
 </section>
 
 <script>
