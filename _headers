@@ -15,7 +15,7 @@
 
   # --- Content Security Policy ---
   # Whitelist semua CDN yang digunakan
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https://cloudflareinsights.com https://*.cloudflare.com https://wa.me; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://script.google.com https://wa.me
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.youtube.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https://cloudflareinsights.com https://*.cloudflare.com https://wa.me; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://youtu.be; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://script.google.com https://wa.me
 
 # ============================================
 # Jangan apply security headers pada admin
