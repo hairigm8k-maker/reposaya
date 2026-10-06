@@ -1157,19 +1157,8 @@ transition: 0.2s;
 }
 
 
-/* ============================================
-   STICKER LIMITED TIME ONLY
-   ============================================ */
-.sticker-hero {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  width: 90px;
-  height: auto;
-  transform: rotate(-12deg);
-  z-index: 5;
-  pointer-events: none;
-}
+
+
 
 
 
@@ -1178,7 +1167,7 @@ transition: 0.2s;
 }
 
 @media (max-width: 600px) {
-  .sticker-hero { width: 80px; top: 15px; right: 5px; }
+  
   
 }
 
@@ -2193,7 +2182,7 @@ body.push-open .push-drawer {
   .price-prefix { font-size: 14px; letter-spacing: 4px; }
   .price-svg { max-width: 520px; }
   .price-svg-text { font-size: 68px; }
-  .sticker-hero { width: 140px; top: 30px; right: 20px; }
+  
   
 
   /* Kredibiliti */
@@ -2303,7 +2292,7 @@ body.push-open .push-drawer {
   .price-prefix { font-size: 16px; }
   .price-svg { max-width: 680px; }
   .price-svg-text { font-size: 90px; }
-  .sticker-hero { width: 180px; top: 40px; right: 40px; }
+  
   
 
   /* Kredibiliti */
@@ -3175,35 +3164,16 @@ body.push-open .push-drawer {
 }
 
 
-/* =========================================
-   STICKER PAKEJ — Top Right Corner
-   ========================================= */
+
 .section-pakej {
   position: relative;
 }
 
-.sticker-pakej {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: auto;
-  z-index: 3;
-  pointer-events: none;
-  transform: rotate(10deg);
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-  animation: sticker-float 3s ease-in-out infinite;
-}
 
-@keyframes sticker-float {
-  0%, 100% { transform: rotate(10deg) translateY(0); }
-  50% { transform: rotate(10deg) translateY(-4px); }
+
+
 }
 
 @media (max-width: 640px) {
-  .sticker-pakej {
-    width: 64px;
-    top: 12px;
-    right: 12px;
-  }
+  
 }
