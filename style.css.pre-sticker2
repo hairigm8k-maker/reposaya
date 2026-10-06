@@ -1171,7 +1171,16 @@ transition: 0.2s;
   pointer-events: none;
 }
 
-
+.sticker-pakej {
+  position: absolute;
+  right: 22%;
+  top: 42%;
+  transform: translateY(-50%) rotate(-18deg);
+  width: 120px;
+  height: auto;
+  z-index: 5;
+  pointer-events: none;
+}
 
 .section-pakej {
   position: relative;
@@ -1179,7 +1188,16 @@ transition: 0.2s;
 
 @media (max-width: 600px) {
   .sticker-hero { width: 80px; top: 15px; right: 5px; }
-  
+  .sticker-pakej {
+  position: absolute;
+  right: 22%;
+  top: 42%;
+  transform: translateY(-50%) rotate(-18deg);
+  width: 120px;
+  height: auto;
+  z-index: 5;
+  pointer-events: none;
+}
 }
 
 /* ============================================
@@ -2194,7 +2212,7 @@ body.push-open .push-drawer {
   .price-svg { max-width: 520px; }
   .price-svg-text { font-size: 68px; }
   .sticker-hero { width: 140px; top: 30px; right: 20px; }
-  
+  .sticker-pakej { width: 160px; right: 20%; }
 
   /* Kredibiliti */
   .section-kredibiliti { padding: 80px 40px; }
@@ -2304,7 +2322,7 @@ body.push-open .push-drawer {
   .price-svg { max-width: 680px; }
   .price-svg-text { font-size: 90px; }
   .sticker-hero { width: 180px; top: 40px; right: 40px; }
-  
+  .sticker-pakej { width: 200px; right: 25%; }
 
   /* Kredibiliti */
   .section-kredibiliti { padding: 120px 60px; }
@@ -3171,39 +3189,5 @@ body.push-open .push-drawer {
   }
   .pakej-video {
     border-radius: 12px;
-  }
-}
-
-
-/* =========================================
-   STICKER PAKEJ — Top Right Corner
-   ========================================= */
-.section-pakej {
-  position: relative;
-}
-
-.sticker-pakej {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: auto;
-  z-index: 3;
-  pointer-events: none;
-  transform: rotate(10deg);
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-  animation: sticker-float 3s ease-in-out infinite;
-}
-
-@keyframes sticker-float {
-  0%, 100% { transform: rotate(10deg) translateY(0); }
-  50% { transform: rotate(10deg) translateY(-4px); }
-}
-
-@media (max-width: 640px) {
-  .sticker-pakej {
-    width: 64px;
-    top: 12px;
-    right: 12px;
   }
 }
