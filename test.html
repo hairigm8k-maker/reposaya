@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>20 Header Design — Pilih</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;600;700;900&family=Space+Mono:wght@400;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f0f0f0;
+    color: #111;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px 12px 80px;
+  }
+
+  .label {
+    max-width: 1200px;
+    margin: 24px auto 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #999;
+    padding-left: 4px;
+  }
+
+  .label:first-of-type { margin-top: 0; }
+
+  .frame {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .frame.dark { background: #111; }
+
+  /* ========= 01. MINIMAL LIGHT ========= */
+  .h01 {
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .h01-logo { width: 120px; }
+  .h01-nav { display: flex; gap: 32px; }
+  .h01-nav a { text-decoration: none; color: #111; font-size: 14px; font-weight: 500; }
+  .h01-cta {
+    font-size: 13px; font-weight: 600; color: #111;
+    border-bottom: 1px solid #111; padding-bottom: 2px;
+    text-decoration: none;
+  }
+
+  /* ========= 02. MINIMAL DARK ========= */
+  .h02 {
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0a0a0a;
+    color: #fff;
+  }
+  .h02-logo { width: 120px; filter: brightness(0) invert(1); }
+  .h02-nav { display: flex; gap: 32px; }
+  .h02-nav a { text-decoration: none; color: #b0b0b0; font-size: 14px; font-weight: 500; }
+  .h02-nav a:hover { color: #fff; }
+  .h02-cta {
+    background: #fff; color: #0a0a0a;
+    padding: 9px 18px; border-radius: 6px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+  }
+
+  /* ========= 03. EDITORIAL SERIF ========= */
+  .h03 {
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #faf8f3;
+    border-bottom: 1px solid #111;
+  }
+  .h03-logo { width: 120px; }
+  .h03-nav { display: flex; gap: 28px; }
+  .h03-nav a {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-style: italic;
+    color: #111; text-decoration: none;
+  }
+  .h03-cta {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: #111; text-decoration: none;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+
+  /* ========= 04. BOLD STATEMENT ========= */
+  .h04 {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ff4500;
+    color: #fff;
+  }
+  .h04-logo { width: 130px; filter: brightness(0) invert(1); }
+  .h04-nav { display: flex; gap: 28px; }
+  .h04-nav a {
+    color: #fff; text-decoration: none;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .h04-cta {
+    background: #111; color: #fff;
+    padding: 12px 22px; text-decoration: none;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ========= 05. BRUTALIST ========= */
+  .h05 {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 4px solid #000;
+  }
+  .h05-logo { width: 130px; }
+  .h05-nav { display: flex; gap: 20px; }
+  .h05-nav a {
+    color: #000; text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    border: 2px solid #000; padding: 8px 14px;
+  }
+  .h05-cta {
+    background: #000; color: #fff;
+    padding: 10px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* ========= 06. LUXURY THIN ========= */
+  .h06 {
+    padding: 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1a1a;
+    color: #fff;
+    border-bottom: 1px solid #d4af37;
+  }
+  .h06-logo { width: 120px; filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(5deg); }
+  .h06-nav { display: flex; gap: 40px; }
+  .h06-nav a {
+    color: #d4af37; text-decoration: none;
+    font-size: 13px; font-weight: 400;
+    letter-spacing: 0.25em; text-transform: uppercase;
+  }
+  .h06-cta {
+    color: #d4af37; text-decoration: none;
+    font-size: 12px; letter-spacing: 0.25em;
+    text-transform: uppercase;
+    border: 1px solid #d4af37; padding: 10px 20px;
+  }
+
+  /* ========= 07. TECH MONO ========= */
+  .h07 {
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0a0e14;
+    border-bottom: 1px solid #1e2732;
+    font-family: 'Space Mono', monospace;
+  }
+  .h07-logo { width: 120px; filter: brightness(0) invert(1); }
+  .h07-nav { display: flex; gap: 24px; }
+  .h07-nav a {
+    color: #6b7785; text-decoration: none;
+    font-size: 13px;
+  }
+  .h07-nav a::before { content: './ '; color: #14b8a6; }
+  .h07-nav a:hover { color: #14b8a6; }
+  .h07-cta {
+    background: #14b8a6; color: #0a0e14;
+    padding: 8px 16px; text-decoration: none;
+    font-size: 12px; font-weight: 700;
+  }
+
+  /* ========= 08. GLASSMORPHISM ========= */
+  .h08-wrap {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+  }
+  .h08 {
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    color: #fff;
+  }
+  .h08-logo { width: 120px; filter: brightness(0) invert(1); }
+  .h08-nav { display: flex; gap: 28px; }
+  .h08-nav a { color: #fff; text-decoration: none; font-size: 14px; font-weight: 500; }
+  .h08-cta {
+    background: #fff; color: #764ba2;
+    padding: 9px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+  }
+
+  /* ========= 09. SPLIT SCREEN ========= */
+  .h09 {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    background: #fff;
+  }
+  .h09-logo-wrap {
+    background: #111;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .h09-logo { width: 100px; filter: brightness(0) invert(1); }
+  .h09-right {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+  }
+  .h09-nav { display: flex; gap: 28px; }
+  .h09-nav a { color: #111; text-decoration: none; font-size: 14px; font-weight: 500; }
+  .h09-cta {
+    background: #111; color: #fff;
+    padding: 10px 20px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+  }
+
+  /* ========= 10. CENTERED CLASSIC ========= */
+  .h10 {
+    padding: 24px;
+    text-align: center;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .h10-logo { width: 130px; margin: 0 auto 14px; display: block; }
+  .h10-nav { display: flex; justify-content: center; gap: 32px; }
+  .h10-nav a { color: #111; text-decoration: none; font-size: 14px; font-weight: 500; }
+
+  /* ========= 11. STACKED ========= */
+  .h11 {
+    background: #fff;
+    padding: 20px 32px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .h11-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .h11-logo { width: 120px; }
+  .h11-top-right { display: flex; gap: 16px; align-items: center; }
+  .h11-top-right a { color: #666; text-decoration: none; font-size: 13px; }
+  .h11-cta {
+    background: #111; color: #fff !important;
+    padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+  }
+  .h11-nav {
+    display: flex; gap: 32px;
+    padding: 14px 0;
+    justify-content: center;
+  }
+  .h11-nav a { color: #111; text-decoration: none; font-size: 14px; font-weight: 500; }
+
+  /* ========= 12. FLOATING PILL ========= */
+  .h12-wrap {
+    background: #f5f5f5;
+    padding: 16px 24px;
+  }
+  .h12 {
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 10px 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .h12-logo { width: 100px; }
+  .h12-nav { display: flex; gap: 28px; }
+  .h12-nav a { color: #111; text-decoration: none; font-size: 14px; font-weight: 500; }
+  .h12-cta {
+    background: #111; color: #fff;
+    padding: 10px 22px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+  }
+
+  /* ========= 13. MAGAZINE ========= */
+  .h13 {
+    padding: 20px 32px;
+    background: #fff;
+    border-top: 6px solid #111;
+    border-bottom: 2px solid #111;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 40px;
+  }
+  .h13-logo { width: 130px; }
+  .h13-nav {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    border-left: 2px solid #111;
+    border-right: 2px solid #111;
+    padding: 0 32px;
+  }
+  .h13-nav a {
+    color: #111; text-decoration: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 600;
+  }
+  .h13-meta { text-align: right; font-size: 11px; color: #666; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ========= 14. GRADIENT MODERN ========= */
+  .h14 {
+    padding: 20px 32px;
+    background: linear-gradient(90deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .h14-logo { width: 120px; filter: brightness(0) invert(1); }
+  .h14-nav { display: flex; gap: 28px; }
+  .h14-nav a { color: #fff; text-decoration: none; font-size: 14px; font-weight: 500; opacity: 0.9; }
+  .h14-nav a:hover { opacity: 1; }
+  .h14-cta {
+    background: #fff; color: #0f766e;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+  }
+
+  /* ========= 15. SHARP ANGULAR ========= */
+  .h15 {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 3px solid #111;
+  }
+  .h15-logo { width: 120px; }
+  .h15-nav { display: flex; gap: 0; }
+  .h15-nav a {
+    color: #111; text-decoration: none;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 10px 18px;
+    border-right: 1px solid #111;
+  }
+  .h15-nav a:first-child { border-left: 1px solid #111; }
+  .h15-cta {
+    background: #111; color: #fff;
+    padding: 12px 22px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  /* ========= 16. NEUMORPHIC SOFT ========= */
+  .h16-wrap {
+    background: #e8ecf1;
+    padding: 20px 24px;
+  }
+  .h16 {
+    background: #e8ecf1;
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 8px 8px 16px #c8ccd1, -8px -8px 16px #ffffff;
+  }
+  .h16-logo { width: 110px; }
+  .h16-nav { display: flex; gap: 28px; }
+  .h16-nav a { color: #4a5568; text-decoration: none; font-size: 14px; font-weight: 500; }
+  .h16-cta {
+    background: #e8ecf1; color: #111;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    box-shadow: 3px 3px 6px #c8ccd1, -3px -3px 6px #ffffff;
+  }
+
+  /* ========= 17. BAUHAUS ========= */
+  .h17 {
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 4px solid #111;
+    position: relative;
+  }
+  .h17::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 8px; height: 8px;
+    background: #ff0000;
+    border-radius: 50%;
+  }
+  .h17-logo { width: 120px; }
+  .h17-nav { display: flex; gap: 4px; }
+  .h17-nav a {
+    color: #111; text-decoration: none;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 13px; text-transform: uppercase;
+    padding: 8px 16px;
+    background: #ffd600;
+  }
+  .h17-nav a:nth-child(2) { background: #00d9ff; }
+  .h17-nav a:nth-child(3) { background: #ff0000; color: #fff; }
+  .h17-cta {
+    background: #111; color: #fff;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; font-size: 18px;
+  }
+
+  /* ========= 18. SWISS GRID ========= */
+  .h18 {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    background: #fff;
+    border-bottom: 1px solid #111;
+  }
+  .h18-logo-cell {
+    padding: 20px 24px;
+    border-right: 1px solid #111;
+    display: flex;
+    align-items: center;
+  }
+  .h18-logo { width: 110px; }
+  .h18-nav {
+    display: flex;
+    align-items: stretch;
+  }
+  .h18-nav a {
+    color: #111; text-decoration: none;
+    font-size: 13px; font-weight: 500;
+    padding: 20px 24px;
+    border-right: 1px solid #111;
+    display: flex; align-items: center;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .h18-nav a:hover { background: #111; color: #fff; }
+  .h18-cta {
+    padding: 20px 28px;
+    background: #111; color: #fff;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; align-items: center;
+  }
+
+  /* ========= 19. CARD STYLE ========= */
+  .h19-wrap {
+    background: #f5f0e8;
+    padding: 16px 24px;
+  }
+  .h19 {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 14px 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #e8e0d2;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .h19-logo { width: 110px; }
+  .h19-nav { display: flex; gap: 24px; }
+  .h19-nav a {
+    color: #6c6a64; text-decoration: none;
+    font-size: 14px; font-weight: 500;
+  }
+  .h19-nav a:hover { color: #111; }
+  .h19-cta {
+    background: #cc785c; color: #fff;
+    padding: 11px 22px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+  }
+
+  /* ========= 20. ACCENT LINE ========= */
+  .h20 {
+    background: #fff;
+    border-top: 4px solid #ff3366;
+  }
+  .h20-inner {
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+  }
+  .h20-logo { width: 120px; }
+  .h20-nav { display: flex; gap: 28px; }
+  .h20-nav a {
+    color: #111; text-decoration: none;
+    font-size: 14px; font-weight: 500;
+    position: relative;
+  }
+  .h20-nav a.active { color: #ff3366; font-weight: 700; }
+  .h20-cta {
+    background: #ff3366; color: #fff;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .h01-nav, .h02-nav, .h03-nav, .h04-nav, .h05-nav,
+    .h06-nav, .h07-nav, .h08-nav, .h09-nav, .h10-nav,
+    .h11-nav, .h12-nav, .h13-nav, .h14-nav, .h15-nav,
+    .h16-nav, .h17-nav, .h18-nav, .h19-nav, .h20-nav {
+      display: none;
+    }
+    .label { padding-left: 8px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="label">01 — Minimal Light</div>
+  <div class="frame">
+    <header class="h01">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h01-logo">
+      <nav class="h01-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+      <a href="#" class="h01-cta">Tempah →</a>
+    </header>
+  </div>
+
+  <div class="label">02 — Minimal Dark</div>
+  <div class="frame dark">
+    <header class="h02">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h02-logo">
+      <nav class="h02-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+      <a href="#" class="h02-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">03 — Editorial Serif</div>
+  <div class="frame">
+    <header class="h03">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h03-logo">
+      <nav class="h03-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+      <a href="#" class="h03-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">04 — Bold Statement</div>
+  <div class="frame">
+    <header class="h04">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h04-logo">
+      <nav class="h04-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h04-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">05 — Brutalist</div>
+  <div class="frame">
+    <header class="h05">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h05-logo">
+      <nav class="h05-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h05-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">06 — Luxury Thin</div>
+  <div class="frame dark">
+    <header class="h06">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h06-logo">
+      <nav class="h06-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h06-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">07 — Tech Mono</div>
+  <div class="frame dark">
+    <header class="h07">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h07-logo">
+      <nav class="h07-nav"><a href="#">servis</a><a href="#">harga</a><a href="#">blog</a></nav>
+      <a href="#" class="h07-cta">TEMPah</a>
+    </header>
+  </div>
+
+  <div class="label">08 — Glassmorphism</div>
+  <div class="frame">
+    <div class="h08-wrap">
+      <header class="h08">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h08-logo">
+        <nav class="h08-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h08-cta">Tempah</a>
+      </header>
+    </div>
+  </div>
+
+  <div class="label">09 — Split Screen</div>
+  <div class="frame">
+    <header class="h09">
+      <div class="h09-logo-wrap"><img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h09-logo"></div>
+      <div class="h09-right">
+        <nav class="h09-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h09-cta">Tempah</a>
+      </div>
+    </header>
+  </div>
+
+  <div class="label">10 — Centered Classic</div>
+  <div class="frame">
+    <header class="h10">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h10-logo">
+      <nav class="h10-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+    </header>
+  </div>
+
+  <div class="label">11 — Stacked</div>
+  <div class="frame">
+    <header class="h11">
+      <div class="h11-top">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h11-logo">
+        <div class="h11-top-right">
+          <a href="#">Login</a>
+          <a href="#" class="h11-cta">Tempah</a>
+        </div>
+      </div>
+      <nav class="h11-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+    </header>
+  </div>
+
+  <div class="label">12 — Floating Pill</div>
+  <div class="frame">
+    <div class="h12-wrap">
+      <header class="h12">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h12-logo">
+        <nav class="h12-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h12-cta">Tempah</a>
+      </header>
+    </div>
+  </div>
+
+  <div class="label">13 — Magazine</div>
+  <div class="frame">
+    <header class="h13">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h13-logo">
+      <nav class="h13-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a><a href="#">Contact</a></nav>
+      <div class="h13-meta">Vol. 01 · 2026</div>
+    </header>
+  </div>
+
+  <div class="label">14 — Gradient Modern</div>
+  <div class="frame">
+    <header class="h14">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h14-logo">
+      <nav class="h14-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h14-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">15 — Sharp Angular</div>
+  <div class="frame">
+    <header class="h15">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h15-logo">
+      <nav class="h15-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h15-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">16 — Neumorphic Soft</div>
+  <div class="frame">
+    <div class="h16-wrap">
+      <header class="h16">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h16-logo">
+        <nav class="h16-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h16-cta">Tempah</a>
+      </header>
+    </div>
+  </div>
+
+  <div class="label">17 — Bauhaus</div>
+  <div class="frame">
+    <header class="h17">
+      <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h17-logo">
+      <nav class="h17-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h17-cta">+</a>
+    </header>
+  </div>
+
+  <div class="label">18 — Swiss Grid</div>
+  <div class="frame">
+    <header class="h18">
+      <div class="h18-logo-cell"><img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h18-logo"></div>
+      <nav class="h18-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+      <a href="#" class="h18-cta">Tempah</a>
+    </header>
+  </div>
+
+  <div class="label">19 — Card Style</div>
+  <div class="frame">
+    <div class="h19-wrap">
+      <header class="h19">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h19-logo">
+        <nav class="h19-nav"><a href="#">Servis</a><a href="#">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h19-cta">Tempah</a>
+      </header>
+    </div>
+  </div>
+
+  <div class="label">20 — Accent Line</div>
+  <div class="frame">
+    <header class="h20">
+      <div class="h20-inner">
+        <img src="assets/logoUtama/logoUtama.png" alt="Logo" class="h20-logo">
+        <nav class="h20-nav"><a href="#">Servis</a><a href="#" class="active">Harga</a><a href="#">Blog</a></nav>
+        <a href="#" class="h20-cta">Tempah</a>
+      </div>
+    </header>
+  </div>
+
+</body>
+</html>
