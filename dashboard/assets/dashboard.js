@@ -5,15 +5,9 @@
 (function() {
   'use strict';
 
-  // ═══ AUTH CHECK ═══
-  const userRaw = localStorage.getItem('hh_user');
-  if (!userRaw) {
-    window.location.href = '/';
-    return;
-  }
-
-  const user = JSON.parse(userRaw);
-  window.HH_USER = user;
+  // ═══ AUTH CHECK (async, guna session cookie) ═══
+  let user = null;
+  window.HH_USER = null;
 
   // ═══ SIDEBAR MENU (30 FUNCTIONS) ═══
   const MENU = [
@@ -303,10 +297,32 @@
   }
 
   // ═══ INIT ═══
-  document.addEventListener('DOMContentLoaded', () => {
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/session');
+      const data = await res.json();
+
+      if (!data.ok || !data.authenticated) {
+        window.location.href = '/';
+        return null;
+      }
+
+      user = data.user;
+      window.HH_USER = user;
+      return user;
+    } catch (err) {
+      window.location.href = '/';
+      return null;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const u = await checkAuth();
+    if (!u) return;
+
     // Set user initial
     document.getElementById('userInitial').textContent =
-      (user.name || user.email).charAt(0).toUpperCase();
+      (u.name || u.email).charAt(0).toUpperCase();
 
     // Event listeners
     document.getElementById('tbMenu').addEventListener('click', openSidebar);
@@ -316,8 +332,8 @@
     // User menu
     document.getElementById('tbUser').addEventListener('click', () => {
       if (confirm('Log keluar?')) {
-        localStorage.removeItem('hh_user');
-        window.location.href = '/';
+        fetch('/api/auth/logout', { method: 'POST' })
+          .finally(() => window.location.href = '/');
       }
     });
 

@@ -55,13 +55,21 @@
 
 <script src="assets/hh-common.js"></script>
 <script>
+// Auto-redirect kalau dah login
+(async () => {
+  try {
+    const res = await fetch('/api/auth/session');
+    const data = await res.json();
+    if (data.ok && data.authenticated) {
+      window.location.href = '/dashboard/';
+    }
+  } catch (e) {}
+})();
+</script>
+<script>
 const form = document.getElementById('loginForm');
 const submitBtn = document.getElementById('submitBtn');
 const btnText = document.getElementById('btnText');
-
-// ⚠️ TEMPORARY HARDCODED LOGIN — BUANG BILA BACKEND READY
-const TEST_EMAIL = '123@gmail.com';
-const TEST_PASS = '123';
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -77,21 +85,27 @@ form.addEventListener('submit', async (e) => {
   submitBtn.disabled = true;
   btnText.innerHTML = '<span class="hh-spinner"></span> Log masuk...';
 
-  // Simulate delay
-  await new Promise(r => setTimeout(r, 800));
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
 
-  if (email === TEST_EMAIL && password === TEST_PASS) {
-    HHT.toast('Berjaya log masuk', 'success');
-    localStorage.setItem('hh_user', JSON.stringify({
-      email: email,
-      name: 'Test User',
-      role: 'user'
-    }));
-    setTimeout(() => {
-      window.location.href = '/dashboard/';
-    }, 500);
-  } else {
-    HHT.toast('Email atau kata laluan salah', 'error');
+    const data = await res.json();
+
+    if (data.ok) {
+      HHT.toast('Berjaya log masuk', 'success');
+      setTimeout(() => {
+        window.location.href = data.redirect || '/dashboard/';
+      }, 500);
+    } else {
+      HHT.toast(data.error || 'Log masuk gagal', 'error');
+      submitBtn.disabled = false;
+      btnText.textContent = 'Log Masuk';
+    }
+  } catch (err) {
+    HHT.toast('Ralat sambungan. Cuba lagi.', 'error');
     submitBtn.disabled = false;
     btnText.textContent = 'Log Masuk';
   }
