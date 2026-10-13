@@ -49,11 +49,11 @@ export async function onRequestPost({ request, env }) {
     if (existing) return json({ ok: false, error: 'Subdomain already taken' }, 400);
 
     const templates = {
-      blank: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n  <p>Your new site is ready.</p>\n</body>\n</html>', css: '', js: '' },
-      bio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Personal links page</p>\n  <a href="#">Link 1</a>\n</body>\n</html>', css: 'body{font-family:system-ui;text-align:center;padding:80px 24px}', js: '' },
-      product: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Product landing page</p>\n</body>\n</html>', css: '', js: '' },
-      portfolio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Portfolio</p>\n</body>\n</html>', css: '', js: '' },
-      feedback: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>Feedback</h1>\n  <form><textarea placeholder="Your feedback"></textarea><button>Submit</button></form>\n</body>\n</html>', css: '', js: '' }
+      blank: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Hello World</h1>\n<p>Your new site is ready.</p>\n</body>\n</html>', css: '', js: '' },
+      bio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n<p>Personal links page</p>\n</body>\n</html>', css: '', js: '' },
+      product: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n</body>\n</html>', css: '', js: '' },
+      portfolio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n</body>\n</html>', css: '', js: '' },
+      feedback: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Feedback</h1>\n</body>\n</html>', css: '', js: '' }
     };
 
     const tpl = templates[template] || templates.blank;
@@ -62,7 +62,9 @@ export async function onRequestPost({ request, env }) {
       'INSERT INTO sites (user_id, name, subdomain, html, css, js, status) VALUES (?, ?, ?, ?, ?, ?, \'draft\')'
     ).bind(session.userId, name, sub, tpl.html, tpl.css, tpl.js).run();
 
-    return json({ ok: true, site: { id: result.meta ? result.meta.last_row_id : null, name: name, subdomain: sub, status: 'draft' } });
+    const newId = (result && result.meta) ? result.meta.last_row_id : null;
+
+    return json({ ok: true, site: { id: newId, name: name, subdomain: sub, status: 'draft' } });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
   }
@@ -101,7 +103,9 @@ export async function onRequestPatch({ request, env }) {
     fields.push('updated_at = datetime(\'now\')');
     values.push(id);
 
-    await env.DB.prepare('UPDATE sites SET ' + fields.join(', ') + ' WHERE id = ?').bind.apply(env.DB.prepare('UPDATE sites SET ' + fields.join(', ') + ' WHERE id = ?'), values).run();
+    const sql = 'UPDATE sites SET ' + fields.join(', ') + ' WHERE id = ?';
+    const stmt = env.DB.prepare(sql);
+    await stmt.bind.apply(stmt, values).run();
 
     if (statusChanged) {
       try {
@@ -133,8 +137,6 @@ export async function onRequestDelete({ request, env }) {
     await env.DB.prepare('DELETE FROM analytics WHERE site_id = ?').bind(id).run();
     await env.DB.prepare('DELETE FROM custom_domains WHERE site_id = ?').bind(id).run();
     await env.DB.prepare('DELETE FROM sites WHERE id = ?').bind(id).run();
-
-    // Soft-delete deployments (kekal history)
     await env.DB.prepare('UPDATE deployments SET site_deleted = 1 WHERE site_id = ?').bind(id).run();
 
     return json({ ok: true });
