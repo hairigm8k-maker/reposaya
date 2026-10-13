@@ -39,8 +39,7 @@
 /*.css
   Cache-Control: public, max-age=604800
 
-/*.js
-  Cache-Control: public, max-age=604800
+
 
 # ============================================
 # HTML — no cache supaya changes cepat live
@@ -59,3 +58,8 @@
 
 /_archive/legacy-folders/*
   X-Robots-Tag: noindex, nofollow
+
+
+# Dashboard JS — no cache (dev)
+/dashboard/*.js
+  Cache-Control: no-cache, no-store, must-revalidate
