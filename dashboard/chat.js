@@ -47,7 +47,7 @@
 
     var content = '';
     if (msg.image_data) {
-      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:220px;max-height:280px;border-radius:10px;display:block;cursor:pointer" onclick="window.open(this.src,\\'_blank\\')" loading="lazy"></div>';
+      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:220px;max-height:280px;border-radius:10px;display:block;cursor:pointer" onclick="window.open(this.src)" loading="lazy"></div>';
     }
     if (msg.message) {
       content += '<div style="font-size:14.5px;line-height:1.45;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
