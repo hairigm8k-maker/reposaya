@@ -151,10 +151,13 @@
 
     content.innerHTML = `<div class="loading-state"><div class="hh-spinner"></div></div>`;
 
-    // Simulate loading
     setTimeout(() => {
       content.innerHTML = renderModule(id);
-    }, 200);
+
+      // Post-render hooks
+      if (id === 'sites') loadSites();
+      if (id === 'sites-new') initSitesNew();
+    }, 150);
   }
 
   function renderModule(id) {
@@ -223,18 +226,69 @@
         </button>
       </div>
 
-      <div class="card" style="text-align: center; padding: 60px 40px;">
-        <div style="font-family: var(--hh-serif); font-size: 28px; color: var(--hh-white); margin-bottom: 12px;">
-          Belum ada website
-        </div>
-        <p style="color: var(--hh-fog); font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
-          Mula dengan buat website pertama anda. Ambil masa 2 minit je.
-        </p>
-        <button class="hh-btn hh-btn-primary" style="width: auto; padding: 12px 28px;" onclick="window.location.hash='#/sites-new'">
-          + Buat Website Baru
-        </button>
+      <div id="sitesList">
+        <div class="loading-state"><div class="hh-spinner"></div></div>
       </div>
     `;
+  }
+
+  async function loadSites() {
+    const container = document.getElementById('sitesList');
+    if (!container) return;
+
+    try {
+      const res = await fetch('/api/sites');
+      const data = await res.json();
+
+      if (!data.ok) throw new Error(data.error || 'Failed');
+
+      if (!data.sites || data.sites.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 60px 40px;">
+            <div style="font-family: var(--hh-serif); font-size: 28px; color: var(--hh-white); margin-bottom: 12px;">
+              Belum ada website
+            </div>
+            <p style="color: var(--hh-fog); font-size: 15px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+              Mula dengan buat website pertama anda. Ambil masa 2 minit je.
+            </p>
+            <button class="hh-btn hh-btn-primary" style="width: auto; padding: 12px 28px;" onclick="window.location.hash='#/sites-new'">
+              + Buat Website Baru
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="card" style="padding: 0; overflow: hidden;">';
+      html += '<table class="table">';
+      html += '<thead><tr><th>Nama</th><th>Subdomain</th><th>Status</th><th>Dikemaskini</th><th></th></tr></thead><tbody>';
+
+      data.sites.forEach(site => {
+        const statusBadge = site.status === 'live'
+          ? '<span style="background: rgba(74,222,128,0.15); color: #4ade80; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;">● LIVE</span>'
+          : '<span style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;">○ DRAFT</span>';
+
+        html += `<tr>
+          <td><strong style="color: var(--hh-white);">${HHT.esc(site.name)}</strong></td>
+          <td><span style="font-family: var(--hh-mono); font-size: 12px; color: var(--hh-copper);">${HHT.esc(site.subdomain)}.hairiamri.buzz</span></td>
+          <td>${statusBadge}</td>
+          <td style="color: var(--hh-fog); font-size: 13px;">${HHT.formatDate(site.updated_at)}</td>
+          <td style="text-align: right;">
+            <button class="hh-btn hh-btn-ghost hh-btn-sm" onclick="window.location.hash='#/editor/${site.id}'">Edit</button>
+          </td>
+        </tr>`;
+      });
+
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+
+    } catch (err) {
+      container.innerHTML = `
+        <div class="card" style="text-align: center; padding: 40px;">
+          <p style="color: #f87171;">Gagal load sites: ${HHT.esc(err.message)}</p>
+        </div>
+      `;
+    }
   }
 
   function moduleSitesNew() {
@@ -248,13 +302,14 @@
       <div class="card" style="max-width: 520px;">
         <div class="hh-field">
           <label class="hh-label">Nama Website</label>
-          <input type="text" class="hh-input" id="siteName" placeholder="Contoh: mybiz">
-          <div class="card-meta" style="margin-top: 8px;">Subdomain: <strong style="color: var(--hh-copper);" id="siteSubPreview">mybiz</strong>.hairiamri.buzz</div>
+          <input type="text" class="hh-input" id="siteName" placeholder="Contoh: My Biz" autofocus>
+          <div class="card-meta" style="margin-top: 8px;">Subdomain: <strong style="color: var(--hh-copper);" id="siteSubPreview">-</strong><span id="siteSubEnd" style="color: var(--hh-copper);"></span></div>
         </div>
 
         <div class="hh-field">
-          <label class="hh-label">Deskripsi (optional)</label>
-          <input type="text" class="hh-input" id="siteDesc" placeholder="Contoh: Website bisnes saya">
+          <label class="hh-label">Subdomain (optional)</label>
+          <input type="text" class="hh-input" id="siteSubdomain" placeholder="mybiz" pattern="[a-z0-9-]+">
+          <div class="card-meta" style="margin-top: 8px;">Kosongkan untuk auto-generate dari nama</div>
         </div>
 
         <button class="hh-btn hh-btn-primary" id="createSiteBtn" style="margin-top: 12px;">
@@ -262,6 +317,76 @@
         </button>
       </div>
     `;
+  }
+
+  function initSitesNew() {
+    const nameInput = document.getElementById('siteName');
+    const subInput = document.getElementById('siteSubdomain');
+    const preview = document.getElementById('siteSubPreview');
+    const previewEnd = document.getElementById('siteSubEnd');
+    const btn = document.getElementById('createSiteBtn');
+
+    function updatePreview() {
+      const customSub = subInput.value.trim().toLowerCase();
+      const autoSub = nameInput.value.trim().toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 30);
+
+      const finalSub = customSub || autoSub || '-';
+
+      if (finalSub === '-') {
+        preview.textContent = '-';
+        previewEnd.textContent = '';
+      } else {
+        preview.textContent = finalSub;
+        previewEnd.textContent = '.hairiamri.buzz';
+      }
+    }
+
+    nameInput.addEventListener('input', updatePreview);
+    subInput.addEventListener('input', updatePreview);
+
+    btn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const subdomain = subInput.value.trim().toLowerCase();
+
+      if (!name) {
+        HHT.toast('Sila isi nama website', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="hh-spinner"></span> Mencipta...';
+
+      try {
+        const res = await fetch('/api/sites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, subdomain })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          HHT.toast('Site berjaya dicipta!', 'success');
+          setTimeout(() => {
+            window.location.hash = '#/sites';
+          }, 500);
+        } else {
+          HHT.toast(data.error || 'Gagal cipta site', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Buat Site';
+        }
+      } catch (err) {
+        HHT.toast('Ralat sambungan', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Buat Site';
+      }
+    });
+
+    updatePreview();
+    nameInput.focus();
   }
 
   function modulePlaceholder(id) {
