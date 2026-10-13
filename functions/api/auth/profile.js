@@ -1,4 +1,4 @@
-import { getCookie, verifySession, json } from '../_utils.js';
+import { getCookie, verifySession, json } from '../../_utils.js';
 
 export async function onRequestPatch({ request, env }) {
   const token = getCookie(request, 'hh_session');
