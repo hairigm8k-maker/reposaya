@@ -6,31 +6,45 @@ export async function onRequestGet({ request, env }) {
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
 
   const url = new URL(request.url);
-  const siteId = parseInt(url.searchParams.get('site'));
-  if (!siteId) return json({ ok: false, error: 'Site ID diperlukan' }, 400);
+  const siteIdParam = url.searchParams.get('site');
 
   try {
-    const site = await env.DB.prepare(
-      'SELECT id, subdomain FROM sites WHERE id = ? AND user_id = ?'
-    ).bind(siteId, session.userId).first();
-    if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+    if (siteIdParam) {
+      const siteId = parseInt(siteIdParam);
+      if (!siteId) return json({ ok: false, error: 'Site ID diperlukan' }, 400);
+      const site = await env.DB.prepare(
+        'SELECT id, subdomain, name FROM sites WHERE id = ? AND user_id = ?'
+      ).bind(siteId, session.userId).first();
+      if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+
+      const { results } = await env.DB.prepare(
+        'SELECT id, filename, mime_type, size, created_at FROM files WHERE site_id = ? ORDER BY created_at DESC'
+      ).bind(site.id).all();
+
+      const baseUrl = 'https://' + site.subdomain + '.hairiamri.buzz/';
+      const files = (results || []).map(function(f) {
+        return {
+          id: f.id, filename: f.filename, mime_type: f.mime_type,
+          size: f.size, created_at: f.created_at,
+          site_id: site.id, site_name: site.name, subdomain: site.subdomain,
+          url: baseUrl + f.filename
+        };
+      });
+      return json({ ok: true, files: files });
+    }
 
     const { results } = await env.DB.prepare(
-      'SELECT id, filename, mime_type, size, created_at FROM files WHERE site_id = ? ORDER BY created_at DESC'
-    ).bind(site.id).all();
+      'SELECT f.id, f.filename, f.mime_type, f.size, f.created_at, s.id as site_id, s.name as site_name, s.subdomain FROM files f JOIN sites s ON s.id = f.site_id WHERE s.user_id = ? ORDER BY f.created_at DESC'
+    ).bind(session.userId).all();
 
-    const baseUrl = 'https://' + site.subdomain + '.hairiamri.buzz/';
     const files = (results || []).map(function(f) {
       return {
-        id: f.id,
-        filename: f.filename,
-        mime_type: f.mime_type,
-        size: f.size,
-        created_at: f.created_at,
-        url: baseUrl + f.filename
+        id: f.id, filename: f.filename, mime_type: f.mime_type,
+        size: f.size, created_at: f.created_at,
+        site_id: f.site_id, site_name: f.site_name, subdomain: f.subdomain,
+        url: 'https://' + f.subdomain + '.hairiamri.buzz/' + f.filename
       };
     });
-
     return json({ ok: true, files: files });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
