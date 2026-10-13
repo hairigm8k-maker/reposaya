@@ -24,7 +24,12 @@ input,textarea,select{font-family:inherit}
 .sb-brand img{width:40px;filter:brightness(0) invert(1)}
 .sb-close{display:none;background:transparent;border:none;color:var(--fog);font-size:20px;padding:4px 8px}
 .sb-nav{flex:1;padding:12px}
-.sb-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:16px 12px 8px}
+.sb-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:16px 12px 8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:color .15s}
+.sb-title:hover{color:var(--fog)}
+.sb-title-arrow{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s;flex-shrink:0}
+.sb-title.collapsed .sb-title-arrow{transform:rotate(-90deg)}
+.sb-group{max-height:1000px;overflow:hidden;transition:max-height .3s ease}
+.sb-group.collapsed{max-height:0}
 .sb-link{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;color:var(--fog);font-size:14px;font-weight:500;transition:all .15s;cursor:pointer;margin-bottom:2px;position:relative}
 .sb-link:hover{background:var(--panel);color:var(--white)}
 .sb-link.active{background:var(--panel);color:var(--white)}
@@ -209,9 +214,6 @@ var App={
       {id:'archived',label:'Archived',icon:'archive'}
     ]},
     {title:'Editor',items:[
-      {id:'editor-html',label:'HTML Editor',icon:'code'},
-      {id:'editor-css',label:'CSS Editor',icon:'palette'},
-      {id:'editor-js',label:'JS Editor',icon:'braces'},
       {id:'assets',label:'Asset Upload',icon:'upload'},
       {id:'preview',label:'Live Preview',icon:'eye'}
     ]},
@@ -222,9 +224,7 @@ var App={
     ]},
     {title:'Publishing',items:[
       {id:'publish',label:'Publish',icon:'rocket'},
-      {id:'deployments',label:'Deployments',icon:'layers'},
-      {id:'subdomains',label:'Subdomains',icon:'link'},
-      {id:'domains',label:'Custom Domains',icon:'external'}
+      {id:'deployments',label:'Deployments',icon:'layers'}
     ]},
     {title:'Analytics',items:[
       {id:'stats',label:'Visitor Stats',icon:'chart'},
@@ -239,7 +239,8 @@ var App={
     ]}
   ],
   async checkAuth(){try{var r=await fetch('/api/auth/session');var d=await r.json();if(!d.ok||!d.authenticated){window.location.href='/';return null}this.user=d.user;return d.user}catch(e){window.location.href='/';return null}},
-  renderSidebar(){var nav=document.getElementById('sbNav');var cur=window.location.hash.replace('#/','')||'home';var html='';this.menu.forEach(function(sec){html+='<div class="sb-title">'+sec.title+'</div>';sec.items.forEach(function(item){var a=item.id===cur?'active':'';var ip=ICONS[item.icon]||ICONS.home;html+='<div class="sb-link '+a+'" onclick="App.go(\''+item.id+'\')"><svg class="sb-icon" viewBox="0 0 24 24">'+ip+'</svg><span>'+item.label+'</span></div>'})});nav.innerHTML=html},
+  renderSidebar(){var nav=document.getElementById('sbNav');var cur=window.location.hash.replace('#/','')||'home';var html='';this.menu.forEach(function(sec){var key=sec.title;var col=localStorage.getItem('sb_'+key)==='1'?'collapsed':'';html+='<div class="sb-title '+col+'" onclick="App.toggleGroup(\''+key+'\',this)"><span>'+sec.title+'</span><svg class="sb-title-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>';html+='<div class="sb-group '+col+'" data-group="'+key+'">';sec.items.forEach(function(item){var a=item.id===cur?'active':'';var ip=ICONS[item.icon]||ICONS.home;html+='<div class="sb-link '+a+'" onclick="App.go(\''+item.id+'\')"><svg class="sb-icon" viewBox="0 0 24 24">'+ip+'</svg><span>'+item.label+'</span></div>'});html+='</div>'});nav.innerHTML=html},
+  toggleGroup(key,el){var grp=document.querySelector('.sb-group[data-group="'+key+'"]');if(!grp)return;var isCol=grp.classList.toggle('collapsed');el.classList.toggle('collapsed',isCol);localStorage.setItem('sb_'+key,isCol?'1':'0')},
   go(id){window.location.hash='#/'+id},
   async route(){var id=window.location.hash.replace('#/','')||'home';this.renderSidebar();this.closeSidebar();await this.load(id)},
   async load(id){var c=document.getElementById('content');c.innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';try{
