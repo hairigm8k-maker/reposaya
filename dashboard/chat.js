@@ -19,7 +19,15 @@
     } catch (e) { return ''; }
   }
 
-  function renderMessage(msg, selfId) {
+  function closeTime(a, b) {
+    try {
+      var ta = new Date(String(a).replace(' ', 'T') + 'Z').getTime();
+      var tb = new Date(String(b).replace(' ', 'T') + 'Z').getTime();
+      return Math.abs(ta - tb) < 120000;
+    } catch (e) { return false; }
+  }
+
+  function renderMessage(msg, selfId, isFirst, isLast) {
     var isSelf = msg.user_id === selfId;
     var name = msg.name || msg.username || 'User';
     var initial = (name.charAt(0) || 'U').toUpperCase();
@@ -29,22 +37,45 @@
 
     var bubbleContent = '';
     if (msg.image_data) {
-      bubbleContent += '<div style="margin-bottom:' + (msg.message ? '8px' : '0') + '"><img src="' + msg.image_data + '" style="max-width:240px;max-height:280px;border-radius:10px;display:block" onclick="window.open(this.src,\'_blank\')" loading="lazy"></div>';
+      bubbleContent += '<div style="margin-bottom:' + (msg.message ? '6px' : '0') + '"><img src="' + msg.image_data + '" style="max-width:220px;max-height:260px;border-radius:12px;display:block;cursor:pointer" onclick="window.open(this.src,\'_blank\')" loading="lazy"></div>';
     }
     if (msg.message) {
-      bubbleContent += '<div style="font-size:14px;line-height:1.5;color:' + (isSelf ? '#000' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
+      bubbleContent += '<div style="font-size:14.5px;line-height:1.4;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
     }
 
-    return '<div style="display:flex;gap:8px;align-items:flex-end;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + '">' +
-      '<div style="width:32px;height:32px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:13px;color:var(--copper)">' + avatar + '</div>' +
-      '<div style="display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start') + ';min-width:0;max-width:78%">' +
-        (!isSelf ? '<div style="font-size:11px;color:var(--fog);font-weight:600;margin-bottom:4px;padding-left:6px">' + escHtml(name) + '</div>' : '') +
-        '<div style="display:flex;align-items:flex-end;gap:8px;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + ';max-width:100%">' +
-          '<div style="padding:10px 14px;border-radius:' + (isSelf ? '16px 4px 16px 16px' : '4px 16px 16px 16px') + ';background:' + (isSelf ? 'var(--copper)' : 'var(--panel)') + ';border:1px solid ' + (isSelf ? 'var(--copper)' : 'var(--border2)') + ';max-width:100%;min-width:0">' + bubbleContent + '</div>' +
-          '<span style="font-size:10px;color:var(--ash);flex-shrink:0;padding-bottom:5px;line-height:1;white-space:nowrap">' + timeAgo(msg.created_at) + '</span>' +
-        '</div>' +
-      '</div>' +
+    var r = '18px';
+    var corner = '6px';
+    var br;
+    if (isSelf) {
+      br = (isFirst ? r : corner) + ' ' + r + ' ' + r + ' ' + (isLast ? r : corner);
+    } else {
+      br = r + ' ' + (isFirst ? r : corner) + ' ' + (isLast ? r : corner) + ' ' + r;
+    }
+
+    var avatarHtml = isLast
+      ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:12px;color:var(--copper)">' + avatar + '</div>'
+      : '<div style="width:28px;flex-shrink:0"></div>';
+
+    var bottom = isLast ? '10px' : '3px';
+
+    return '<div style="display:flex;gap:8px;align-items:flex-end;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + ';padding-bottom:' + bottom + '">' +
+      avatarHtml +
+      '<div style="max-width:calc(100% - 70px);padding:9px 14px;border-radius:' + br + ';background:' + (isSelf ? 'var(--copper)' : 'var(--panel)') + ';border:1px solid ' + (isSelf ? 'var(--copper)' : 'var(--border2)') + '">' + bubbleContent + '</div>' +
     '</div>';
+  }
+
+  function renderAllMessages(msgs, selfId) {
+    if (!msgs.length) return '<div style="text-align:center;color:var(--ash);font-size:13px;padding:40px 20px">No messages yet. Start the conversation!</div>';
+    var html = '';
+    for (var i = 0; i < msgs.length; i++) {
+      var m = msgs[i];
+      var p = msgs[i - 1];
+      var n = msgs[i + 1];
+      var isFirst = !p || p.user_id !== m.user_id || !closeTime(p.created_at, m.created_at);
+      var isLast = !n || n.user_id !== m.user_id || !closeTime(m.created_at, n.created_at);
+      html += renderMessage(m, selfId, isFirst, isLast);
+    }
+    return html;
   }
 
   App.pageChat = async function(){
@@ -99,7 +130,7 @@
           scroll.innerHTML = '<div style="text-align:center;color:var(--ash);font-size:13px;padding:40px 20px">No messages yet. Start the conversation!</div>';
           return;
         }
-        scroll.innerHTML = msgs.map(function(m){ return renderMessage(m, selfId); }).join('');
+        scroll.innerHTML = renderAllMessages(msgs, selfId);
         if (scrollBottom !== false) scroll.scrollTop = scroll.scrollHeight;
         lastIds = {};
         msgs.forEach(function(m){ lastIds[m.id] = true; });
