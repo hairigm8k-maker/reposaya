@@ -1,0 +1,22 @@
+{"templates":[
+{"file":"01-hero-minimal.html","name":"Hero Minimal","category":"hero","description":"Centered hero dengan CTA. Bersih & minimal."},
+{"file":"02-hero-split.html","name":"Hero Split","category":"hero","description":"Hero 2-column: text kiri, visual kanan."},
+{"file":"03-hero-gradient.html","name":"Hero Gradient","category":"hero","description":"Hero dengan background gradient vivid."},
+{"file":"04-hero-stats.html","name":"Hero + Stats","category":"hero","description":"Hero dengan 3 stat counter di bawah."},
+{"file":"05-features-grid.html","name":"Features Grid","category":"features","description":"Grid 3-column features dengan icon SVG."},
+{"file":"06-features-bento.html","name":"Features Bento","category":"features","description":"Layout bento box modern."},
+{"file":"07-pricing-3tier.html","name":"Pricing 3-Tier","category":"pricing","description":"Pricing table 3 pakej dengan highlight Pro."},
+{"file":"08-pricing-toggle.html","name":"Pricing Toggle","category":"pricing","description":"Pricing dengan toggle bulanan/tahunan."},
+{"file":"09-faq-accordion.html","name":"FAQ Accordion","category":"faq","description":"FAQ collapsible dengan animation."},
+{"file":"10-faq-twocol.html","name":"FAQ 2-Column","category":"faq","description":"FAQ 2-column layout compact."},
+{"file":"11-testimonials-grid.html","name":"Testimonials Grid","category":"testimonials","description":"3 kad testimonial dengan avatar."},
+{"file":"12-testimonials-carousel.html","name":"Testimonials Carousel","category":"testimonials","description":"Slider testimonial dengan butang nav."},
+{"file":"13-cta-newsletter.html","name":"CTA Newsletter","category":"cta","description":"Email subscribe untuk capture leads."},
+{"file":"14-cta-gradient.html","name":"CTA Gradient","category":"cta","description":"CTA dengan gradient background."},
+{"file":"15-contact-form.html","name":"Contact Form","category":"contact","description":"Form hubungi 2-column dengan info."},
+{"file":"16-footer-simple.html","name":"Footer Simple","category":"footer","description":"Footer 4-column dengan copyright."},
+{"file":"17-footer-mega.html","name":"Footer Mega","category":"footer","description":"Footer besar dengan social icons."},
+{"file":"18-landing-saas.html","name":"Landing SaaS","category":"landing","description":"Full landing page SaaS lengkap."},
+{"file":"19-error-404.html","name":"Error 404","category":"utility","description":"Halaman 404 dengan ilustrasi SVG."},
+{"file":"20-login.html","name":"Login Page","category":"utility","description":"Halaman login minimal dengan form."}
+]}
