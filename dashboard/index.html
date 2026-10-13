@@ -343,6 +343,50 @@ input { font-family: inherit; }
 }
 .overlay.show { display: block; }
 
+/* TABS */
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 14px 20px;
+  color: var(--fog);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn:hover { color: var(--white); }
+.tab-btn.tab-active {
+  color: var(--copper);
+  border-bottom-color: var(--copper);
+  background: rgba(204, 145, 102, 0.05);
+}
+
+/* EDITOR TEXTAREA */
+.editor-area {
+  width: 100%;
+  min-height: 500px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  tab-size: 2;
+}
+.editor-area:focus { border-color: var(--copper); }
+
+@media (max-width: 640px) {
+  .editor-area { min-height: 400px; font-size: 12px; padding: 14px; }
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .sidebar { transform: translateX(-100%); }
@@ -416,6 +460,17 @@ function toast(msg, type) {
     el.style.transition = 'all 0.2s';
     setTimeout(function() { el.remove(); }, 200);
   }, 4000);
+}
+
+// ═══════════════════════════════════════════
+// HELPER
+// ═══════════════════════════════════════════
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // ═══════════════════════════════════════════
@@ -619,7 +674,7 @@ var App = {
         '<td><span style="font-family:var(--mono);font-size:12px;color:#cc9166;">' + s.subdomain + '.hairiamri.buzz</span></td>' +
         '<td>' + badge + '</td>' +
         '<td style="color:#9194a1;font-size:13px;">' + (s.updated_at || '-') + '</td>' +
-        '<td style="text-align:right;"><button class="btn btn-ghost btn-sm">Edit</button></td>' +
+        '<td style="text-align:right;"><button class="btn btn-ghost btn-sm" onclick="App.go(\'editor/' + s.id + '\')">Edit</button></td>' +
         '</tr>';
     });
 
@@ -704,6 +759,171 @@ var App = {
 
     update();
     nameEl.focus();
+  },
+
+  async pageEditor(siteId) {
+    var res = await fetch('/api/sites/' + siteId);
+    var data = await res.json();
+
+    if (!data.ok) {
+      document.getElementById('content').innerHTML =
+        '<div class="card" style="text-align:center;padding:40px;">' +
+          '<p style="color:#f87171;">Site tak jumpa</p>' +
+          '<button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="App.go(\'sites\')">← Balik</button>' +
+        '</div>';
+      return;
+    }
+
+    var site = data.site;
+    var self = this;
+
+    document.getElementById('content').innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">' +
+        '<div>' +
+          '<div class="eyebrow">Editor</div>' +
+          '<h1 class="page-title" style="margin-bottom:0;">' + site.name + '</h1>' +
+          '<p class="page-sub" style="margin-top:4px;font-family:var(--mono);font-size:12px;color:#cc9166;">' + site.subdomain + '.hairiamri.buzz · ' + site.status.toUpperCase() + '</p>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button class="btn btn-ghost btn-sm" onclick="App.go(\'sites\')">← Balik</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + site.subdomain + '\')">👁 Live Preview</button>' +
+          '<button class="btn btn-primary btn-sm" id="saveBtn">💾 Save</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card" style="padding:0;overflow:hidden;">' +
+        '<div style="display:flex;border-bottom:1px solid var(--border);">' +
+          '<button class="tab-btn tab-active" data-tab="html" onclick="App.switchTab(\'html\')">HTML</button>' +
+          '<button class="tab-btn" data-tab="css" onclick="App.switchTab(\'css\')">CSS</button>' +
+          '<button class="tab-btn" data-tab="js" onclick="App.switchTab(\'js\')">JS</button>' +
+        '</div>' +
+        '<div style="padding:16px;">' +
+          '<textarea class="editor-area" id="editorHTML" spellcheck="false" style="display:block;">' + (site.html || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
+          '<textarea class="editor-area" id="editorCSS" spellcheck="false" style="display:none;">' + (site.css || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
+          '<textarea class="editor-area" id="editorJS" spellcheck="false" style="display:none;">' + (site.js || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;">' +
+        '<div style="font-size:14px;color:var(--fog);margin-bottom:12px;">Selepas siap, klik Publish untuk site jadi LIVE.</div>' +
+        '<button class="btn btn-primary btn-sm" id="publishBtn" style="background:#4ade80;color:#000;">🚀 Publish Site</button>' +
+      '</div>';
+
+    // Save handler
+    document.getElementById('saveBtn').onclick = async function() {
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+      try {
+        var res = await fetch('/api/sites/' + siteId, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            html: document.getElementById('editorHTML').value,
+            css: document.getElementById('editorCSS').value,
+            js: document.getElementById('editorJS').value
+          })
+        });
+        var d = await res.json();
+        if (d.ok) {
+          toast('Saved!', 'success');
+        } else {
+          toast(d.error || 'Gagal save', 'error');
+        }
+      } catch (e) {
+        toast('Error: ' + e.message, 'error');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '💾 Save';
+    };
+
+    // Publish handler
+    document.getElementById('publishBtn').onclick = async function() {
+      if (!confirm('Publish site? Site akan LIVE dan accessible.')) return;
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Publishing...';
+
+      // Save dulu
+      await fetch('/api/sites/' + siteId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: document.getElementById('editorHTML').value,
+          css: document.getElementById('editorCSS').value,
+          js: document.getElementById('editorJS').value,
+          status: 'live'
+        })
+      });
+
+      toast('Site LIVE! 🚀', 'success');
+      btn.disabled = false;
+      btn.innerHTML = '✅ Published';
+    };
+  },
+
+  switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.remove('tab-active');
+    });
+    document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('tab-active');
+
+    document.getElementById('editorHTML').style.display = tab === 'html' ? 'block' : 'none';
+    document.getElementById('editorCSS').style.display = tab === 'css' ? 'block' : 'none';
+    document.getElementById('editorJS').style.display = tab === 'js' ? 'block' : 'none';
+  },
+
+  openPreview(subdomain) {
+    // Buka new tab ke preview route
+    window.open('/preview/' + subdomain, '_blank');
+  },
+
+  async pagePreviewList() {
+    var res = await fetch('/api/sites');
+    var data = await res.json();
+
+    if (!data.ok || !data.sites || data.sites.length === 0) {
+      document.getElementById('content').innerHTML =
+        '<div class="page-head">' +
+          '<div class="eyebrow">Preview</div>' +
+          '<h1 class="page-title">Live Preview</h1>' +
+          '<p class="page-sub">Preview site sebelum publish</p>' +
+        '</div>' +
+        '<div class="card" style="text-align:center;padding:60px 40px;">' +
+          '<p style="color:#9194a1;">Belum ada site. Buat site dulu.</p>' +
+          '<button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="App.go(\'sites-new\')">+ Buat Site</button>' +
+        '</div>';
+      return;
+    }
+
+    var html = '<div class="page-head">' +
+      '<div class="eyebrow">Preview</div>' +
+      '<h1 class="page-title">Live Preview</h1>' +
+      '<p class="page-sub">Buka site dalam tab baru</p>' +
+      '</div>';
+
+    html += '<div class="card" style="padding:0;overflow:hidden;"><table class="tbl">';
+    html += '<thead><tr><th>Nama</th><th>Subdomain</th><th>Status</th><th></th></tr></thead><tbody>';
+
+    data.sites.forEach(function(s) {
+      var badge = s.status === 'live'
+        ? '<span class="badge badge-live">● LIVE</span>'
+        : '<span class="badge badge-draft">○ DRAFT</span>';
+
+      html += '<tr>' +
+        '<td><strong style="color:white;">' + s.name + '</strong></td>' +
+        '<td><span style="font-family:var(--mono);font-size:12px;color:#cc9166;">' + s.subdomain + '.hairiamri.buzz</span></td>' +
+        '<td>' + badge + '</td>' +
+        '<td style="text-align:right;">' +
+          '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + s.subdomain + '\')" style="margin-right:6px;">👁 Preview</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="App.go(\'editor/' + s.id + '\')">Edit</button>' +
+        '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    document.getElementById('content').innerHTML = html;
   },
 
   pagePlaceholder(id) {
