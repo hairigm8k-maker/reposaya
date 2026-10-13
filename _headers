@@ -53,3 +53,9 @@
 # ============================================
 /_archive/*
   X-Robots-Tag: noindex, nofollow
+
+/_archive/legacy-root/*
+  X-Robots-Tag: noindex, nofollow
+
+/_archive/legacy-folders/*
+  X-Robots-Tag: noindex, nofollow
