@@ -6,16 +6,21 @@ export async function onRequestPost({ request, env }) {
     const email = (body.email || '').trim().toLowerCase();
     const password = body.password || '';
 
-    if (!email || !password) return json({ ok: false, error: 'Email dan password diperlukan' }, 400);
+    if (!email || !password) return json({ ok: false, error: 'Email and password required' }, 400);
 
-    const user = await env.DB.prepare('SELECT id, email, password_hash, name, role, status FROM users WHERE email = ?').bind(email).first();
-    if (!user) return json({ ok: false, error: 'Email atau password wrong' }, 401);
-    if (user.status !== 'active') return json({ ok: false, error: 'Akaun disekat' }, 403);
+    const user = await env.DB.prepare(
+      'SELECT id, email, password_hash, name, role, status FROM users WHERE email = ?'
+    ).bind(email).first();
+    if (!user) return json({ ok: false, error: 'Email or password wrong' }, 401);
+    if (user.status === 'suspended') return json({ ok: false, error: 'Account suspended' }, 403);
+    if (user.status !== 'active') return json({ ok: false, error: 'Account inactive' }, 403);
 
     const valid = await verifyPassword(password, user.password_hash);
-    if (!valid) return json({ ok: false, error: 'Email atau password wrong' }, 401);
+    if (!valid) return json({ ok: false, error: 'Email or password wrong' }, 401);
 
-    const session = await createSession(env, user.id);
+    const ua = request.headers.get('User-Agent') || '';
+    const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || '';
+    const session = await createSession(env, user.id, { userAgent: ua, ip: ip });
 
     return json({
       ok: true,
