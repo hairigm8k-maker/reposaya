@@ -47,3 +47,9 @@
 # ============================================
 /*.html
   Cache-Control: public, max-age=300, must-revalidate
+
+# ============================================
+# Archive — jangan deploy folder ni
+# ============================================
+/_archive/*
+  X-Robots-Tag: noindex, nofollow
