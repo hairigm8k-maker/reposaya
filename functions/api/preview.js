@@ -12,7 +12,7 @@ export async function onRequestGet({ request, env }) {
       'SELECT id, user_id, name, subdomain, html, css, js, status FROM sites WHERE subdomain = ?'
     ).bind(sub).first();
 
-    if (!site) return preview404(sub, 'Site tak jumpa');
+    if (!site) return preview404(sub, 'Site not found');
 
     // Kalau draft, kena login owner
     if (site.status !== 'live') {
@@ -20,7 +20,7 @@ export async function onRequestGet({ request, env }) {
       const session = await verifySession(env, token);
 
       if (!session || session.userId !== site.user_id) {
-        return preview404(sub, 'Site belum publish. Login sebagai owner untuk preview.');
+        return preview404(sub, 'Site not yet publish. Login sebagai owner for preview.');
       }
     }
 
@@ -85,7 +85,7 @@ function preview404(sub, message) {
     '<h1>Preview</h1>' +
     '<p>' + message + '</p>' +
     '<p style="margin-top:16px;"><code>' + sub + '.hairiamri.buzz</code></p>' +
-    '<a href="https://hairiamri.buzz/dashboard">← Balik Dashboard</a>' +
+    '<a href="https://hairiamri.buzz/dashboard">← Back Dashboard</a>' +
     '</div></body></html>';
 
   return new Response(html, {

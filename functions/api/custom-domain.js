@@ -32,13 +32,13 @@ export async function onRequestPost({ request, env }) {
     const siteId = parseInt(body.siteId);
 
     if (!domain || !siteId) return json({ ok: false, error: 'Domain & site diperlukan' }, 400);
-    if (!/^[a-z0-9][a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) return json({ ok: false, error: 'Domain tak sah' }, 400);
+    if (!/^[a-z0-9][a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) return json({ ok: false, error: 'Domain not sah' }, 400);
 
     const site = await env.DB.prepare('SELECT id FROM sites WHERE id = ? AND user_id = ?').bind(siteId, session.userId).first();
-    if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+    if (!site) return json({ ok: false, error: 'Site not found' }, 404);
 
     const existing = await env.DB.prepare('SELECT id FROM custom_domains WHERE domain = ?').bind(domain).first();
-    if (existing) return json({ ok: false, error: 'Domain dah digunakan' }, 400);
+    if (existing) return json({ ok: false, error: 'Domain already digunakan' }, 400);
 
     const vtoken = 'sitehost-verify-' + genToken();
 

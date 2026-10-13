@@ -11,7 +11,7 @@ export async function onRequestGet({ request, env }) {
 
   try {
     const site = await env.DB.prepare('SELECT id FROM sites WHERE id = ? AND user_id = ?').bind(siteId, session.userId).first();
-    if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+    if (!site) return json({ ok: false, error: 'Site not found' }, 404);
 
     const total = await env.DB.prepare('SELECT COUNT(*) as c FROM analytics WHERE site_id = ?').bind(siteId).first();
 

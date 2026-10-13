@@ -11,7 +11,7 @@ export async function onRequestGet({ request, env }) {
   try {
     if (id) {
       const site = await env.DB.prepare('SELECT * FROM sites WHERE id = ? AND user_id = ?').bind(parseInt(id), session.userId).first();
-      if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+      if (!site) return json({ ok: false, error: 'Site not found' }, 404);
       return json({ ok: true, site });
     }
     const result = await env.DB.prepare('SELECT id, name, subdomain, status, created_at, updated_at FROM sites WHERE user_id = ? ORDER BY created_at DESC').bind(session.userId).all();
@@ -37,15 +37,15 @@ export async function onRequestPost({ request, env }) {
       sub = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
     }
 
-    if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(sub)) return json({ ok: false, error: 'Subdomain tak sah' }, 400);
+    if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(sub)) return json({ ok: false, error: 'Subdomain not sah' }, 400);
 
     const reserved = ['admin','api','www','mail','support','login','signup','dashboard','app','blog','help','docs'];
-    if (reserved.indexOf(sub) >= 0) return json({ ok: false, error: 'Subdomain tak dibenarkan' }, 400);
+    if (reserved.indexOf(sub) >= 0) return json({ ok: false, error: 'Subdomain not dibenarkan' }, 400);
 
     const dup = await env.DB.prepare('SELECT id FROM sites WHERE subdomain = ?').bind(sub).first();
-    if (dup) return json({ ok: false, error: 'Subdomain dah digunakan' }, 400);
+    if (dup) return json({ ok: false, error: 'Subdomain already digunakan' }, 400);
 
-    const html = '<!DOCTYPE html>\n<html lang="ms">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Selamat datang ke ' + name + '</h1>\n<p>Edit HTML ni untuk mula.</p>\n</body>\n</html>';
+    const html = '<!DOCTYPE html>\n<html lang="ms">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Welcome ke ' + name + '</h1>\n<p>Edit HTML ni for mula.</p>\n</body>\n</html>';
 
     const result = await env.DB.prepare('INSERT INTO sites (user_id, name, subdomain, html, status) VALUES (?, ?, ?, ?, \'draft\')').bind(session.userId, name, sub, html).run();
 
@@ -66,7 +66,7 @@ export async function onRequestPatch({ request, env }) {
 
   try {
     const existing = await env.DB.prepare('SELECT id FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).first();
-    if (!existing) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+    if (!existing) return json({ ok: false, error: 'Site not found' }, 404);
 
     const body = await request.json();
     const sets = [];

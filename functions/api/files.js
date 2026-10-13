@@ -15,7 +15,7 @@ export async function onRequestGet({ request, env }) {
       const site = await env.DB.prepare(
         'SELECT id, subdomain, name FROM sites WHERE id = ? AND user_id = ?'
       ).bind(siteId, session.userId).first();
-      if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+      if (!site) return json({ ok: false, error: 'Site not found' }, 404);
 
       const { results } = await env.DB.prepare(
         'SELECT id, filename, mime_type, size, created_at FROM files WHERE site_id = ? ORDER BY created_at DESC'
@@ -64,7 +64,7 @@ export async function onRequestDelete({ request, env }) {
     const file = await env.DB.prepare(
       'SELECT f.id FROM files f JOIN sites s ON s.id = f.site_id WHERE f.id = ? AND s.user_id = ?'
     ).bind(fileId, session.userId).first();
-    if (!file) return json({ ok: false, error: 'File tak jumpa' }, 404);
+    if (!file) return json({ ok: false, error: 'File not found' }, 404);
 
     await env.DB.prepare('DELETE FROM files WHERE id = ?').bind(fileId).run();
     return json({ ok: true });

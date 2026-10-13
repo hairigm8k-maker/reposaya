@@ -11,7 +11,7 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const site = await env.DB.prepare('SELECT id, subdomain FROM sites WHERE id = ? AND user_id = ?').bind(siteId, session.userId).first();
-    if (!site) return json({ ok: false, error: 'Site tak jumpa' }, 404);
+    if (!site) return json({ ok: false, error: 'Site not found' }, 404);
 
     const formData = await request.formData();
     const file = formData.get('file');
@@ -24,7 +24,7 @@ export async function onRequestPost({ request, env }) {
     const ext = file.name.split('.').pop().toLowerCase();
     const allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico'];
     if (allowed.indexOf(ext) < 0) {
-      return json({ ok: false, error: 'Format tak dibenarkan' }, 400);
+      return json({ ok: false, error: 'Format not dibenarkan' }, 400);
     }
 
     const rand = Math.random().toString(36).slice(2, 8);
