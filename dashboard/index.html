@@ -343,6 +343,54 @@ input { font-family: inherit; }
 }
 .overlay.show { display: block; }
 
+/* SITE ROW */
+.site-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.site-row:hover {
+  background: var(--panel);
+  border-color: var(--border2);
+  transform: translateX(2px);
+}
+.site-row:active { transform: translateX(0); }
+.site-row-main { flex: 1; min-width: 0; }
+.site-row-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.site-row-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--copper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.site-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.site-row-arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--fog);
+  flex-shrink: 0;
+}
+.site-row:hover .site-row-arrow { color: var(--white); }
+
 /* TABS */
 .tab-btn {
   flex: 1;
@@ -662,23 +710,26 @@ var App = {
       '<button class="btn btn-primary btn-sm" onclick="App.go(\'sites-new\')">+ Buat Site Baru</button>' +
       '</div>';
 
-    html += '<div class="card" style="padding:0;overflow:hidden;"><table class="tbl">';
-    html += '<thead><tr><th>Nama</th><th>Subdomain</th><th>Status</th><th>Dikemaskini</th><th></th></tr></thead><tbody>';
+    html += '<div style="display:flex;flex-direction:column;gap:10px;">';
 
     data.sites.forEach(function(s) {
       var badge = s.status === 'live'
         ? '<span class="badge badge-live">● LIVE</span>'
         : '<span class="badge badge-draft">○ DRAFT</span>';
-      html += '<tr>' +
-        '<td><strong style="color:white;">' + s.name + '</strong></td>' +
-        '<td><span style="font-family:var(--mono);font-size:12px;color:#cc9166;">' + s.subdomain + '.hairiamri.buzz</span></td>' +
-        '<td>' + badge + '</td>' +
-        '<td style="color:#9194a1;font-size:13px;">' + (s.updated_at || '-') + '</td>' +
-        '<td style="text-align:right;"><button class="btn btn-ghost btn-sm" onclick="App.go(\'editor/' + s.id + '\')">Edit</button></td>' +
-        '</tr>';
+
+      html += '<div class="site-row" onclick="App.go(\'editor/' + s.id + '\')">' +
+        '<div class="site-row-main">' +
+          '<div class="site-row-name">' + s.name + '</div>' +
+          '<div class="site-row-sub">' + s.subdomain + '.hairiamri.buzz</div>' +
+        '</div>' +
+        '<div class="site-row-meta">' +
+          badge +
+          '<svg class="site-row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '</div>' +
+      '</div>';
     });
 
-    html += '</tbody></table></div>';
+    html += '</div>';
     document.getElementById('content').innerHTML = html;
   },
 
