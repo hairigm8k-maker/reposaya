@@ -766,7 +766,7 @@ var App = {
     var content = document.getElementById('content');
 
     try {
-      var res = await fetch('/api/sites/' + siteId);
+      var res = await fetch('/api/site?id=' + siteId);
       var data = await res.json();
 
       if (!data.ok) {
