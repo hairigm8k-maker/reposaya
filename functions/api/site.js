@@ -5,18 +5,23 @@ export async function onRequestGet({ request, env }) {
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
 
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
+  const id = parseInt(url.searchParams.get('id'));
 
   try {
     if (id) {
-      const site = await env.DB.prepare('SELECT * FROM sites WHERE id = ? AND user_id = ?').bind(parseInt(id), session.userId).first();
+      const site = await env.DB.prepare(
+        'SELECT id, name, subdomain, html, css, js, status, published_at, created_at, updated_at FROM sites WHERE id = ? AND user_id = ?'
+      ).bind(id, session.userId).first();
       if (!site) return json({ ok: false, error: 'Site not found' }, 404);
-      return json({ ok: true, site });
+      return json({ ok: true, site: site });
     }
-    const result = await env.DB.prepare('SELECT id, name, subdomain, status, created_at, updated_at FROM sites WHERE user_id = ? ORDER BY created_at DESC').bind(session.userId).all();
-    return json({ ok: true, sites: result.results || [] });
-  } catch (error) {
-    return json({ ok: false, error: error.message }, 500);
+
+    const { results } = await env.DB.prepare(
+      'SELECT id, name, subdomain, status, published_at, created_at, updated_at FROM sites WHERE user_id = ? ORDER BY updated_at DESC'
+    ).bind(session.userId).all();
+    return json({ ok: true, sites: results || [] });
+  } catch (err) {
+    return json({ ok: false, error: err.message }, 500);
   }
 }
 
@@ -27,29 +32,39 @@ export async function onRequestPost({ request, env }) {
   try {
     const body = await request.json();
     const name = (body.name || '').trim();
-    let sub = (body.subdomain || '').trim().toLowerCase();
+    const subdomain = (body.subdomain || '').trim().toLowerCase();
+    const template = body.template || 'blank';
 
-    if (!name) return json({ ok: false, error: 'Nama diperlukan' }, 400);
+    if (!name) return json({ ok: false, error: 'Name required' }, 400);
+    if (name.length > 60) return json({ ok: false, error: 'Name too long (max 60)' }, 400);
 
-    if (!sub) {
-      sub = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
-    }
+    let sub = subdomain || name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+    if (!sub) sub = 'site-' + Date.now();
+    if (!/^[a-z0-9-]{3,30}$/.test(sub)) return json({ ok: false, error: 'Subdomain: 3-30 chars, a-z 0-9 dash only' }, 400);
 
-    if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(sub)) return json({ ok: false, error: 'Subdomain not sah' }, 400);
+    const reserved = ['www', 'api', 'admin', 'dashboard', 'login', 'signup', 'app', 'mail', 'support', 'help', 'blog', 'cdn', 'assets'];
+    if (reserved.indexOf(sub) >= 0) return json({ ok: false, error: 'Subdomain is reserved' }, 400);
 
-    const reserved = ['admin','api','www','mail','support','login','signup','dashboard','app','blog','help','docs'];
-    if (reserved.indexOf(sub) >= 0) return json({ ok: false, error: 'Subdomain not dibenarkan' }, 400);
+    const existing = await env.DB.prepare('SELECT id FROM sites WHERE subdomain = ?').bind(sub).first();
+    if (existing) return json({ ok: false, error: 'Subdomain already taken' }, 400);
 
-    const dup = await env.DB.prepare('SELECT id FROM sites WHERE subdomain = ?').bind(sub).first();
-    if (dup) return json({ ok: false, error: 'Subdomain already digunakan' }, 400);
+    const templates = {
+      blank: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n  <p>Your new site is ready.</p>\n</body>\n</html>', css: '', js: '' },
+      bio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Personal links page</p>\n  <a href="#">Link 1</a>\n</body>\n</html>', css: 'body{font-family:system-ui;text-align:center;padding:80px 24px}', js: '' },
+      product: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Product landing page</p>\n</body>\n</html>', css: '', js: '' },
+      portfolio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>' + name + '</h1>\n  <p>Portfolio</p>\n</body>\n</html>', css: '', js: '' },
+      feedback: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + name + '</title>\n</head>\n<body>\n  <h1>Feedback</h1>\n  <form><textarea placeholder="Your feedback"></textarea><button>Submit</button></form>\n</body>\n</html>', css: '', js: '' }
+    };
 
-    const html = '<!DOCTYPE html>\n<html lang="ms">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Welcome ke ' + name + '</h1>\n<p>Edit HTML ni for mula.</p>\n</body>\n</html>';
+    const tpl = templates[template] || templates.blank;
 
-    const result = await env.DB.prepare('INSERT INTO sites (user_id, name, subdomain, html, status) VALUES (?, ?, ?, ?, \'draft\')').bind(session.userId, name, sub, html).run();
+    const result = await env.DB.prepare(
+      'INSERT INTO sites (user_id, name, subdomain, html, css, js, status) VALUES (?, ?, ?, ?, ?, ?, \'draft\')'
+    ).bind(session.userId, name, sub, tpl.html, tpl.css, tpl.js).run();
 
-    return json({ ok: true, site: { id: result.meta.last_row_id, name: name, subdomain: sub, status: 'draft' } });
-  } catch (error) {
-    return json({ ok: false, error: error.message }, 500);
+    return json({ ok: true, site: { id: result.meta ? result.meta.last_row_id : null, name: name, subdomain: sub, status: 'draft' } });
+  } catch (err) {
+    return json({ ok: false, error: err.message }, 500);
   }
 }
 
@@ -59,38 +74,46 @@ export async function onRequestPatch({ request, env }) {
 
   const url = new URL(request.url);
   const id = parseInt(url.searchParams.get('id'));
-  if (!id) return json({ ok: false, error: 'ID diperlukan' }, 400);
+  if (!id) return json({ ok: false, error: 'ID required' }, 400);
 
   try {
-    const existing = await env.DB.prepare('SELECT id FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).first();
-    if (!existing) return json({ ok: false, error: 'Site not found' }, 404);
+    const site = await env.DB.prepare('SELECT id, status, name, subdomain FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).first();
+    if (!site) return json({ ok: false, error: 'Site not found' }, 404);
 
     const body = await request.json();
-    const sets = [];
-    const vals = [];
+    const fields = [];
+    const values = [];
 
-    if (body.name !== undefined) { sets.push('name = ?'); vals.push(String(body.name).trim()); }
-    if (body.html !== undefined) { sets.push('html = ?'); vals.push(String(body.html)); }
-    if (body.css !== undefined) { sets.push('css = ?'); vals.push(String(body.css)); }
-    if (body.js !== undefined) { sets.push('js = ?'); vals.push(String(body.js)); }
-    if (body.status !== undefined && (body.status === 'draft' || body.status === 'live')) {
-      sets.push('status = ?');
-      vals.push(body.status);
-      if (body.status === 'live') sets.push('published_at = CURRENT_TIMESTAMP');
+    if (typeof body.html === 'string') { fields.push('html = ?'); values.push(body.html); }
+    if (typeof body.css === 'string') { fields.push('css = ?'); values.push(body.css); }
+    if (typeof body.js === 'string') { fields.push('js = ?'); values.push(body.js); }
+    if (typeof body.name === 'string' && body.name.trim()) { fields.push('name = ?'); values.push(body.name.trim()); }
+
+    let statusChanged = false;
+    if (typeof body.status === 'string' && (body.status === 'draft' || body.status === 'live')) {
+      fields.push('status = ?'); values.push(body.status);
+      if (body.status === 'live' && site.status !== 'live') {
+        fields.push('published_at = datetime(\'now\')');
+        statusChanged = true;
+      }
     }
 
-    if (sets.length === 0) return json({ ok: false, error: 'Tiada perubahan' }, 400);
+    fields.push('updated_at = datetime(\'now\')');
+    values.push(id);
 
-    sets.push('updated_at = CURRENT_TIMESTAMP');
-    vals.push(id);
-    vals.push(session.userId);
+    await env.DB.prepare('UPDATE sites SET ' + fields.join(', ') + ' WHERE id = ?').bind.apply(env.DB.prepare('UPDATE sites SET ' + fields.join(', ') + ' WHERE id = ?'), values).run();
 
-    const sql = 'UPDATE sites SET ' + sets.join(', ') + ' WHERE id = ? AND user_id = ?';
-    await env.DB.prepare(sql).bind(...vals).run();
+    if (statusChanged) {
+      try {
+        await env.DB.prepare(
+          'INSERT INTO deployments (user_id, site_id, site_name, site_subdomain, action) VALUES (?, ?, ?, ?, ?)'
+        ).bind(session.userId, site.id, site.name, site.subdomain, 'publish').run();
+      } catch (e) {}
+    }
 
     return json({ ok: true });
-  } catch (error) {
-    return json({ ok: false, error: error.message }, 500);
+  } catch (err) {
+    return json({ ok: false, error: err.message }, 500);
   }
 }
 
@@ -100,12 +123,22 @@ export async function onRequestDelete({ request, env }) {
 
   const url = new URL(request.url);
   const id = parseInt(url.searchParams.get('id'));
-  if (!id) return json({ ok: false, error: 'ID diperlukan' }, 400);
+  if (!id) return json({ ok: false, error: 'ID required' }, 400);
 
   try {
-    await env.DB.prepare('DELETE FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).run();
+    const site = await env.DB.prepare('SELECT id FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).first();
+    if (!site) return json({ ok: false, error: 'Site not found' }, 404);
+
+    await env.DB.prepare('DELETE FROM files WHERE site_id = ?').bind(id).run();
+    await env.DB.prepare('DELETE FROM analytics WHERE site_id = ?').bind(id).run();
+    await env.DB.prepare('DELETE FROM custom_domains WHERE site_id = ?').bind(id).run();
+    await env.DB.prepare('DELETE FROM sites WHERE id = ?').bind(id).run();
+
+    // Soft-delete deployments (kekal history)
+    await env.DB.prepare('UPDATE deployments SET site_deleted = 1 WHERE site_id = ?').bind(id).run();
+
     return json({ ok: true });
-  } catch (error) {
-    return json({ ok: false, error: error.message }, 500);
+  } catch (err) {
+    return json({ ok: false, error: err.message }, 500);
   }
 }
