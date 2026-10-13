@@ -895,7 +895,7 @@ var App = {
   },
 
   openPreview: function(subdomain) {
-    window.open('/preview/' + subdomain, '_blank');
+    window.open('/api/preview?sub=' + subdomain, '_blank');
   },
 
   pagePreviewList: async function() {
