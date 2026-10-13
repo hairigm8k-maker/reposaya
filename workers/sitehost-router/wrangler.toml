@@ -1,0 +1,13 @@
+name = "sitehost-router"
+main = "index.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sitehost-db"
+database_id = "561e4496-0b28-4a3c-a4fa-4d84f156add9"
+
+[[routes]]
+pattern = "*.hairiamri.buzz/*"
+zone_name = "hairiamri.buzz"

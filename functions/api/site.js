@@ -89,9 +89,7 @@ export async function onRequestPatch({ request, env }) {
     vals.push(session.userId);
 
     const sql = 'UPDATE sites SET ' + sets.join(', ') + ' WHERE id = ? AND user_id = ?';
-    let stmt = env.DB.prepare(sql);
-    vals.forEach(function(v) { stmt = stmt.bind(v); });
-    await stmt.run();
+    await env.DB.prepare(sql).bind(...vals).run();
 
     return json({ ok: true });
   } catch (err) {
