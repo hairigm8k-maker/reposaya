@@ -642,7 +642,7 @@ var App = {
   },
 
   pageSites: async function() {
-    var res = await fetch('/api/sites');
+    var res = await fetch('/api/site');
     var data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Gagal load sites');
 
@@ -819,7 +819,7 @@ var App = {
         saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
         try {
-          var r = await fetch('/api/sites/' + siteId, {
+          var r = await fetch('/api/site?id=' + siteId, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -849,7 +849,7 @@ var App = {
         publishBtn.innerHTML = '<span class="spinner"></span> Publishing...';
 
         try {
-          var r = await fetch('/api/sites/' + siteId, {
+          var r = await fetch('/api/site?id=' + siteId, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -899,7 +899,7 @@ var App = {
   },
 
   pagePreviewList: async function() {
-    var res = await fetch('/api/sites');
+    var res = await fetch('/api/site');
     var data = await res.json();
 
     var head = '<div class="page-head">' +
