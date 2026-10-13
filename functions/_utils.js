@@ -81,3 +81,50 @@ export function json(data, status, extra) {
   const headers = Object.assign({ 'Content-Type': 'application/json' }, extra);
   return new Response(JSON.stringify(data), { status: status, headers: headers });
 }
+
+// ============================================
+// API KEY AUTH
+// ============================================
+
+export async function verifyApiKey(env, key) {
+  if (!key || !key.startsWith('hh_live_')) return null;
+  const hash = await hashPassword(key);
+  const row = await env.DB.prepare(
+    'SELECT k.id, k.user_id, k.scopes, k.expires_at, u.email, u.name, u.role, u.status FROM api_keys k JOIN users u ON u.id = k.user_id WHERE k.key_hash = ?'
+  ).bind(hash).first();
+  if (!row) return null;
+  if (row.status !== 'active') return null;
+  if (row.expires_at) {
+    const exp = new Date(row.expires_at).getTime();
+    if (Date.now() > exp) return null;
+  }
+  try {
+    await env.DB.prepare('UPDATE api_keys SET last_used = datetime(\'now\') WHERE id = ?').bind(row.id).run();
+  } catch (e) {}
+  return {
+    userId: row.user_id,
+    email: row.email,
+    name: row.name,
+    role: row.role,
+    scopes: row.scopes || 'read,write',
+    isApiKey: true,
+    keyId: row.id
+  };
+}
+
+export async function authenticate(request, env) {
+  const cookieToken = getCookie(request, 'hh_session');
+  if (cookieToken) {
+    const session = await verifySession(env, cookieToken);
+    if (session) return session;
+  }
+  const authHeader = request.headers.get('Authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    const key = authHeader.slice(7).trim();
+    if (key) {
+      const session = await verifyApiKey(env, key);
+      if (session) return session;
+    }
+  }
+  return null;
+}

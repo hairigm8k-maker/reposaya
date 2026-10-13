@@ -1,8 +1,7 @@
-import { getCookie, verifySession, json } from '../_utils.js';
+import { authenticate, json } from '../_utils.js';
 
 export async function onRequestGet({ request, env }) {
-  const token = getCookie(request, 'hh_session');
-  const session = await verifySession(env, token);
+  const session = await authenticate(request, env);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
 
   const url = new URL(request.url);
@@ -52,8 +51,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestDelete({ request, env }) {
-  const token = getCookie(request, 'hh_session');
-  const session = await verifySession(env, token);
+  const session = await authenticate(request, env);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
 
   const url = new URL(request.url);
