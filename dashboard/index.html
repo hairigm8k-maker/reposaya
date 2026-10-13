@@ -37,7 +37,7 @@ html, body {
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
-input { font-family: inherit; }
+input, textarea { font-family: inherit; }
 
 .layout { display: flex; min-height: 100vh; }
 
@@ -53,7 +53,11 @@ input { font-family: inherit; }
   z-index: 100;
   transition: transform 0.25s ease;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
 }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 .sb-brand {
   padding: 20px;
   border-bottom: 1px solid var(--border);
@@ -61,10 +65,7 @@ input { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
 }
-.sb-brand img {
-  width: 40px;
-  filter: brightness(0) invert(1);
-}
+.sb-brand img { width: 40px; filter: brightness(0) invert(1); }
 .sb-close { display: none; background: transparent; border: none; color: var(--fog); font-size: 20px; padding: 4px 8px; }
 .sb-nav { flex: 1; padding: 12px; }
 .sb-title {
@@ -87,21 +88,21 @@ input { font-family: inherit; }
   transition: all 0.15s;
   cursor: pointer;
   margin-bottom: 2px;
+  position: relative;
 }
 .sb-link:hover { background: var(--panel); color: var(--white); }
 .sb-link.active { background: var(--panel); color: var(--white); }
 .sb-link.active::before {
   content: '';
   position: absolute;
-  left: 0;
-  width: 2px;
-  height: 20px;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 2px; height: 20px;
   background: var(--copper);
+  border-radius: 0 2px 2px 0;
 }
-.sb-link { position: relative; }
-.sb-link .sb-icon {
-  width: 18px;
-  height: 18px;
+.sb-icon {
+  width: 18px; height: 18px;
   stroke: currentColor;
   fill: none;
   stroke-width: 1.6;
@@ -112,15 +113,6 @@ input { font-family: inherit; }
 }
 .sb-link.active .sb-icon,
 .sb-link:hover .sb-icon { opacity: 1; }
-.sb-icon {
-  width: 18px; height: 18px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex-shrink: 0;
-}
 
 /* MAIN */
 .main {
@@ -207,7 +199,6 @@ input { font-family: inherit; }
 
 /* CARDS */
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -253,26 +244,43 @@ input { font-family: inherit; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--white); }
 .btn-ghost:hover { border-color: var(--white); }
-.btn-sm { padding: 6px 14px; font-size: 13px; width: auto; }
+.btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
 
-/* TABLE */
-.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
-.tbl th {
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ash);
-  border-bottom: 1px solid var(--border);
+/* SITE ROW */
+.site-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
-.tbl td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+.site-row:hover {
+  background: var(--panel);
+  border-color: var(--border2);
+  transform: translateX(2px);
 }
-.tbl tr:hover td { background: var(--panel); }
-.tbl tr:last-child td { border-bottom: none; }
+.site-row-main { flex: 1; min-width: 0; }
+.site-row-name { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.site-row-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--copper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.site-row-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.site-row-arrow {
+  width: 16px; height: 16px;
+  color: var(--fog);
+  flex-shrink: 0;
+}
+.site-row:hover .site-row-arrow { color: var(--white); }
 
 /* BADGE */
 .badge {
@@ -285,7 +293,47 @@ input { font-family: inherit; }
 .badge-live { background: rgba(74,222,128,0.15); color: #4ade80; }
 .badge-draft { background: rgba(251,191,36,0.15); color: #fbbf24; }
 
-/* LOADING */
+/* TABS */
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 14px 20px;
+  color: var(--fog);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn:hover { color: var(--white); }
+.tab-btn.tab-active {
+  color: var(--copper);
+  border-bottom-color: var(--copper);
+  background: rgba(204, 145, 102, 0.05);
+}
+
+/* EDITOR */
+.editor-area {
+  width: 100%;
+  min-height: 500px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  tab-size: 2;
+}
+.editor-area:focus { border-color: var(--copper); }
+
+/* SPINNER */
 .spinner {
   width: 16px; height: 16px;
   border: 2px solid rgba(255,255,255,0.2);
@@ -295,18 +343,12 @@ input { font-family: inherit; }
   display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-}
+.loading-wrap { display: flex; align-items: center; justify-content: center; padding: 80px 0; }
 
 /* TOAST */
 .toast-wrap {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 24px; right: 24px;
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -343,98 +385,6 @@ input { font-family: inherit; }
 }
 .overlay.show { display: block; }
 
-/* SITE ROW */
-.site-row {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.site-row:hover {
-  background: var(--panel);
-  border-color: var(--border2);
-  transform: translateX(2px);
-}
-.site-row:active { transform: translateX(0); }
-.site-row-main { flex: 1; min-width: 0; }
-.site-row-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 4px;
-}
-.site-row-sub {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--copper);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.site-row-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-.site-row-arrow {
-  width: 16px;
-  height: 16px;
-  color: var(--fog);
-  flex-shrink: 0;
-}
-.site-row:hover .site-row-arrow { color: var(--white); }
-
-/* TABS */
-.tab-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  padding: 14px 20px;
-  color: var(--fog);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.15s;
-  border-bottom: 2px solid transparent;
-}
-.tab-btn:hover { color: var(--white); }
-.tab-btn.tab-active {
-  color: var(--copper);
-  border-bottom-color: var(--copper);
-  background: rgba(204, 145, 102, 0.05);
-}
-
-/* EDITOR TEXTAREA */
-.editor-area {
-  width: 100%;
-  min-height: 500px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.7;
-  resize: vertical;
-  outline: none;
-  tab-size: 2;
-}
-.editor-area:focus { border-color: var(--copper); }
-
-@media (max-width: 640px) {
-  .editor-area { min-height: 400px; font-size: 12px; padding: 14px; }
-}
-
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .sidebar { transform: translateX(-100%); }
@@ -449,6 +399,7 @@ input { font-family: inherit; }
   .grid-4 { grid-template-columns: 1fr 1fr; }
   .page-title { font-size: 26px; }
   .card-value { font-size: 26px; }
+  .editor-area { min-height: 400px; font-size: 12px; padding: 14px; }
 }
 </style>
 </head>
@@ -467,7 +418,6 @@ input { font-family: inherit; }
   <div class="overlay" id="overlay"></div>
 
   <main class="main">
-
     <header class="topbar">
       <button class="tb-menu" id="tbMenu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -485,7 +435,6 @@ input { font-family: inherit; }
     <div class="content" id="content">
       <div class="loading-wrap"><div class="spinner"></div></div>
     </div>
-
   </main>
 
 </div>
@@ -510,10 +459,7 @@ function toast(msg, type) {
   }, 4000);
 }
 
-// ═══════════════════════════════════════════
-// HELPER
-// ═══════════════════════════════════════════
-function escapeHtml(str) {
+function escHtml(str) {
   return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -522,58 +468,43 @@ function escapeHtml(str) {
 }
 
 // ═══════════════════════════════════════════
+// ICONS
+// ═══════════════════════════════════════════
+var ICONS = {
+  home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+  pulse: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  archive: '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>',
+  code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+  braces: '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  'file-plus': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+  chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+  device: '<rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+  card: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+};
+
+// ═══════════════════════════════════════════
 // APP
 // ═══════════════════════════════════════════
 var App = {
   user: null,
-
-  // ─── AUTH ───
-  async checkAuth() {
-    try {
-      var res = await fetch('/api/auth/session');
-      var data = await res.json();
-      if (!data.ok || !data.authenticated) {
-        window.location.href = '/';
-        return null;
-      }
-      this.user = data.user;
-      return data.user;
-    } catch (e) {
-      window.location.href = '/';
-      return null;
-    }
-  },
-
-  // ─── MENU ───
-  icons: {
-    home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
-    activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
-    bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-    pulse: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
-    globe: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
-    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
-    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
-    archive: '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>',
-    code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
-    palette: '<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
-    braces: '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
-    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
-    eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
-    folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
-    'file-plus': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>',
-    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
-    rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>',
-    layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
-    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-    external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
-    chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
-    compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
-    device: '<rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
-    card: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
-    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-    help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
-  },
 
   menu: [
     { title: 'Overview', items: [
@@ -619,17 +550,34 @@ var App = {
     ]}
   ],
 
-  renderSidebar() {
+  // ─── AUTH ───
+  async checkAuth() {
+    try {
+      var res = await fetch('/api/auth/session');
+      var data = await res.json();
+      if (!data.ok || !data.authenticated) {
+        window.location.href = '/';
+        return null;
+      }
+      this.user = data.user;
+      return data.user;
+    } catch (e) {
+      window.location.href = '/';
+      return null;
+    }
+  },
+
+  // ─── SIDEBAR ───
+  renderSidebar: function() {
     var nav = document.getElementById('sbNav');
     var current = window.location.hash.replace('#/', '') || 'home';
-    var self = this;
     var html = '';
 
     this.menu.forEach(function(section) {
       html += '<div class="sb-title">' + section.title + '</div>';
       section.items.forEach(function(item) {
         var active = item.id === current ? 'active' : '';
-        var iconPath = self.icons[item.icon] || self.icons.home;
+        var iconPath = ICONS[item.icon] || ICONS.home;
         html += '<div class="sb-link ' + active + '" onclick="App.go(\'' + item.id + '\')">' +
           '<svg class="sb-icon" viewBox="0 0 24 24">' + iconPath + '</svg>' +
           '<span>' + item.label + '</span>' +
@@ -639,26 +587,33 @@ var App = {
     nav.innerHTML = html;
   },
 
-  go(id) {
+  go: function(id) {
     window.location.hash = '#/' + id;
   },
 
   // ─── ROUTER ───
-  async route() {
+  route: async function() {
     var id = window.location.hash.replace('#/', '') || 'home';
     this.renderSidebar();
     this.closeSidebar();
     await this.load(id);
   },
 
-  async load(id) {
+  load: async function(id) {
     var content = document.getElementById('content');
     content.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
 
     try {
+      // Editor route
+      if (id.indexOf('editor/') === 0) {
+        var siteId = id.split('/')[1];
+        return await this.pageEditor(siteId);
+      }
+
       if (id === 'home') return this.pageHome();
       if (id === 'sites') return await this.pageSites();
       if (id === 'sites-new') return this.pageSitesNew();
+      if (id === 'preview') return await this.pagePreviewList();
       return this.pagePlaceholder(id);
     } catch (e) {
       content.innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="color:#f87171;">Error: ' + e.message + '</p></div>';
@@ -666,12 +621,12 @@ var App = {
   },
 
   // ─── PAGES ───
-  pageHome() {
+  pageHome: function() {
     var name = (this.user && this.user.name) || 'User';
     document.getElementById('content').innerHTML =
       '<div class="page-head">' +
         '<div class="eyebrow">Overview</div>' +
-        '<h1 class="page-title">Selamat kembali, ' + name + '</h1>' +
+        '<h1 class="page-title">Selamat kembali, ' + escHtml(name) + '</h1>' +
         '<p class="page-sub">Ni ringkasan akaun anda hari ini</p>' +
       '</div>' +
       '<div class="grid-4">' +
@@ -686,17 +641,18 @@ var App = {
       '</div>';
   },
 
-  async pageSites() {
+  pageSites: async function() {
     var res = await fetch('/api/sites');
     var data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Gagal load sites');
 
+    var head = '<div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;">' +
+      '<div><div class="eyebrow">Sites</div><h1 class="page-title">My Sites</h1><p class="page-sub">Senarai semua website anda</p></div>' +
+      '<button class="btn btn-primary btn-sm" onclick="App.go(\'sites-new\')">+ Buat Site Baru</button>' +
+    '</div>';
+
     if (!data.sites || data.sites.length === 0) {
-      document.getElementById('content').innerHTML =
-        '<div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;">' +
-          '<div><div class="eyebrow">Sites</div><h1 class="page-title">My Sites</h1><p class="page-sub">Senarai semua website anda</p></div>' +
-          '<button class="btn btn-primary btn-sm" onclick="App.go(\'sites-new\')">+ Buat Site Baru</button>' +
-        '</div>' +
+      document.getElementById('content').innerHTML = head +
         '<div class="card" style="text-align:center;padding:60px 40px;">' +
           '<div style="font-family:var(--serif);font-size:28px;color:white;margin-bottom:12px;">Belum ada website</div>' +
           '<p style="color:#9194a1;font-size:15px;margin-bottom:24px;">Mula dengan buat website pertama anda.</p>' +
@@ -705,22 +661,16 @@ var App = {
       return;
     }
 
-    var html = '<div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;">' +
-      '<div><div class="eyebrow">Sites</div><h1 class="page-title">My Sites</h1><p class="page-sub">Senarai semua website anda</p></div>' +
-      '<button class="btn btn-primary btn-sm" onclick="App.go(\'sites-new\')">+ Buat Site Baru</button>' +
-      '</div>';
-
-    html += '<div style="display:flex;flex-direction:column;gap:10px;">';
-
+    var rows = '';
     data.sites.forEach(function(s) {
       var badge = s.status === 'live'
         ? '<span class="badge badge-live">● LIVE</span>'
         : '<span class="badge badge-draft">○ DRAFT</span>';
 
-      html += '<div class="site-row" onclick="App.go(\'editor/' + s.id + '\')">' +
+      rows += '<div class="site-row" onclick="App.go(\'editor/' + s.id + '\')">' +
         '<div class="site-row-main">' +
-          '<div class="site-row-name">' + s.name + '</div>' +
-          '<div class="site-row-sub">' + s.subdomain + '.hairiamri.buzz</div>' +
+          '<div class="site-row-name">' + escHtml(s.name) + '</div>' +
+          '<div class="site-row-sub">' + escHtml(s.subdomain) + '.hairiamri.buzz</div>' +
         '</div>' +
         '<div class="site-row-meta">' +
           badge +
@@ -729,11 +679,11 @@ var App = {
       '</div>';
     });
 
-    html += '</div>';
-    document.getElementById('content').innerHTML = html;
+    document.getElementById('content').innerHTML = head +
+      '<div style="display:flex;flex-direction:column;gap:10px;">' + rows + '</div>';
   },
 
-  pageSitesNew() {
+  pageSitesNew: function() {
     document.getElementById('content').innerHTML =
       '<div class="page-head">' +
         '<div class="eyebrow">Sites</div>' +
@@ -766,8 +716,8 @@ var App = {
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
         .slice(0, 30);
-      var final = custom || auto;
-      prevEl.textContent = final ? final + '.hairiamri.buzz' : '-';
+      var final_ = custom || auto;
+      prevEl.textContent = final_ ? final_ + '.hairiamri.buzz' : '-';
     }
 
     nameEl.addEventListener('input', update);
@@ -812,135 +762,154 @@ var App = {
     nameEl.focus();
   },
 
-  async pageEditor(siteId) {
-    var res = await fetch('/api/sites/' + siteId);
-    var data = await res.json();
+  pageEditor: async function(siteId) {
+    var content = document.getElementById('content');
 
-    if (!data.ok) {
-      document.getElementById('content').innerHTML =
-        '<div class="card" style="text-align:center;padding:40px;">' +
-          '<p style="color:#f87171;">Site tak jumpa</p>' +
-          '<button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="App.go(\'sites\')">← Balik</button>' +
-        '</div>';
-      return;
-    }
+    try {
+      var res = await fetch('/api/sites/' + siteId);
+      var data = await res.json();
 
-    var site = data.site;
-    var self = this;
-
-    document.getElementById('content').innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">' +
-        '<div>' +
-          '<div class="eyebrow">Editor</div>' +
-          '<h1 class="page-title" style="margin-bottom:0;">' + site.name + '</h1>' +
-          '<p class="page-sub" style="margin-top:4px;font-family:var(--mono);font-size:12px;color:#cc9166;">' + site.subdomain + '.hairiamri.buzz · ' + site.status.toUpperCase() + '</p>' +
-        '</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-          '<button class="btn btn-ghost btn-sm" onclick="App.go(\'sites\')">← Balik</button>' +
-          '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + site.subdomain + '\')">👁 Live Preview</button>' +
-          '<button class="btn btn-primary btn-sm" id="saveBtn">💾 Save</button>' +
-        '</div>' +
-      '</div>' +
-
-      '<div class="card" style="padding:0;overflow:hidden;">' +
-        '<div style="display:flex;border-bottom:1px solid var(--border);">' +
-          '<button class="tab-btn tab-active" data-tab="html" onclick="App.switchTab(\'html\')">HTML</button>' +
-          '<button class="tab-btn" data-tab="css" onclick="App.switchTab(\'css\')">CSS</button>' +
-          '<button class="tab-btn" data-tab="js" onclick="App.switchTab(\'js\')">JS</button>' +
-        '</div>' +
-        '<div style="padding:16px;">' +
-          '<textarea class="editor-area" id="editorHTML" spellcheck="false" style="display:block;">' + (site.html || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
-          '<textarea class="editor-area" id="editorCSS" spellcheck="false" style="display:none;">' + (site.css || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
-          '<textarea class="editor-area" id="editorJS" spellcheck="false" style="display:none;">' + (site.js || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>' +
-        '</div>' +
-      '</div>' +
-
-      '<div style="margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;">' +
-        '<div style="font-size:14px;color:var(--fog);margin-bottom:12px;">Selepas siap, klik Publish untuk site jadi LIVE.</div>' +
-        '<button class="btn btn-primary btn-sm" id="publishBtn" style="background:#4ade80;color:#000;">🚀 Publish Site</button>' +
-      '</div>';
-
-    // Save handler
-    document.getElementById('saveBtn').onclick = async function() {
-      var btn = this;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Saving...';
-
-      try {
-        var res = await fetch('/api/sites/' + siteId, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            html: document.getElementById('editorHTML').value,
-            css: document.getElementById('editorCSS').value,
-            js: document.getElementById('editorJS').value
-          })
-        });
-        var d = await res.json();
-        if (d.ok) {
-          toast('Saved!', 'success');
-        } else {
-          toast(d.error || 'Gagal save', 'error');
-        }
-      } catch (e) {
-        toast('Error: ' + e.message, 'error');
+      if (!data.ok) {
+        content.innerHTML =
+          '<div class="card" style="text-align:center;padding:40px;">' +
+            '<p style="color:#f87171;">Site tak jumpa</p>' +
+            '<button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="App.go(\'sites\')">← Balik</button>' +
+          '</div>';
+        return;
       }
-      btn.disabled = false;
-      btn.innerHTML = '💾 Save';
-    };
 
-    // Publish handler
-    document.getElementById('publishBtn').onclick = async function() {
-      if (!confirm('Publish site? Site akan LIVE dan accessible.')) return;
-      var btn = this;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Publishing...';
+      var site = data.site;
 
-      // Save dulu
-      await fetch('/api/sites/' + siteId, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          html: document.getElementById('editorHTML').value,
-          css: document.getElementById('editorCSS').value,
-          js: document.getElementById('editorJS').value,
-          status: 'live'
-        })
-      });
+      content.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">' +
+          '<div>' +
+            '<div class="eyebrow">Editor</div>' +
+            '<h1 class="page-title" style="margin-bottom:0;">' + escHtml(site.name) + '</h1>' +
+            '<p class="page-sub" style="margin-top:4px;font-family:var(--mono);font-size:12px;color:#cc9166;">' + escHtml(site.subdomain) + '.hairiamri.buzz · ' + site.status.toUpperCase() + '</p>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<button class="btn btn-ghost btn-sm" onclick="App.go(\'sites\')">← Balik</button>' +
+            '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + site.subdomain + '\')">👁 Preview</button>' +
+            '<button class="btn btn-primary btn-sm" id="saveBtn">💾 Save</button>' +
+          '</div>' +
+        '</div>' +
 
-      toast('Site LIVE! 🚀', 'success');
-      btn.disabled = false;
-      btn.innerHTML = '✅ Published';
-    };
+        '<div class="card" style="padding:0;overflow:hidden;">' +
+          '<div style="display:flex;border-bottom:1px solid var(--border);">' +
+            '<button class="tab-btn tab-active" data-tab="html" onclick="App.switchTab(\'html\')">HTML</button>' +
+            '<button class="tab-btn" data-tab="css" onclick="App.switchTab(\'css\')">CSS</button>' +
+            '<button class="tab-btn" data-tab="js" onclick="App.switchTab(\'js\')">JS</button>' +
+          '</div>' +
+          '<div style="padding:16px;">' +
+            '<textarea class="editor-area" id="editorHTML" spellcheck="false" style="display:block;">' + escHtml(site.html || '') + '</textarea>' +
+            '<textarea class="editor-area" id="editorCSS" spellcheck="false" style="display:none;">' + escHtml(site.css || '') + '</textarea>' +
+            '<textarea class="editor-area" id="editorJS" spellcheck="false" style="display:none;">' + escHtml(site.js || '') + '</textarea>' +
+          '</div>' +
+        '</div>' +
+
+        '<div style="margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;">' +
+          '<div style="font-size:14px;color:var(--fog);margin-bottom:12px;">Selepas siap, klik Publish untuk site jadi LIVE.</div>' +
+          '<button class="btn btn-primary btn-sm" id="publishBtn" style="background:#4ade80;color:#000;">🚀 Publish Site</button>' +
+        '</div>';
+
+      // Save handler
+      var saveBtn = document.getElementById('saveBtn');
+      saveBtn.onclick = async function() {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
+
+        try {
+          var r = await fetch('/api/sites/' + siteId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              html: document.getElementById('editorHTML').value,
+              css: document.getElementById('editorCSS').value,
+              js: document.getElementById('editorJS').value
+            })
+          });
+          var d = await r.json();
+          if (d.ok) {
+            toast('Saved!', 'success');
+          } else {
+            toast(d.error || 'Gagal save', 'error');
+          }
+        } catch (e) {
+          toast('Error: ' + e.message, 'error');
+        }
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '💾 Save';
+      };
+
+      // Publish handler
+      var publishBtn = document.getElementById('publishBtn');
+      publishBtn.onclick = async function() {
+        if (!confirm('Publish site? Site akan LIVE dan accessible.')) return;
+        publishBtn.disabled = true;
+        publishBtn.innerHTML = '<span class="spinner"></span> Publishing...';
+
+        try {
+          var r = await fetch('/api/sites/' + siteId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              html: document.getElementById('editorHTML').value,
+              css: document.getElementById('editorCSS').value,
+              js: document.getElementById('editorJS').value,
+              status: 'live'
+            })
+          });
+          var d = await r.json();
+          if (d.ok) {
+            toast('Site LIVE! 🚀', 'success');
+            publishBtn.innerHTML = '✅ Published';
+          } else {
+            toast(d.error || 'Gagal publish', 'error');
+            publishBtn.disabled = false;
+            publishBtn.innerHTML = '🚀 Publish Site';
+          }
+        } catch (e) {
+          toast('Error: ' + e.message, 'error');
+          publishBtn.disabled = false;
+          publishBtn.innerHTML = '🚀 Publish Site';
+        }
+      };
+
+    } catch (err) {
+      content.innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="color:#f87171;">Error: ' + err.message + '</p></div>';
+    }
   },
 
-  switchTab(tab) {
+  switchTab: function(tab) {
     document.querySelectorAll('.tab-btn').forEach(function(b) {
       b.classList.remove('tab-active');
     });
-    document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('tab-active');
+    var btn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+    if (btn) btn.classList.add('tab-active');
 
-    document.getElementById('editorHTML').style.display = tab === 'html' ? 'block' : 'none';
-    document.getElementById('editorCSS').style.display = tab === 'css' ? 'block' : 'none';
-    document.getElementById('editorJS').style.display = tab === 'js' ? 'block' : 'none';
+    var areas = { html: 'editorHTML', css: 'editorCSS', js: 'editorJS' };
+    Object.keys(areas).forEach(function(k) {
+      var el = document.getElementById(areas[k]);
+      if (el) el.style.display = k === tab ? 'block' : 'none';
+    });
   },
 
-  openPreview(subdomain) {
-    // Buka new tab ke preview route
+  openPreview: function(subdomain) {
     window.open('/preview/' + subdomain, '_blank');
   },
 
-  async pagePreviewList() {
+  pagePreviewList: async function() {
     var res = await fetch('/api/sites');
     var data = await res.json();
 
+    var head = '<div class="page-head">' +
+      '<div class="eyebrow">Preview</div>' +
+      '<h1 class="page-title">Live Preview</h1>' +
+      '<p class="page-sub">Buka site dalam tab baru</p>' +
+      '</div>';
+
     if (!data.ok || !data.sites || data.sites.length === 0) {
-      document.getElementById('content').innerHTML =
-        '<div class="page-head">' +
-          '<div class="eyebrow">Preview</div>' +
-          '<h1 class="page-title">Live Preview</h1>' +
-          '<p class="page-sub">Preview site sebelum publish</p>' +
-        '</div>' +
+      document.getElementById('content').innerHTML = head +
         '<div class="card" style="text-align:center;padding:60px 40px;">' +
           '<p style="color:#9194a1;">Belum ada site. Buat site dulu.</p>' +
           '<button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="App.go(\'sites-new\')">+ Buat Site</button>' +
@@ -948,61 +917,55 @@ var App = {
       return;
     }
 
-    var html = '<div class="page-head">' +
-      '<div class="eyebrow">Preview</div>' +
-      '<h1 class="page-title">Live Preview</h1>' +
-      '<p class="page-sub">Buka site dalam tab baru</p>' +
-      '</div>';
-
-    html += '<div class="card" style="padding:0;overflow:hidden;"><table class="tbl">';
-    html += '<thead><tr><th>Nama</th><th>Subdomain</th><th>Status</th><th></th></tr></thead><tbody>';
-
+    var rows = '';
     data.sites.forEach(function(s) {
       var badge = s.status === 'live'
         ? '<span class="badge badge-live">● LIVE</span>'
         : '<span class="badge badge-draft">○ DRAFT</span>';
 
-      html += '<tr>' +
-        '<td><strong style="color:white;">' + s.name + '</strong></td>' +
-        '<td><span style="font-family:var(--mono);font-size:12px;color:#cc9166;">' + s.subdomain + '.hairiamri.buzz</span></td>' +
-        '<td>' + badge + '</td>' +
-        '<td style="text-align:right;">' +
-          '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + s.subdomain + '\')" style="margin-right:6px;">👁 Preview</button>' +
-          '<button class="btn btn-ghost btn-sm" onclick="App.go(\'editor/' + s.id + '\')">Edit</button>' +
-        '</td>' +
-        '</tr>';
+      rows += '<div class="site-row">' +
+        '<div class="site-row-main" onclick="App.openPreview(\'' + s.subdomain + '\')">' +
+          '<div class="site-row-name">' + escHtml(s.name) + '</div>' +
+          '<div class="site-row-sub">' + escHtml(s.subdomain) + '.hairiamri.buzz</div>' +
+        '</div>' +
+        '<div class="site-row-meta">' +
+          badge +
+          '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();App.openPreview(\'' + s.subdomain + '\')">👁 Preview</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();App.go(\'editor/' + s.id + '\')">Edit</button>' +
+        '</div>' +
+      '</div>';
     });
 
-    html += '</tbody></table></div>';
-    document.getElementById('content').innerHTML = html;
+    document.getElementById('content').innerHTML = head +
+      '<div style="display:flex;flex-direction:column;gap:10px;">' + rows + '</div>';
   },
 
-  pagePlaceholder(id) {
+  pagePlaceholder: function(id) {
     var label = id.replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
     document.getElementById('content').innerHTML =
       '<div class="page-head">' +
         '<div class="eyebrow">Coming Soon</div>' +
-        '<h1 class="page-title">' + label + '</h1>' +
+        '<h1 class="page-title">' + escHtml(label) + '</h1>' +
         '<p class="page-sub">Module ni akan datang dalam fasa seterusnya</p>' +
       '</div>' +
       '<div class="card" style="text-align:center;padding:60px 40px;">' +
         '<div style="font-size:40px;margin-bottom:16px;">🚧</div>' +
         '<div style="font-family:var(--serif);font-size:24px;color:white;margin-bottom:8px;">Belum siap</div>' +
-        '<p style="color:#9194a1;font-size:14px;">Module <code style="background:#121317;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:13px;color:#cc9166;">' + id + '</code> akan dibina kemudian.</p>' +
+        '<p style="color:#9194a1;font-size:14px;">Module <code style="background:#121317;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:13px;color:#cc9166;">' + escHtml(id) + '</code> akan dibina kemudian.</p>' +
       '</div>';
   },
 
-  // ─── SIDEBAR ───
-  openSidebar() {
+  // ─── SIDEBAR TOGGLE ───
+  openSidebar: function() {
     document.getElementById('sidebar').classList.add('open');
     document.getElementById('overlay').classList.add('show');
   },
-  closeSidebar() {
+  closeSidebar: function() {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('show');
   },
 
-  async init() {
+  init: async function() {
     var u = await this.checkAuth();
     if (!u) return;
 
@@ -1027,8 +990,6 @@ var App = {
 document.addEventListener('DOMContentLoaded', function() { App.init(); });
 window.toast = toast;
 </script>
-
-<script src="editor.js?v=1"></script>
 
 </body>
 </html>
