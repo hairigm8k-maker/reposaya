@@ -46,6 +46,7 @@
   }
 
   App.pageChat = async function(){
+    document.body.classList.add('chat-fullscreen');
     var c = document.getElementById('content');
     c.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
     try {
@@ -60,7 +61,7 @@
 
       // Clear container
       c.innerHTML =
-        '<div style="display:flex;flex-direction:column;height:calc(100vh - 60px);padding:24px 24px 0">' +
+        '<div style="display:flex;flex-direction:column;height:calc(100vh - 60px);max-width:900px;margin:0 auto;width:100%;padding:20px 20px 0">' +
           '<div style="margin-bottom:14px">' +
             '<div class="eyebrow">Community</div>' +
             '<h1 class="page-title" style="margin-bottom:4px">Chat</h1>' +
@@ -180,6 +181,7 @@
   // Cleanup polling bila keluar page
   var origLoad = App.load.bind(App);
   App.load = function(id){
+    if (id !== 'chat') { document.body.classList.remove('chat-fullscreen'); }
     if (id !== 'chat' && pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
     if (id === 'chat') {
       document.getElementById('content').innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
