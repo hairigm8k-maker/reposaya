@@ -47,10 +47,10 @@
 
     var content = '';
     if (msg.image_data) {
-      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:220px;max-height:280px;border-radius:10px;display:block;cursor:pointer" onclick="window.open(this.src)" loading="lazy"></div>';
+      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:200px;max-height:240px;border-radius:10px;display:block;cursor:zoom-in" loading="lazy"></div>';
     }
     if (msg.message) {
-      content += '<div style="font-size:14.5px;line-height:1.45;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
+      content += '<div style="font-size:14px;line-height:1.4;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
     }
 
     var r = '18px', c = '6px';
@@ -58,35 +58,38 @@
     if (isSelf) br = (isFirst ? r : c) + ' ' + r + ' ' + r + ' ' + (isLast ? r : c);
     else br = r + ' ' + (isFirst ? r : c) + ' ' + (isLast ? r : c) + ' ' + r;
 
-    var timeHtml = isLast
-      ? '<div style="font-size:10px;color:var(--ash);margin-top:4px;text-align:' + (isSelf ? 'right' : 'left') + ';padding-' + (isSelf ? 'right' : 'left') + ':4px">' + fmtTime(msg.created_at) + '</div>'
-      : '';
+    var gap = isLast ? '10px' : '2px';
+    var maxW = msg.image_data ? 'calc(100% - 20px)' : 'calc(100% - 90px)';
 
-    var avatarSlot = isLast
-      ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:12px;color:var(--copper)">' + avatar + '</div>'
-      : '<div style="width:28px;flex-shrink:0"></div>';
+    var avatarSlot = isSelf
+      ? '<div style="width:0;flex-shrink:0"></div>'
+      : (isLast ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:12px;color:var(--copper)">' + avatar + '</div>' : '<div style="width:28px;flex-shrink:0"></div>');
 
     var nameHtml = (!isSelf && isFirst)
-      ? '<div style="font-size:11.5px;color:var(--copper);font-weight:600;margin-bottom:5px;padding-left:4px">' + escHtml(name) + '</div>'
+      ? '<div style="font-size:11px;color:var(--copper);font-weight:600;margin-bottom:4px;padding-left:4px">' + escHtml(name) + '</div>'
       : '';
 
-    return '<div style="display:flex;gap:8px;align-items:flex-end;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + ';margin-bottom:' + (isLast ? '12px' : '2px') + '">' +
+    var timeHtml = isLast
+      ? '<div style="font-size:10px;color:var(--ash);margin-top:3px;padding:0 4px">' + fmtTime(msg.created_at) + '</div>'
+      : '';
+
+    return '<div style="display:flex;gap:8px;align-items:flex-end;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + ';margin-bottom:' + gap + '">' +
       avatarSlot +
-      '<div style="max-width:calc(100% - 70px);min-width:0;display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start') + '">' +
+      '<div style="max-width:' + maxW + ';min-width:0;display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start') + '">' +
         nameHtml +
-        '<div style="padding:9px 14px;border-radius:' + br + ';background:' + (isSelf ? 'var(--copper)' : 'var(--panel)') + ';border:1px solid ' + (isSelf ? 'var(--copper)' : 'var(--border2)') + ';max-width:100%">' + content + '</div>' +
+        '<div style="padding:8px 13px;border-radius:' + br + ';background:' + (isSelf ? 'var(--copper)' : 'var(--panel)') + ';border:1px solid ' + (isSelf ? 'var(--copper)' : 'var(--border2)') + ';max-width:100%">' + content + '</div>' +
         timeHtml +
       '</div>' +
     '</div>';
   }
 
   function renderMessages(msgs, selfId) {
-    if (!msgs.length) return '<div style="text-align:center;color:var(--ash);font-size:13px;padding:60px 20px;line-height:1.6">No messages yet.<br><span style="font-size:11px;color:var(--ash)">Start the conversation!</span></div>';
+    if (!msgs.length) return '<div style="text-align:center;color:var(--ash);font-size:13px;padding:80px 20px;line-height:1.6">No messages yet.<br><span style="font-size:11px;color:var(--ash)">Start the conversation!</span></div>';
     var html = '';
     for (var i = 0; i < msgs.length; i++) {
       var m = msgs[i], p = msgs[i - 1], n = msgs[i + 1];
       if (!p || !sameDay(p.created_at, m.created_at)) {
-        html += '<div style="display:flex;align-items:center;gap:12px;margin:20px 0 16px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:4px 10px;background:var(--panel);border:1px solid var(--border2);border-radius:9999px">' + dayLabel(m.created_at) + '</span><div style="flex:1;height:1px;background:var(--border)"></div></div>';
+        html += '<div style="display:flex;align-items:center;gap:12px;margin:16px 0 14px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:3px 10px;background:var(--panel);border:1px solid var(--border2);border-radius:9999px;white-space:nowrap">' + dayLabel(m.created_at) + '</span><div style="flex:1;height:1px;background:var(--border)"></div></div>';
       }
       var isFirst = !p || p.user_id !== m.user_id || !closeTime(p.created_at, m.created_at) || !sameDay(p.created_at, m.created_at);
       var isLast = !n || n.user_id !== m.user_id || !closeTime(m.created_at, n.created_at) || !sameDay(m.created_at, n.created_at);
@@ -94,6 +97,7 @@
     }
     return html;
   }
+
   App.pageChat = async function(){
     document.body.classList.add('chat-fullscreen');
     var c = document.getElementById('content');
@@ -117,7 +121,7 @@
               '<div style="font-size:11px;color:var(--ash)">Global room · everyone can see</div>' +
             '</div>' +
           '</div>' +
-          '<div id="chatScroll" style="flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth"></div>' +
+          '<div id="chatScroll" style="flex:1;overflow-y:auto;padding:12px 16px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch"></div>' +
           '<div style="background:var(--card);border-top:1px solid var(--border);padding:12px 16px">' +
             '<div id="chatImgPreview" style="display:none;margin-bottom:10px;padding:10px;background:var(--panel);border:1px solid var(--border2);border-radius:10px;position:relative;max-width:200px">' +
               '<img id="chatImgThumb" style="max-height:100px;border-radius:6px;display:block">' +
