@@ -16,8 +16,8 @@ export async function onRequestGet({ request, env }) {
       'SELECT d.*, s.subdomain FROM custom_domains d JOIN sites s ON s.id = d.site_id WHERE d.user_id = ?'
     ).bind(session.userId).all();
     return json({ ok: true, domains: results || [] });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -47,8 +47,8 @@ export async function onRequestPost({ request, env }) {
     ).bind(siteId, session.userId, domain, vtoken).run();
 
     return json({ ok: true, domain: domain, verification_token: vtoken });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -64,7 +64,7 @@ export async function onRequestDelete({ request, env }) {
   try {
     await env.DB.prepare('DELETE FROM custom_domains WHERE id = ? AND user_id = ?').bind(id, session.userId).run();
     return json({ ok: true });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }

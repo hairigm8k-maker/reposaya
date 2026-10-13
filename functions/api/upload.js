@@ -46,7 +46,7 @@ export async function onRequestPost({ request, env }) {
     const publicUrl = 'https://' + site.subdomain + '.hairiamri.buzz/' + filename;
 
     return json({ ok: true, url: publicUrl, filename: filename });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }

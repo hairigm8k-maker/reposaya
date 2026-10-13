@@ -16,8 +16,8 @@ export async function onRequestGet({ request, env }) {
     }
     const result = await env.DB.prepare('SELECT id, name, subdomain, status, created_at, updated_at FROM sites WHERE user_id = ? ORDER BY created_at DESC').bind(session.userId).all();
     return json({ ok: true, sites: result.results || [] });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -50,8 +50,8 @@ export async function onRequestPost({ request, env }) {
     const result = await env.DB.prepare('INSERT INTO sites (user_id, name, subdomain, html, status) VALUES (?, ?, ?, ?, \'draft\')').bind(session.userId, name, sub, html).run();
 
     return json({ ok: true, site: { id: result.meta.last_row_id, name: name, subdomain: sub, status: 'draft' } });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -92,8 +92,8 @@ export async function onRequestPatch({ request, env }) {
     await env.DB.prepare(sql).bind(...vals).run();
 
     return json({ ok: true });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -109,7 +109,7 @@ export async function onRequestDelete({ request, env }) {
   try {
     await env.DB.prepare('DELETE FROM sites WHERE id = ? AND user_id = ?').bind(id, session.userId).run();
     return json({ ok: true });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }

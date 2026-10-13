@@ -46,8 +46,8 @@ export async function onRequestGet({ request, env }) {
       };
     });
     return json({ ok: true, files: files });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
 
@@ -68,7 +68,7 @@ export async function onRequestDelete({ request, env }) {
 
     await env.DB.prepare('DELETE FROM files WHERE id = ?').bind(fileId).run();
     return json({ ok: true });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }

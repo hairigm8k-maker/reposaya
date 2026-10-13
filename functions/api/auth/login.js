@@ -9,11 +9,11 @@ export async function onRequestPost({ request, env }) {
     if (!email || !password) return json({ ok: false, error: 'Email dan password diperlukan' }, 400);
 
     const user = await env.DB.prepare('SELECT id, email, password_hash, name, role, status FROM users WHERE email = ?').bind(email).first();
-    if (!user) return json({ ok: false, error: 'Email atau password salah' }, 401);
+    if (!user) return json({ ok: false, error: 'Email atau password wrong' }, 401);
     if (user.status !== 'active') return json({ ok: false, error: 'Akaun disekat' }, 403);
 
     const valid = await verifyPassword(password, user.password_hash);
-    if (!valid) return json({ ok: false, error: 'Email atau password salah' }, 401);
+    if (!valid) return json({ ok: false, error: 'Email atau password wrong' }, 401);
 
     const session = await createSession(env, user.id);
 
@@ -22,7 +22,7 @@ export async function onRequestPost({ request, env }) {
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       redirect: '/dashboard/'
     }, 200, { 'Set-Cookie': buildCookie('hh_session', session.token) });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }

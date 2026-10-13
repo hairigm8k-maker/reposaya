@@ -14,7 +14,7 @@ export async function onRequestGet({ request, env }) {
 
     if (!site) return preview404(sub, 'Site not found');
 
-    // Kalau draft, kena login owner
+    // Kalau draft, need to login owner
     if (site.status !== 'live') {
       const token = getCookie(request, 'hh_session');
       const session = await verifySession(env, token);
@@ -34,8 +34,8 @@ export async function onRequestGet({ request, env }) {
         'X-Status': site.status
       }
     });
-  } catch (err) {
-    return new Response('Server error: ' + err.message, { status: 500 });
+  } catch (error) {
+    return new Response('Server error: ' + error.message, { status: 500 });
   }
 }
 

@@ -45,7 +45,7 @@
 
     <div class="hh-link-row">
       <a href="/forgot-password.html" class="hh-link">Forgot password?</a>
-      <span class="hh-muted">Akaun dijemput sahaja</span>
+      <span class="hh-muted">Akaun dijemput only</span>
     </div>
 
   </div>
@@ -95,7 +95,7 @@ form.addEventListener('submit', async (e) => {
     const data = await res.json();
 
     if (data.ok) {
-      HHT.toast('Success log masuk', 'success');
+      HHT.toast('Success log enter', 'success');
       setTimeout(() => {
         window.location.href = data.redirect || '/dashboard/';
       }, 500);
@@ -104,7 +104,7 @@ form.addEventListener('submit', async (e) => {
       submitBtn.disabled = false;
       btnText.textContent = 'Sign In';
     }
-  } catch (err) {
+  } catch (error) {
     HHT.toast('Error sambungan. Cuba lagi.', 'error');
     submitBtn.disabled = false;
     btnText.textContent = 'Sign In';

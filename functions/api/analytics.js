@@ -29,7 +29,7 @@ export async function onRequestGet({ request, env }) {
       daily: daily.results || [],
       countries: countries.results || []
     });
-  } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+  } catch (error) {
+    return json({ ok: false, error: error.message }, 500);
   }
 }
