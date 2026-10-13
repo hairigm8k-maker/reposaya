@@ -24,17 +24,13 @@
 
   function sameDay(a, b) {
     try {
-      var da = new Date(String(a).replace(' ', 'T') + 'Z');
-      var db = new Date(String(b).replace(' ', 'T') + 'Z');
-      return da.toDateString() === db.toDateString();
+      return new Date(String(a).replace(' ', 'T') + 'Z').toDateString() === new Date(String(b).replace(' ', 'T') + 'Z').toDateString();
     } catch (e) { return false; }
   }
 
   function closeTime(a, b) {
     try {
-      var ta = new Date(String(a).replace(' ', 'T') + 'Z').getTime();
-      var tb = new Date(String(b).replace(' ', 'T') + 'Z').getTime();
-      return Math.abs(ta - tb) < 300000;
+      return Math.abs(new Date(String(a).replace(' ', 'T') + 'Z').getTime() - new Date(String(b).replace(' ', 'T') + 'Z').getTime()) < 300000;
     } catch (e) { return false; }
   }
   function renderBubble(msg, selfId, isFirst, isLast) {
@@ -47,49 +43,54 @@
 
     var content = '';
     if (msg.image_data) {
-      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:200px;max-height:240px;border-radius:10px;display:block;cursor:zoom-in" loading="lazy"></div>';
+      content += '<div style="' + (msg.message ? 'margin-bottom:6px;' : '') + '"><img src="' + msg.image_data + '" style="max-width:240px;max-height:280px;border-radius:10px;display:block" loading="lazy"></div>';
     }
     if (msg.message) {
-      content += '<div style="font-size:14px;line-height:1.4;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
+      content += '<div style="font-size:14px;line-height:1.45;color:' + (isSelf ? '#1a1208' : 'var(--bone)') + ';word-wrap:break-word;white-space:pre-wrap">' + escHtml(msg.message) + '</div>';
     }
 
     var r = '18px', c = '6px';
-    var br;
-    if (isSelf) br = (isFirst ? r : c) + ' ' + r + ' ' + r + ' ' + (isLast ? r : c);
-    else br = r + ' ' + (isFirst ? r : c) + ' ' + (isLast ? r : c) + ' ' + r;
+    var br = isSelf
+      ? (isFirst ? r : c) + ' ' + r + ' ' + r + ' ' + (isLast ? r : c)
+      : r + ' ' + (isFirst ? r : c) + ' ' + (isLast ? r : c) + ' ' + r;
 
-    var gap = isLast ? '10px' : '2px';
-    var maxW = msg.image_data ? 'calc(100% - 20px)' : 'calc(100% - 90px)';
+    var gap = isLast ? '12px' : '3px';
+    var time = isLast ? '<div style="font-size:10px;color:var(--ash);margin-top:3px;padding:0 6px">' + fmtTime(msg.created_at) + '</div>' : '';
 
-    var avatarSlot = isSelf
-      ? '<div style="width:0;flex-shrink:0"></div>'
-      : (isLast ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:12px;color:var(--copper)">' + avatar + '</div>' : '<div style="width:28px;flex-shrink:0"></div>');
+    if (isSelf) {
+      return '<div style="display:flex;justify-content:flex-end;margin-bottom:' + gap + '">' +
+        '<div style="max-width:72%;min-width:0;display:flex;flex-direction:column;align-items:flex-end">' +
+          '<div style="padding:8px 13px;border-radius:' + br + ';background:var(--copper);border:1px solid var(--copper);max-width:100%">' + content + '</div>' +
+          time +
+        '</div>' +
+      '</div>';
+    }
 
-    var nameHtml = (!isSelf && isFirst)
-      ? '<div style="font-size:11px;color:var(--copper);font-weight:600;margin-bottom:4px;padding-left:4px">' + escHtml(name) + '</div>'
+    var avatarSlot = isLast
+      ? '<div style="width:28px;height:28px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-weight:600;font-size:12px;color:var(--copper)">' + avatar + '</div>'
+      : '<div style="width:28px;flex-shrink:0"></div>';
+
+    var nameHtml = isFirst
+      ? '<div style="font-size:11.5px;color:var(--copper);font-weight:600;margin-bottom:4px;padding-left:4px">' + escHtml(name) + '</div>'
       : '';
 
-    var timeHtml = isLast
-      ? '<div style="font-size:10px;color:var(--ash);margin-top:3px;padding:0 4px">' + fmtTime(msg.created_at) + '</div>'
-      : '';
-
-    return '<div style="display:flex;gap:8px;align-items:flex-end;flex-direction:' + (isSelf ? 'row-reverse' : 'row') + ';margin-bottom:' + gap + '">' +
+    return '<div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:' + gap + '">' +
       avatarSlot +
-      '<div style="max-width:' + maxW + ';min-width:0;display:flex;flex-direction:column;align-items:' + (isSelf ? 'flex-end' : 'flex-start') + '">' +
+      '<div style="max-width:72%;min-width:0;display:flex;flex-direction:column;align-items:flex-start">' +
         nameHtml +
-        '<div style="padding:8px 13px;border-radius:' + br + ';background:' + (isSelf ? 'var(--copper)' : 'var(--panel)') + ';border:1px solid ' + (isSelf ? 'var(--copper)' : 'var(--border2)') + ';max-width:100%">' + content + '</div>' +
-        timeHtml +
+        '<div style="padding:8px 13px;border-radius:' + br + ';background:var(--panel);border:1px solid var(--border2);max-width:100%">' + content + '</div>' +
+        time +
       '</div>' +
     '</div>';
   }
 
   function renderMessages(msgs, selfId) {
-    if (!msgs.length) return '<div style="text-align:center;color:var(--ash);font-size:13px;padding:80px 20px;line-height:1.6">No messages yet.<br><span style="font-size:11px;color:var(--ash)">Start the conversation!</span></div>';
+    if (!msgs.length) return '<div style="text-align:center;color:var(--ash);font-size:13px;padding:80px 20px;line-height:1.7">No messages yet.<br><span style="font-size:11px;color:var(--ash)">Start the conversation!</span></div>';
     var html = '';
     for (var i = 0; i < msgs.length; i++) {
       var m = msgs[i], p = msgs[i - 1], n = msgs[i + 1];
       if (!p || !sameDay(p.created_at, m.created_at)) {
-        html += '<div style="display:flex;align-items:center;gap:12px;margin:16px 0 14px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:3px 10px;background:var(--panel);border:1px solid var(--border2);border-radius:9999px;white-space:nowrap">' + dayLabel(m.created_at) + '</span><div style="flex:1;height:1px;background:var(--border)"></div></div>';
+        html += '<div style="display:flex;align-items:center;gap:12px;margin:14px 0 12px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);padding:3px 10px;background:var(--panel);border:1px solid var(--border2);border-radius:9999px;white-space:nowrap">' + dayLabel(m.created_at) + '</span><div style="flex:1;height:1px;background:var(--border)"></div></div>';
       }
       var isFirst = !p || p.user_id !== m.user_id || !closeTime(p.created_at, m.created_at) || !sameDay(p.created_at, m.created_at);
       var isLast = !n || n.user_id !== m.user_id || !closeTime(m.created_at, n.created_at) || !sameDay(m.created_at, n.created_at);
@@ -97,7 +98,6 @@
     }
     return html;
   }
-
   App.pageChat = async function(){
     document.body.classList.add('chat-fullscreen');
     var c = document.getElementById('content');
@@ -106,33 +106,44 @@
       var sess = await fetch('/api/auth/session').then(function(r){ return r.json(); });
       if (!sess.ok || !sess.authenticated) throw new Error('Not logged in');
       var selfId = sess.user.id;
-
       var r = await fetch('/api/chat');
       var d = await r.json();
       if (!d.ok) throw new Error(d.error);
       var messages = d.messages || [];
 
       c.innerHTML =
-        '<div style="position:fixed;top:60px;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:var(--bg)">' +
-          '<div style="background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px">' +
-            '<div style="width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--copper);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>' +
-            '<div style="flex:1;min-width:0">' +
-              '<div style="font-size:15px;font-weight:600;color:var(--white)">Community</div>' +
-              '<div style="font-size:11px;color:var(--ash)">Global room · everyone can see</div>' +
+        '<div style="position:fixed;top:60px;left:0;right:0;bottom:0;background:var(--bg);display:flex;justify-content:center">' +
+          '<div style="width:100%;max-width:820px;display:flex;flex-direction:column;border-left:1px solid var(--border);border-right:1px solid var(--border);background:var(--bg)">' +
+
+            '<div style="height:60px;padding:0 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0">' +
+              '<div style="width:34px;height:34px;border-radius:50%;background:var(--panel);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+                '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--copper);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+              '</div>' +
+              '<div style="flex:1;min-width:0">' +
+                '<div style="font-size:15px;font-weight:600;color:var(--white);line-height:1.2">Community</div>' +
+                '<div style="font-size:11px;color:var(--ash);margin-top:1px">Global room · everyone can see</div>' +
+              '</div>' +
             '</div>' +
-          '</div>' +
-          '<div id="chatScroll" style="flex:1;overflow-y:auto;padding:12px 16px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch"></div>' +
-          '<div style="background:var(--card);border-top:1px solid var(--border);padding:12px 16px">' +
-            '<div id="chatImgPreview" style="display:none;margin-bottom:10px;padding:10px;background:var(--panel);border:1px solid var(--border2);border-radius:10px;position:relative;max-width:200px">' +
-              '<img id="chatImgThumb" style="max-height:100px;border-radius:6px;display:block">' +
-              '<button id="chatImgRemove" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.8);border:0;color:#fff;cursor:pointer;font-size:13px;line-height:1">×</button>' +
+
+            '<div id="chatScroll" style="flex:1;overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch"></div>' +
+
+            '<div style="padding:10px 16px 14px;border-top:1px solid var(--border);background:var(--card);flex-shrink:0">' +
+              '<div id="chatImgPreview" style="display:none;margin-bottom:8px;padding:8px;background:var(--panel);border:1px solid var(--border2);border-radius:10px;position:relative;max-width:160px">' +
+                '<img id="chatImgThumb" style="max-height:80px;border-radius:6px;display:block">' +
+                '<button id="chatImgRemove" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.85);border:0;color:#fff;cursor:pointer;font-size:14px;line-height:1;font-family:inherit">×</button>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;align-items:flex-end;background:var(--panel);border:1px solid var(--border2);border-radius:22px;padding:4px 4px 4px 4px">' +
+                '<button id="chatImgBtn" style="width:34px;height:34px;border-radius:50%;background:transparent;border:0;color:var(--fog);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">' +
+                  '<svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+                '</button>' +
+                '<textarea id="chatInput" placeholder="Message..." style="flex:1;background:transparent;border:0;color:var(--white);font-size:14.5px;font-family:inherit;outline:none;resize:none;max-height:120px;padding:8px 2px;line-height:1.4;min-height:20px" rows="1"></textarea>' +
+                '<button id="chatSendBtn" style="width:34px;height:34px;border-radius:50%;background:var(--copper);border:0;color:#000;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s">' +
+                  '<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>' +
+                '</button>' +
+                '<input type="file" id="chatFileInput" accept="image/*" style="display:none">' +
+              '</div>' +
             '</div>' +
-            '<div style="display:flex;gap:8px;align-items:flex-end;background:var(--panel);border:1px solid var(--border2);border-radius:22px;padding:6px 6px 6px 4px">' +
-              '<button id="chatImgBtn" style="width:36px;height:36px;border-radius:50%;background:transparent;border:0;color:var(--fog);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>' +
-              '<textarea id="chatInput" placeholder="Message..." style="flex:1;background:transparent;border:0;color:var(--white);font-size:14.5px;font-family:inherit;outline:none;resize:none;max-height:120px;padding:9px 4px;line-height:1.4" rows="1"></textarea>' +
-              '<button id="chatSendBtn" style="width:36px;height:36px;border-radius:50%;background:var(--copper);border:0;color:#000;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>' +
-              '<input type="file" id="chatFileInput" accept="image/*" style="display:none">' +
-            '</div>' +
+
           '</div>' +
         '</div>';
       var scroll = document.getElementById('chatScroll');
@@ -154,7 +165,7 @@
       }
 
       if (d.just_joined) {
-        scroll.innerHTML = '<div style="text-align:center;color:var(--fog);font-size:13px;padding:60px 20px;line-height:1.7"><div style="font-size:36px;margin-bottom:12px">👋</div><strong style="color:var(--bone)">Welcome to the community chat!</strong><br><span style="font-size:11.5px;color:var(--ash)">You joined just now. Previous messages aren\'t shown.</span></div>';
+        scroll.innerHTML = '<div style="text-align:center;color:var(--fog);font-size:13px;padding:60px 20px;line-height:1.7"><div style="font-size:36px;margin-bottom:12px">👋</div><strong style="color:var(--bone);font-size:15px">Welcome to the community chat!</strong><br><span style="font-size:11.5px;color:var(--ash);display:inline-block;margin-top:6px">You joined just now. Previous messages aren\'t shown.</span></div>';
       } else {
         renderAll(messages, true);
       }
