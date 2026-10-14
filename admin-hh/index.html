@@ -4,57 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>Admin</title>
+<title>Admin Console</title>
 <link rel="icon" type="image/png" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-body{background:#f5f7fb;font-family:Inter,system-ui,sans-serif;color:#1a1a2e;padding:24px;margin:0;font-size:14px;line-height:1.5}
-.wrap{max-width:800px;margin:0 auto}
-.logo{display:block;margin:0 auto 20px;width:200px;filter:brightness(0) invert(0)}
-h1{font-size:22px;font-weight:700;margin-bottom:16px;color:#1a2456}
-.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px;border:1px solid #e4e8f0}
-.label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:600}
-.val{font-size:14px;color:#1a1a2e;font-family:monospace;background:#f5f7fb;padding:10px;border-radius:6px;word-break:break-all}
-.ok{color:#10b981;font-weight:600}
-.err{color:#ef4444;font-weight:600}
-.btn{display:inline-block;background:#2d5bff;color:#fff;padding:9px 18px;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;margin-right:8px}
+:root{--primary:#2d5bff;--primary-dark:#1a3fbb;--primary-light:#eef3ff;--navy:#1a2456;--navy-hover:#232f68;--bg:#f5f7fb;--card:#fff;--border:#e4e8f0;--text:#1a1a2e;--muted:#6b7280;--ash:#9ca3af}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:0;background:none}
+.header{background:#fff;padding:20px;text-align:center;border-bottom:1px solid var(--border)}
+.header img{width:min(80vw,400px);height:auto;display:inline-block}
+.layout{display:flex;min-height:calc(100vh - 120px)}
+.sidebar{width:230px;background:var(--navy);padding:20px 0;flex-shrink:0}
+.sb-section{padding:8px 20px 6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:12px}
+.sb-link{display:flex;align-items:center;gap:12px;padding:11px 20px;color:rgba(255,255,255,.75);font-size:13.5px;font-weight:500;cursor:pointer;border-left:3px solid transparent}
+.sb-link:hover{background:var(--navy-hover);color:#fff}
+.sb-link.active{background:var(--navy-hover);color:#fff;border-left-color:var(--primary);font-weight:600}
+.main{flex:1;min-width:0;padding:24px;max-width:1400px}
+.page-head h1{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
+.page-head p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border-radius:14px;padding:28px;color:#fff;margin-bottom:24px}
+.hero h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.hero p{font-size:13.5px;opacity:.9}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-title{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:600}
+.card-value{font-size:28px;font-weight:700;color:var(--text);line-height:1}
+.card-meta{font-size:11.5px;color:var(--ash);margin-top:6px}
+.loading{text-align:center;padding:60px;color:var(--ash)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:2px solid var(--border);font-weight:700}
+td{padding:12px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:hover td{background:var(--primary-light)}
+.badge{display:inline-block;padding:3px 9px;border-radius:9999px;font-size:10px;font-weight:700;text-transform:uppercase}
+.badge-active,.badge-live{background:#d1fae5;color:#065f46}
+.badge-suspended{background:#fee2e2;color:#991b1b}
+.badge-draft{background:#fef3c7;color:#92400e}
+@media(max-width:900px){.layout{flex-direction:column}.sidebar{width:100%}.grid-4,.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <img class="logo" src="/assets/logoUtama/logoUtama.png" alt="HairiHosting">
-  <h1>Admin Debug</h1>
-  <div class="card">
-    <div class="label">Session Status</div>
-    <div id="status">Loading...</div>
-  </div>
-  <div class="card">
-    <div class="label">Raw Session Response</div>
-    <pre id="raw" class="val">Loading...</pre>
-  </div>
-  <div id="actions"></div>
+<div class="header">
+  <img src="/assets/logoUtama/logoUtama.png" alt="HairiHosting">
 </div>
-<script>
-fetch('/api/auth/session')
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    document.getElementById('raw').textContent = JSON.stringify(d, null, 2);
-    var el = document.getElementById('status');
-    var ac = document.getElementById('actions');
-    if (!d.ok || !d.authenticated) {
-      el.innerHTML = '<span class="err">NOT LOGGED IN</span> — cookies not sent or session expired';
-      ac.innerHTML = '<a href="/" class="btn">Go to Login</a>';
-    } else if (d.user.role !== 'admin' && d.user.role !== 'superadmin') {
-      el.innerHTML = '<span class="err">NOT ADMIN</span> — role is "' + d.user.role + '"';
-      ac.innerHTML = '<a href="/dashboard/" class="btn">Go to Dashboard</a>';
-    } else {
-      el.innerHTML = '<span class="ok">OK — ADMIN CONFIRMED</span> · role: ' + d.user.role + ' · email: ' + d.user.email;
-      ac.innerHTML = '<a href="/dashboard/" class="btn">User Dashboard</a>';
-    }
-  })
-  .catch(function(e){
-    document.getElementById('status').innerHTML = '<span class="err">FETCH ERROR</span> — ' + e.message;
-    document.getElementById('raw').textContent = e.stack || e.message;
-  });
-</script>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-section">Overview</div>
+    <div class="sb-link active" data-id="overview">Dashboard</div>
+    <div class="sb-section">Manage</div>
+    <div class="sb-link" data-id="users">Users</div>
+    <div class="sb-link" data-id="sites">Sites</div>
+    <div class="sb-link" data-id="tokens">Login Tokens</div>
+    <div class="sb-link" data-id="notify">Broadcast</div>
+    <div class="sb-section">System</div>
+    <div class="sb-link" data-id="logs">Audit Log</div>
+    <div class="sb-link" id="navDashboard">Main Dashboard</div>
+    <div class="sb-link" id="navLogout">Log Out</div>
+  </aside>
+  <main class="main" id="main">
+    <div class="loading">Loading...</div>
+  </main>
+</div>
+<script src="/admin-hh/admin.js"></script>
 </body>
 </html>
