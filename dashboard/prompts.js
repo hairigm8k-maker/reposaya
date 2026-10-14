@@ -75,13 +75,13 @@ if (name === 'openai') return '<svg viewBox="0 0 256 260" width="' + size + '" h
         '<div class="pg-hero">' +
           '<span class="pg-eyebrow">Prompt Library</span>' +
           '<h1 class="pg-h1">Build websites with AI in seconds</h1>' +
-          '<p class="pg-sub">Copy a ready-made prompt, paste into DeepSeek, ChatGPT, Claude, Gemini, or Copilot. Get a full website instantly.</p>' +
+          '<p class="pg-sub">Copy a ready-made prompt, paste into OpenAI, Claude, or Copilot. Get a full website instantly.</p>' +
         '</div>' +
 
         '<div class="pg-ai-strip">' +
           '<div class="pg-ai-label">Works with</div>' +
           '<div class="pg-ai-list">' +
-            '<div class="pg-ai-item">' + aiIcon('gpt', 22) + '<span>ChatGPT</span></div>' +
+            '<div class="pg-ai-item">' + aiIcon('openai', 22) + '<span>OpenAI</span></div>' +
             '<div class="pg-ai-item">' + aiIcon('claude', 22) + '<span>Claude</span></div>' +
             '<div class="pg-ai-item">' + aiIcon('copilot', 22) + '<span>Copilot</span></div>' +
           '</div>' +
