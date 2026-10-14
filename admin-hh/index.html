@@ -96,6 +96,19 @@ tr:hover td{background:rgba(52,232,187,.03)}
   .page-title{font-size:32px}
 }
 
+
+/* Dropdown nav */
+.nav-tabs{position:relative}
+.nav-group{position:relative;display:inline-block}
+.nav-tab.has-dropdown::after{content:'▾';margin-left:6px;font-size:9px;opacity:.7;transition:transform .2s}
+.nav-group.open .nav-tab.has-dropdown::after{transform:rotate(180deg)}
+.dropdown{position:absolute;top:calc(100% + 8px);left:0;background:#0a2757;border:1px solid rgba(52,232,187,.25);border-radius:6px;padding:6px;min-width:200px;box-shadow:0 12px 32px rgba(0,0,0,.5);opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .18s;z-index:100}
+.nav-group.open .dropdown{opacity:1;visibility:visible;transform:translateY(0)}
+.dropdown-item{display:block;padding:10px 14px;border-radius:4px;font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--silver);cursor:pointer;transition:all .12s;letter-spacing:-.2px}
+.dropdown-item:hover{background:rgba(52,232,187,.1);color:var(--teal)}
+.dropdown-item.active{background:var(--teal);color:var(--teal-dark);font-weight:600}
+@media(max-width:640px){.dropdown{position:fixed;top:auto;left:12px;right:12px;bottom:auto;transform:translateY(0)}}
+
 </style>
 </head>
 <body>
@@ -104,15 +117,7 @@ tr:hover td{background:rgba(52,232,187,.03)}
   <div class="aurora"></div>
 </header>
 <div class="wrap">
-  <nav class="nav-tabs">
-    <div class="nav-tab active" data-id="overview">Dashboard</div>
-    <div class="nav-tab" data-id="users">Users</div>
-    <div class="nav-tab" data-id="sites">Sites</div>
-    <div class="nav-tab" data-id="tokens">Tokens</div>
-    <div class="nav-tab" data-id="notify">Broadcast</div>
-    <div class="nav-tab" data-id="logs">Logs</div>
-    <div class="nav-tab" id="navLogout">Log Out</div>
-  </nav>
+  <nav class="nav-tabs"><div class="nav-tab active" data-id="overview">Dashboard</div><div class="nav-group" data-group="manage"><div class="nav-tab has-dropdown" data-toggle="manage">Manage</div><div class="dropdown"><div class="dropdown-item" data-id="users">Users</div><div class="dropdown-item" data-id="sites">Sites</div><div class="dropdown-item" data-id="tokens">Login Tokens</div><div class="dropdown-item" data-id="notify">Broadcast</div></div></div><div class="nav-group" data-group="system"><div class="nav-tab has-dropdown" data-toggle="system">System</div><div class="dropdown"><div class="dropdown-item" data-id="logs">Audit Log</div></div></div><div class="nav-tab" id="navLogout">Log Out</div></nav>
   <div id="main"><div class="loading">Loading...</div></div>
 </div>
 <div class="toast-wrap" id="toastWrap"></div>

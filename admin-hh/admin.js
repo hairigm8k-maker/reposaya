@@ -40,15 +40,62 @@
     },
     bindNav: function(){
       var self = this;
+
+      // Close all dropdowns
+      function closeAll(){
+        document.querySelectorAll('.nav-group').forEach(function(g){ g.classList.remove('open'); });
+      }
+
+      // Tab clicks (Dashboard)
       document.querySelectorAll('.nav-tab[data-id]').forEach(function(el){
         el.onclick = function(){
-          document.querySelectorAll('.nav-tab[data-id]').forEach(function(x){ x.classList.remove('active'); });
+          closeAll();
+          document.querySelectorAll('.nav-tab').forEach(function(x){ x.classList.remove('active'); });
+          document.querySelectorAll('.dropdown-item').forEach(function(x){ x.classList.remove('active'); });
           el.classList.add('active');
           self.page = el.dataset.id;
           self.render(el.dataset.id);
         };
       });
-      document.getElementById('navLogout').onclick = function(){ if (confirm('Log out?')) fetch('/api/auth/logout',{method:'POST'}).finally(function(){ window.location.href='/'; }); };
+
+      // Toggle dropdowns
+      document.querySelectorAll('.nav-tab[data-toggle]').forEach(function(el){
+        el.onclick = function(e){
+          e.stopPropagation();
+          var group = el.closest('.nav-group');
+          var wasOpen = group.classList.contains('open');
+          closeAll();
+          if (!wasOpen) group.classList.add('open');
+        };
+      });
+
+      // Dropdown item clicks
+      document.querySelectorAll('.dropdown-item[data-id]').forEach(function(el){
+        el.onclick = function(){
+          var id = el.dataset.id;
+          closeAll();
+          document.querySelectorAll('.nav-tab').forEach(function(x){ x.classList.remove('active'); });
+          document.querySelectorAll('.dropdown-item').forEach(function(x){ x.classList.remove('active'); });
+          el.classList.add('active');
+          // Highlight parent group tab
+          var parentGroup = el.closest('.nav-group');
+          if (parentGroup) {
+            var parentTab = parentGroup.querySelector('.nav-tab.has-dropdown');
+            if (parentTab) parentTab.classList.add('active');
+          }
+          self.page = id;
+          self.render(id);
+        };
+      });
+
+      // Click outside closes dropdowns
+      document.addEventListener('click', function(e){
+        if (!e.target.closest('.nav-group')) closeAll();
+      });
+
+      // Log out
+      var lo = document.getElementById('navLogout');
+      if (lo) lo.onclick = function(){ if (confirm('Log out?')) fetch('/api/auth/logout',{method:'POST'}).finally(function(){ window.location.href='/'; }); };
     },
     setPage: function(id){
       this.page = id;
