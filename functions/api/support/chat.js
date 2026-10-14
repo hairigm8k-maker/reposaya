@@ -1,6 +1,6 @@
 import { authenticate, json } from '../../_utils.js';
 
-const KNOWLEDGE = `You are Hairi, the AI customer support assistant for HairiHosting (hairiamri.buzz), a Malaysian HTML website hosting platform.
+const KNOWLEDGE = `You are Lana, the AI customer support assistant for HairiHosting (hairiamri.buzz), a Malaysian HTML website hosting platform.
 
 === ABOUT HAIRIHOSTING ===
 - Platform hosting HTML static untuk user Malaysia

@@ -98,7 +98,7 @@ textarea::placeholder{color:var(--ash)}
   <div class="sep"></div>
   <div>
     <div class="title">Live Chat</div>
-    <div class="status"><span class="dot"></span>Hairi Assistant · AI</div>
+    <div class="status"><span class="dot"></span>Lana · AI</div>
   </div>
   <a href="/dashboard/#/support" class="back">
     <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -110,9 +110,9 @@ textarea::placeholder{color:var(--ash)}
 <div class="lang-screen" id="langScreen">
   <div class="lang-card">
     <div class="lang-avatar" id="langAvatar">
-      <img src="/assets/cs/cs.png" alt="Hairi" onerror="this.style.display='none';this.parentNode.innerHTML='<span class=&quot;fallback&quot;>H</span>'">
+      <img src="/assets/cs/cs.png" alt="Lana" onerror="this.style.display='none';this.parentNode.innerHTML='<span class=&quot;fallback&quot;>L</span>'">
     </div>
-    <h1>Hairi Assistant</h1>
+    <h1>Lana</h1>
     <p>AI-powered customer support. Choose your preferred language to start.</p>
     <div class="lang-btns">
       <button class="lang-btn" data-lang="en">
@@ -158,7 +158,7 @@ textarea::placeholder{color:var(--ash)}
 
   var STRINGS = {
     en: {
-      greeting1: 'Hi! 👋 I\'m Hairi, your AI customer support assistant.',
+      greeting1: 'Hi! 👋 I\'m Lana, your AI customer support assistant.',
       greeting2: 'How can I help you today? Ask me about deploying, pricing, custom domains, or the CLI.',
       placeholder: 'Ask anything about HairiHosting...',
       infoBar: 'AI assistant · For urgent matters, contact WhatsApp +60 17-213 1814',
@@ -166,7 +166,7 @@ textarea::placeholder{color:var(--ash)}
       errorPrefix: 'Sorry, something went wrong: '
     },
     ms: {
-      greeting1: 'Hai! 👋 Saya Hairi, AI customer support anda.',
+      greeting1: 'Hai! 👋 Saya Lana, AI customer support anda.',
       greeting2: 'Boleh saya tolong? Tanya pasal deploy, harga, custom domain, atau CLI.',
       placeholder: 'Taip soalan tentang HairiHosting...',
       infoBar: 'AI assistant · Untuk isu urgent, WhatsApp +60 17-213 1814',
@@ -187,7 +187,7 @@ textarea::placeholder{color:var(--ash)}
     var isMe = role === 'user';
     var div = document.createElement('div');
     div.className = 'bubble-row ' + (isMe ? 'me' : 'other');
-    var avatarHtml = isMe ? '' : '<div class="avatar"><img src="/assets/cs/cs.png" alt="Hairi" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;fallback&quot;>H</span>\'"></div>';
+    var avatarHtml = isMe ? '' : '<div class="avatar"><img src="/assets/cs/cs.png" alt="Lana" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;fallback&quot;>H</span>\'"></div>';
     div.innerHTML = avatarHtml + '<div class="bubble">' + esc(text) + '</div>';
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -197,7 +197,7 @@ textarea::placeholder{color:var(--ash)}
     var div = document.createElement('div');
     div.className = 'bubble-row other';
     div.id = 'typingRow';
-    div.innerHTML = '<div class="avatar"><img src="/assets/cs/cs.png" alt="Hairi" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;fallback&quot;>H</span>\'"></div><div class="typing"><span></span><span></span><span></span></div>';
+    div.innerHTML = '<div class="avatar"><img src="/assets/cs/cs.png" alt="Lana" onerror="this.style.display=\'none\';this.parentNode.innerHTML=\'<span class=&quot;fallback&quot;>H</span>\'"></div><div class="typing"><span></span><span></span><span></span></div>';
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
