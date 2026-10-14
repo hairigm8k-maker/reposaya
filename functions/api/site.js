@@ -33,7 +33,10 @@ export async function onRequestPost({ request, env }) {
     const body = await request.json();
     const name = (body.name || '').trim();
     const subdomain = (body.subdomain || '').trim().toLowerCase();
-    const template = body.template || 'blank';
+    const description = (body.description || '').trim().slice(0, 300);
+    const analyticsEnabled = body.analytics_enabled === false ? 0 : 1;
+    const autoPublish = body.auto_publish === true;
+    const duplicateFrom = parseInt(body.duplicate_from) || 0;
 
     if (!name) return json({ ok: false, error: 'Name required' }, 400);
     if (name.length > 60) return json({ ok: false, error: 'Name too long (max 60)' }, 400);
@@ -42,21 +45,63 @@ export async function onRequestPost({ request, env }) {
     if (!sub) sub = 'site-' + Date.now();
     if (!/^[a-z0-9-]{3,30}$/.test(sub)) return json({ ok: false, error: 'Subdomain: 3-30 chars, a-z 0-9 dash only' }, 400);
 
-    const reserved = ['www', 'api', 'admin', 'dashboard', 'login', 'signup', 'app', 'mail', 'support', 'help', 'blog', 'cdn', 'assets'];
+    const reserved = ['www', 'api', 'admin', 'dashboard', 'login', 'signup', 'app', 'mail', 'support', 'help', 'blog', 'cdn', 'assets', 'admin-hh', 'cli', 'static', 'main'];
     if (reserved.indexOf(sub) >= 0) return json({ ok: false, error: 'Subdomain is reserved' }, 400);
 
     const existing = await env.DB.prepare('SELECT id FROM sites WHERE subdomain = ?').bind(sub).first();
     if (existing) return json({ ok: false, error: 'Subdomain already taken' }, 400);
 
-    const tpl = { html: '', css: '', js: '' };
+    let html = '', css = '', js = '';
+    let sourceFiles = [];
+
+    if (duplicateFrom) {
+      const src = await env.DB.prepare('SELECT id, html, css, js FROM sites WHERE id = ? AND user_id = ?').bind(duplicateFrom, session.userId).first();
+      if (!src) return json({ ok: false, error: 'Source site not found' }, 404);
+      html = src.html || '';
+      css = src.css || '';
+      js = src.js || '';
+      const { results } = await env.DB.prepare('SELECT filename, mime_type, size, data FROM files WHERE site_id = ?').bind(duplicateFrom).all();
+      sourceFiles = results || [];
+    } else {
+      html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Hello World</h1>\n<p>Your new site is ready.</p>\n</body>\n</html>';
+    }
+
+    const status = autoPublish ? 'live' : 'draft';
+    const publishedAt = autoPublish ? new Date().toISOString() : null;
 
     const result = await env.DB.prepare(
-      'INSERT INTO sites (user_id, name, subdomain, html, css, js, status) VALUES (?, ?, ?, ?, ?, ?, \'draft\')'
-    ).bind(session.userId, name, sub, tpl.html, tpl.css, tpl.js).run();
+      'INSERT INTO sites (user_id, name, subdomain, html, css, js, status, description, analytics_enabled, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(session.userId, name, sub, html, css, js, status, description || null, analyticsEnabled, publishedAt).run();
 
-    const newId = (result && result.meta) ? result.meta.last_row_id : null;
+    const newId = result.meta ? result.meta.last_row_id : null;
 
-    return json({ ok: true, site: { id: newId, name: name, subdomain: sub, status: 'draft' } });
+    // Copy files kalau duplicate
+    let filesCopied = 0;
+    if (newId && sourceFiles.length) {
+      for (let i = 0; i < sourceFiles.length; i++) {
+        const sf = sourceFiles[i];
+        try {
+          await env.DB.prepare(
+            'INSERT INTO files (site_id, filename, mime_type, size, data) VALUES (?, ?, ?, ?, ?)'
+          ).bind(newId, sf.filename, sf.mime_type, sf.size, sf.data).run();
+          filesCopied++;
+        } catch (e) {}
+      }
+    }
+
+    if (newId && autoPublish) {
+      try {
+        await env.DB.prepare(
+          'INSERT INTO deployments (user_id, site_id, site_name, site_subdomain, action) VALUES (?, ?, ?, ?, ?)'
+        ).bind(session.userId, newId, name, sub, 'publish').run();
+      } catch (e) {}
+    }
+
+    return json({
+      ok: true,
+      site: { id: newId, name: name, subdomain: sub, status: status },
+      files_copied: filesCopied
+    });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
   }

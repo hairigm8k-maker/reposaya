@@ -38,7 +38,7 @@ export default {
         return new Response('Invalid subdomain', { status: 400 });
       }
       site = await env.DB.prepare(
-        'SELECT id, name, subdomain, html, css, js, status FROM sites WHERE subdomain = ?'
+        'SELECT id, name, subdomain, html, css, js, status, analytics_enabled FROM sites WHERE subdomain = ?'
       ).bind(subdomain).first();
     }
 
@@ -71,7 +71,7 @@ export default {
     }
 
     // Analytics log
-    if (site.id) {
+    if (site.id && site.analytics_enabled !== 0) {
       try {
         const country = request.cf?.country || 'XX';
         const ua = (request.headers.get('User-Agent') || '').slice(0, 200);
