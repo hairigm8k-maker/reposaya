@@ -1,0 +1,19 @@
+{
+  "name": "hairihosting-cli",
+  "version": "1.0.0",
+  "description": "Deploy static sites to HairiHosting from your terminal",
+  "bin": {
+    "hairihosting": "./bin/hairihosting.js"
+  },
+  "main": "./bin/hairihosting.js",
+  "scripts": {
+    "test": "echo \"No tests\""
+  },
+  "keywords": ["hairihosting", "deploy", "static", "hosting", "cli"],
+  "author": "HairiHosting",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "files": ["bin/", "README.md"]
+}
