@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const VERSION = '1.0.4';
+const VERSION = '1.0.5';
 const API_BASE = 'https://hairiamri.buzz';
 const CONFIG_DIR = path.join(os.homedir(), '.hairihosting');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -201,7 +201,7 @@ function scanFolder(dir) {
         else if (ext === '.css') files.push({ type: 'css', path: fullPath, rel: relPath, size: stat.size });
         else if (ext === '.js' || ext === '.mjs') files.push({ type: 'js', path: fullPath, rel: relPath, size: stat.size });
         else if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico'].indexOf(ext) >= 0) images.push({ path: fullPath, rel: relPath, size: stat.size, mime: getMime(ext) });
-        else skipped.push(rel);
+        else skipped.push(relPath);
       }
     });
   }
