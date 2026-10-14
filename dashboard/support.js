@@ -69,6 +69,21 @@
             '</div>' +
           '</a>' +
 
+          '<a href="/dashboard/prompts.html" target="_blank" style="display:block;text-decoration:none;margin-bottom:20px">' +
+            '<div class="card" style="padding:22px 24px;background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,var(--card) 100%);border-color:rgba(99,102,241,.35);cursor:pointer;transition:all .2s">' +
+              '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">' +
+                '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+                  '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' +
+                '</div>' +
+                '<div style="flex:1;min-width:180px">' +
+                  '<div style="font-family:var(--serif);font-size:19px;color:var(--white);margin-bottom:4px">Prompt Gallery</div>' +
+                  '<div style="font-size:13px;color:var(--fog);line-height:1.5">Copy ready-made prompts for AI to build your website.</div>' +
+                '</div>' +
+                '<div style="font-size:13.5px;color:#a78bfa;font-weight:600;white-space:nowrap">Browse →</div>' +
+              '</div>' +
+            '</div>' +
+          '</a>' +
+
           '<div><div style="font-size:13px;color:var(--fog);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:12px">Contact us</div>' +
         '<div style="display:flex;flex-direction:column;gap:10px">' + contactsHtml + '</div></div>' +
         '<div class="card"><div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:6px">Frequently Asked Questions</div>' +
