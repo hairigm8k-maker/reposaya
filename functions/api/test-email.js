@@ -9,8 +9,10 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'Admin only' }, 403);
   }
   try {
-    const result = await sendEmail(env, session.email, 'HairiHosting Test Email', testEmail());
-    return json({ ok: result.ok, data: result.data || result.error });
+    const body = await request.json().catch(function(){ return {}; });
+    const to = body.to || session.email;
+    const result = await sendEmail(env, to, 'HairiHosting Test Email', testEmail());
+    return json({ ok: result.ok, sent_to: to, data: result.data || result.error });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
   }
