@@ -11,9 +11,10 @@ const KNOWLEDGE = `You are Lana, the AI customer support assistant for HairiHost
 - Guna Cloudflare infra (fast, reliable)
 
 === PRICING ===
-- Pro: RM49 untuk 5 bulan
-- Bisnes: RM149 untuk 1 tahun
-- Kedua-dua unlimited sites + custom domain
+- Monthly: RM9.80 per month (bayar bulan-bulan)
+- Pro: RM49 untuk 5 bulan (sama rate RM9.80/bulan)
+- Bisnes: RM117 untuk 1 tahun (RM9.75/bulan, jimat sikit)
+- Semua plan: unlimited sites + custom domain support
 
 === KEY FEATURES ===
 - Editor HTML/CSS/JS

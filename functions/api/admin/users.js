@@ -2,8 +2,15 @@ import { requireAdmin, logAdmin } from '../../_admin.js';
 import { hashPassword, generateToken, json } from '../../_utils.js';
 
 const PLAN_DURATIONS = {
-  pro: 5,       // 5 bulan
-  bisnes: 24    // 2 tahun
+  monthly: 1,    // 1 bulan
+  pro: 5,        // 5 bulan
+  bisnes: 12     // 1 tahun
+};
+
+const PLAN_PRICES = {
+  monthly: 9.80,
+  pro: 49,
+  bisnes: 117
 };
 
 export async function onRequestGet({ request, env }) {
@@ -42,7 +49,7 @@ export async function onRequestPost({ request, env }) {
     const body = await request.json();
     const email = (body.email || '').trim().toLowerCase();
     const name = (body.name || '').trim();
-    const plan = (body.plan === 'bisnes') ? 'bisnes' : 'pro';
+    const plan = (body.plan === 'bisnes' || body.plan === 'monthly') ? body.plan : 'pro';
     if (!email || !name) return json({ ok: false, error: 'Email and name required' }, 400);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ ok: false, error: 'Invalid email' }, 400);
     const existing = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
@@ -55,7 +62,7 @@ export async function onRequestPost({ request, env }) {
       'INSERT INTO users (email, name, password_hash, role, status, plan, plan_expires_at) VALUES (?, ?, ?, \'user\', \'active\', ?, ?)'
     ).bind(email, name, hash, plan, expiresAt).run();
     const newId = result.meta ? result.meta.last_row_id : null;
-    await logAdmin(env, guard.session.userId, 'user.create', 'user', newId, email + ' (' + plan + ')', request);
+    await logAdmin(env, guard.session.userId, 'user.create', 'user', newId, email + ' (' + plan + ' - RM' + (PLAN_PRICES[plan] || 0) + ')', request);
     return json({ ok: true, user: { id: newId, email: email, name: name, plan: plan, plan_expires_at: expiresAt, temp_password: tempPassword } });
   } catch (err) { return json({ ok: false, error: err.message }, 500); }
 }
@@ -79,7 +86,7 @@ export async function onRequestPatch({ request, env }) {
       return json({ ok: true });
     }
 
-    if (body.plan && (body.plan === 'pro' || body.plan === 'bisnes')) {
+    if (body.plan && (body.plan === 'pro' || body.plan === 'bisnes' || body.plan === 'monthly')) {
       const months = PLAN_DURATIONS[body.plan] || 5;
       const expiresAt = new Date(Date.now() + months * 30 * 86400000).toISOString();
       await env.DB.prepare('UPDATE users SET plan = ?, plan_expires_at = ? WHERE id = ?').bind(body.plan, expiresAt, id).run();

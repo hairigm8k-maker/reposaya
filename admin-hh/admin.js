@@ -231,16 +231,17 @@
   App.showNewUserModal = function(){
     var m = document.createElement('div');
     m.id = 'modalOverlay';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-    m.innerHTML = '<div style="background:#000;border:1px solid #292d30;border-radius:16px;padding:32px;max-width:480px;width:100%">' +
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+    m.innerHTML = '<div style="background:#000;border:1px solid #292d30;border-radius:16px;padding:32px;max-width:520px;width:100%;margin:auto">' +
       '<div class="eyebrow">Create</div>' +
       '<h3 style="font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:-.04em;margin-bottom:24px;color:#fff">New User</h3>' +
       '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Name</label><input class="input" id="nName" placeholder="Full name"></div>' +
       '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Email</label><input class="input" id="nEmail" type="email" placeholder="user@example.com"></div>' +
-      '<div style="margin-bottom:24px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Plan</label>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-          '<label style="cursor:pointer;padding:12px;border:1px solid #292d30;border-radius:6px"><input type="radio" name="nPlan" value="pro" checked style="margin-right:8px"><span style="font-size:14px;color:#f0f0f0">Pro</span><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono);margin-left:22px">5 bulan</div></label>' +
-          '<label style="cursor:pointer;padding:12px;border:1px solid #292d30;border-radius:6px"><input type="radio" name="nPlan" value="bisnes" style="margin-right:8px"><span style="font-size:14px;color:#f0f0f0">Bisnes</span><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono);margin-left:22px">2 tahun</div></label>' +
+      '<div style="margin-bottom:24px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:10px">Plan</label>' +
+        '<div style="display:flex;flex-direction:column;gap:10px">' +
+          '<label style="cursor:pointer;padding:14px 16px;border:2px solid #292d30;border-radius:8px;display:flex;align-items:center;gap:12px;transition:all .15s" class="plan-opt" data-plan="monthly"><input type="radio" name="nPlan" value="monthly" style="flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#f0f0f0;font-weight:600">Monthly</div><div style="font-size:12px;color:#a1a4a5;font-family:var(--mono);margin-top:2px">RM9.80 / month</div></div></label>' +
+          '<label style="cursor:pointer;padding:14px 16px;border:2px solid #292d30;border-radius:8px;display:flex;align-items:center;gap:12px;transition:all .15s" class="plan-opt" data-plan="pro"><input type="radio" name="nPlan" value="pro" checked style="flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#f0f0f0;font-weight:600">Pro</div><div style="font-size:12px;color:#a1a4a5;font-family:var(--mono);margin-top:2px">RM49 / 5 months</div></div></label>' +
+          '<label style="cursor:pointer;padding:14px 16px;border:2px solid #292d30;border-radius:8px;display:flex;align-items:center;gap:12px;transition:all .15s" class="plan-opt" data-plan="bisnes"><input type="radio" name="nPlan" value="bisnes" style="flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#f0f0f0;font-weight:600">Bisnes</div><div style="font-size:12px;color:#a1a4a5;font-family:var(--mono);margin-top:2px">RM117 / 1 year</div></div></label>' +
         '</div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="nCancel">Cancel</button><button class="btn btn-primary" id="nCreate">Create User</button></div>' +
@@ -248,6 +249,16 @@
     document.body.appendChild(m);
     document.getElementById('nCancel').onclick = function(){ m.remove(); };
     document.getElementById('nCreate').onclick = function(){ App.createUser(); };
+    m.querySelectorAll('.plan-opt').forEach(function(el){
+      el.onclick = function(){
+        m.querySelectorAll('.plan-opt').forEach(function(x){ x.style.borderColor='#292d30'; x.style.background='transparent'; });
+        el.style.borderColor = '#9281f7';
+        el.style.background = 'rgba(146,129,247,.08)';
+        el.querySelector('input').checked = true;
+      };
+    });
+    var proEl = m.querySelector('.plan-opt[data-plan="pro"]');
+    if (proEl) { proEl.style.borderColor = '#9281f7'; proEl.style.background = 'rgba(146,129,247,.08)'; }
     setTimeout(function(){ document.getElementById('nName').focus(); }, 100);
   };
 
