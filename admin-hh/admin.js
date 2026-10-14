@@ -48,7 +48,6 @@
           self.render(el.dataset.id);
         };
       });
-      document.getElementById('navDashboard').onclick = function(){ window.location.href = '/dashboard/'; };
       document.getElementById('navLogout').onclick = function(){ if (confirm('Log out?')) fetch('/api/auth/logout',{method:'POST'}).finally(function(){ window.location.href='/'; }); };
     },
     setPage: function(id){
