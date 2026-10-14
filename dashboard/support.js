@@ -58,7 +58,7 @@
             '<div class="card" style="padding:22px 24px;background:linear-gradient(135deg,rgba(204,145,102,.12) 0%,var(--card) 100%);border-color:rgba(204,145,102,.35);cursor:pointer;transition:all .2s">' +
               '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">' +
                 '<div style="width:48px;height:48px;border-radius:50%;background:var(--copper);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
-                  '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#000;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+                  '<img src="/assets/cs/cs.png" alt="Hairi" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%">' +
                 '</div>' +
                 '<div style="flex:1;min-width:180px">' +
                   '<div style="font-family:var(--serif);font-size:19px;color:var(--white);margin-bottom:4px">Live Chat with AI</div>' +
