@@ -25,7 +25,8 @@
     <h1 class="hh-title">Selamat Back</h1>
     <p class="hh-subtitle">Sign in for urus website you</p>
 
-    <form id="loginForm" autocomplete="on">
+    <div style="display:flex;background:#121317;border:1px solid #1c1d22;border-radius:9999px;padding:4px;margin-bottom:24px" id="tabNav"><button type="button" id="tabEmailBtn" style="flex:1;background:#fff;color:#000;border:0;padding:10px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Email & Password</button><button type="button" id="tabTokenBtn" style="flex:1;background:transparent;color:#9194a1;border:0;padding:10px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Login Token</button></div>
+  <form id="loginForm" autocomplete="on">
       <div class="hh-field">
         <label class="hh-label" for="email">Email</label>
         <input type="email" id="email" name="email" class="hh-input" placeholder="nama@email.com" required autocomplete="email" autofocus>
@@ -42,6 +43,8 @@
         <span id="btnText">Sign In</span>
       </button>
     </form>
+
+  <div id="tokenForm" style="display:none"><div style="margin-bottom:16px"><label style="display:block;font-size:14px;font-weight:500;color:#c7c9d1;margin-bottom:8px">Login Token</label><input type="text" id="loginToken" class="hh-input" placeholder="hh_tok_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"></div><button type="button" class="hh-btn hh-btn-primary" id="tokenSubmitBtn">Sign In with Token</button><div style="text-align:center;margin-top:16px;font-size:12px;color:#5e616e">Token is single-use. Get it from admin via WhatsApp/Telegram.</div></div>
 
     <div class="hh-link-row">
       <a href="/forgot-password.html" class="hh-link">Forgot password?</a>
@@ -110,7 +113,25 @@ form.addEventListener('submit', async (e) => {
     btnText.textContent = 'Sign In';
   }
 });
-</script>
+
+<script>
+(function(){
+  var tabEmail = document.getElementById('tabEmailBtn');
+  var tabToken = document.getElementById('tabTokenBtn');
+  var loginForm = document.getElementById('loginForm');
+  var tokenForm = document.getElementById('tokenForm');
+  if (!tabEmail || !tabToken) return;
+  function activate(t){
+    var isE = t === 'email';
+    tabEmail.style.background = isE ? '#fff' : 'transparent';
+    tabEmail.style.color = isE ? '#000' : '#9194a1';
+    tabToken.style.background = isE ? 'transparent' : '#fff';
+    tabToken.style.color = isE ? '#9194a1' : '#000';
+    loginForm.style.display = isE ? '' : 'none';
+    tokenForm.style.display = isE ? 'none' : '';
+  }
+  tabEmail.onclick = function(){ activate('email'); };
+  tabToken.onclick = function(){ activate('token'); };</script>
 
 </body>
 </html>
