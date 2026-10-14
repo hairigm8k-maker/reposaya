@@ -12,8 +12,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
 button{font-family:inherit;cursor:pointer;border:0;background:none}
-.header{background:#fff;padding:20px;text-align:center;border-bottom:1px solid var(--border)}
-.header img{width:min(80vw,400px);height:auto;display:inline-block}
+.header{background:#fff;padding:36px 20px;text-align:center;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;min-height:180px}
+.header img{width:auto;height:100px;max-width:85vw;display:block}
 .layout{display:flex;min-height:calc(100vh - 120px)}
 .sidebar{width:230px;background:var(--navy);padding:20px 0;flex-shrink:0}
 .sb-section{padding:8px 20px 6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:12px}
@@ -42,8 +42,8 @@ tr:hover td{background:var(--primary-light)}
 .badge-suspended{background:#fee2e2;color:#991b1b}
 .badge-draft{background:#fef3c7;color:#92400e}
 @media(max-width:900px){
-  .header{padding:14px 20px}
-  .header img{width:min(70vw,300px)}
+  .header{padding:24px 20px;min-height:130px}
+  .header img{height:70px;max-width:80vw}
   .layout{flex-direction:column;min-height:auto}
   .sidebar{width:100%;padding:8px 0;display:flex;overflow-x:auto;white-space:nowrap;gap:0;position:sticky;top:0;z-index:40;scrollbar-width:none}
   .sidebar::-webkit-scrollbar{display:none}
