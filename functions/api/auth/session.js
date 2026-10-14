@@ -7,7 +7,7 @@ export async function onRequestGet({ request, env }) {
 
   try {
     const user = await env.DB.prepare(
-      'SELECT id, email, name, role, status, username, avatar_url, bio, website, created_at FROM users WHERE id = ?'
+      'SELECT id, email, name, role, status, username, avatar_url, bio, website, plan, plan_expires_at, created_at FROM users WHERE id = ?'
     ).bind(session.userId).first();
     if (!user) return json({ ok: true, authenticated: false });
     return json({
@@ -16,7 +16,7 @@ export async function onRequestGet({ request, env }) {
       user: {
         id: user.id, email: user.email, name: user.name, role: user.role,
         status: user.status, username: user.username, avatar_url: user.avatar_url,
-        bio: user.bio, website: user.website, created_at: user.created_at
+        bio: user.bio, website: user.website, plan: user.plan, plan_expires_at: user.plan_expires_at, created_at: user.created_at
       }
     });
   } catch (err) {
