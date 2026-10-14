@@ -1,7 +1,7 @@
 export async function sendEmail(env, to, subject, html) {
   if (!env.RESEND_API_KEY) return { ok: false, error: 'No API key' };
   try {
-    const from = env.RESEND_FROM || 'HairiHosting <noreply@hairiamri.buzz>';
+    const from = env.RESEND_FROM || 'HairiHosting <feedback@hairiamri.buzz>';
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
