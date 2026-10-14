@@ -62,7 +62,7 @@
                 '</div>' +
                 '<div style="flex:1;min-width:180px">' +
                   '<div style="font-family:var(--serif);font-size:19px;color:var(--white);margin-bottom:4px">Live Chat with AI</div>' +
-                  '<div style="font-size:13px;color:var(--fog);line-height:1.5">Tanya apa-apa pasal HairiHosting — dapat jawapan instant.</div>' +
+                  '<div style="font-size:13px;color:var(--fog);line-height:1.5">Ask anything about HairiHosting — get instant answers.</div>' +
                 '</div>' +
                 '<div style="font-size:13.5px;color:var(--copper);font-weight:600;white-space:nowrap">Start Chat →</div>' +
               '</div>' +
