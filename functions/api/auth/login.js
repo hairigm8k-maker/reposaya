@@ -1,4 +1,26 @@
 import { verifyPassword, createSession, buildCookie, json } from '../../_utils.js';
+import { sendEmail, loginAlertEmail } from '../../_emails.js';
+
+
+function detectBrowser(ua) {
+  if (!ua) return 'Unknown';
+  if (/edg\//i.test(ua)) return 'Edge';
+  if (/opr\//i.test(ua)) return 'Opera';
+  if (/chrome\//i.test(ua)) return 'Chrome';
+  if (/firefox\//i.test(ua)) return 'Firefox';
+  if (/safari\//i.test(ua)) return 'Safari';
+  return 'Unknown';
+}
+
+function detectOS(ua) {
+  if (!ua) return 'Unknown';
+  if (/android/i.test(ua)) return 'Android';
+  if (/iphone|ipad|ipod/i.test(ua)) return 'iOS';
+  if (/windows/i.test(ua)) return 'Windows';
+  if (/mac os x/i.test(ua)) return 'macOS';
+  if (/linux/i.test(ua)) return 'Linux';
+  return 'Unknown';
+}
 
 async function logAttempt(env, userId, email, status, reason, request) {
   try {
@@ -49,6 +71,26 @@ export async function onRequestPost({ request, env }) {
     const session = await createSession(env, user.id, { userAgent: ua, ip: ip });
 
     await logAttempt(env, user.id, email, 'success', null, request);
+
+    // ===== EMAIL ALERT =====
+    try {
+      var userSettings = {};
+      if (user.settings) {
+        try { userSettings = JSON.parse(user.settings); } catch(e) {}
+      }
+      var notif = userSettings.notifications || {};
+      var shouldSend = notif.emailLogin !== false;
+      if (shouldSend) {
+        var ua2 = request.headers.get('User-Agent') || '';
+        var ip2 = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'Unknown';
+        var browser = detectBrowser(ua2);
+        var os = detectOS(ua2);
+        var deviceStr = browser + ' on ' + os;
+        var timeStr = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kuala_Lumpur', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        sendEmail(env, user.email, 'New sign-in to your HairiHosting account', loginAlertEmail(user.name || 'there', ip2, deviceStr, timeStr)).catch(function(){});
+      }
+    } catch(e) {}
+    // ===== END EMAIL ALERT =====
 
     return json({
       ok: true,
