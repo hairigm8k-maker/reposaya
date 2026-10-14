@@ -154,6 +154,26 @@ body.chat-fullscreen .main{margin-left:0 !important}
 body.chat-fullscreen .topbar{padding:0 16px !important}
 body.chat-fullscreen .content{padding:0 !important;max-width:none !important}
 @media(max-width:1024px){body.chat-fullscreen .tb-menu{display:none !important}}
+
+/* ===== CUSTOM MODAL SYSTEM ===== */
+.mod-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}
+.mod-overlay.show{opacity:1;visibility:visible}
+.mod-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:420px;width:100%;transform:scale(.95);transition:transform .2s cubic-bezier(.4,1.6,.6,1);box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.mod-overlay.show .mod-card{transform:scale(1)}
+.mod-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--white);margin-bottom:10px;line-height:1.25}
+.mod-body{font-size:14px;color:var(--fog);line-height:1.55;margin-bottom:24px;white-space:pre-wrap}
+.mod-input{width:100%;background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--white);outline:none;font-family:var(--sans);margin-bottom:16px}
+.mod-input:focus{border-color:var(--copper)}
+.mod-input::placeholder{color:var(--ash)}
+.mod-actions{display:flex;gap:10px}
+.mod-actions .btn{flex:1;padding:11px 18px;font-size:13.5px}
+.mod-btn-cancel{background:transparent;border:1px solid var(--border2);color:var(--white);border-radius:9999px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.mod-btn-cancel:hover{border-color:var(--white)}
+.mod-btn-ok{background:var(--copper);border:1px solid var(--copper);color:#000;border-radius:9999px;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:var(--sans)}
+.mod-btn-ok:hover{opacity:.9}
+.mod-btn-danger{background:#dc2626;border-color:#dc2626;color:#fff}
+.mod-btn-danger:hover{opacity:.9}
+
 </style>
 </head>
 <body>
@@ -374,5 +394,6 @@ window.copyText=copyText;
 <script src="/dashboard/settings.js"></script>
 <script src="/dashboard/usage.js"></script>
 <script src="/dashboard/support.js"></script>
+<script src="/dashboard/modal.js"></script>
 </body>
 </html>
