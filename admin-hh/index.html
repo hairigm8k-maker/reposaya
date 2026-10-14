@@ -41,7 +41,22 @@ tr:hover td{background:var(--primary-light)}
 .badge-active,.badge-live{background:#d1fae5;color:#065f46}
 .badge-suspended{background:#fee2e2;color:#991b1b}
 .badge-draft{background:#fef3c7;color:#92400e}
-@media(max-width:900px){.layout{flex-direction:column}.sidebar{width:100%}.grid-4,.grid-2{grid-template-columns:1fr}}
+@media(max-width:900px){
+  .header{padding:14px 20px}
+  .header img{width:min(70vw,300px)}
+  .layout{flex-direction:column;min-height:auto}
+  .sidebar{width:100%;padding:8px 0;display:flex;overflow-x:auto;white-space:nowrap;gap:0;position:sticky;top:0;z-index:40;scrollbar-width:none}
+  .sidebar::-webkit-scrollbar{display:none}
+  .sb-section{display:none}
+  .sb-link{padding:10px 14px;font-size:12.5px;border-left:0;border-bottom:3px solid transparent;white-space:nowrap;flex-shrink:0}
+  .sb-link.active{border-left:0;border-bottom-color:var(--primary)}
+  .main{padding:16px;max-width:100%}
+  .grid-4,.grid-2{grid-template-columns:1fr}
+  .card-value{font-size:22px}
+  .hero{padding:20px}
+  .hero h2{font-size:17px}
+  .page-head h1{font-size:19px}
+}
 </style>
 </head>
 <body>
