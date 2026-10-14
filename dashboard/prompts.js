@@ -24,7 +24,9 @@
     s.textContent =
       '.pg-wrap{max-width:1000px;margin:0 auto}' +
       '.pg-tag{display:inline-block;border:1px solid var(--copper);color:var(--copper);padding:6px 14px;border-radius:50px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;font-family:var(--mono)}' +
-      '.pg-h1{font-family:var(--serif);font-size:clamp(36px,8vw,60px);line-height:1.1;font-weight:400;margin-bottom:20px;letter-spacing:-.02em;color:var(--white)}' +
+      '.pg-h1{font-family:var(--serif);font-size:clamp(34px,7.5vw,56px);line-height:1.1;font-weight:400;margin-bottom:20px;letter-spacing:-.02em;color:var(--white);max-width:720px}' +
+      '.pg-h1-l1,.pg-h1-l2{display:block}' +
+      '@media(max-width:640px){.pg-h1{font-size:clamp(30px,9vw,42px)}}' +
       '.pg-sub{color:var(--fog);font-size:clamp(15px,3.5vw,17px);max-width:650px;line-height:1.6;margin-bottom:48px}' +
       '.pg-ww{display:flex;flex-wrap:wrap;align-items:center;gap:24px;padding-top:24px;border-top:1px solid var(--border);margin-bottom:40px}' +
       '.pg-ww-label{font-size:12px;color:var(--ash);letter-spacing:2px;font-weight:600;text-transform:uppercase;font-family:var(--mono)}' +
@@ -70,7 +72,7 @@
     c.innerHTML =
       '<div class="pg-wrap">' +
         '<div class="pg-tag">Prompt Library</div>' +
-        '<h1 class="pg-h1">Build websites with AI<br>in seconds</h1>' +
+        '<h1 class="pg-h1"><span class="pg-h1-l1">Build websites</span><span class="pg-h1-l2">with AI, in seconds</span></h1>' +
         '<p class="pg-sub">Copy a ready-made prompt, paste into OpenAI, Claude, or Copilot. Get a full website instantly.</p>' +
         '<div class="pg-ww">' +
           '<span class="pg-ww-label">Works with</span>' +
