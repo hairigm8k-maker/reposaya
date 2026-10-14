@@ -1,13 +1,13 @@
 {
   "name": "hh-cli-deploy",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Deploy static sites to HairiHosting from your terminal",
   "bin": {
-    "hh": "./bin/hairihosting.js",
-    "hairihosting": "./bin/hairihosting.js",
-    "hh-cli-deploy": "./bin/hairihosting.js"
+    "hh": "bin/hairihosting.js",
+    "hairihosting": "bin/hairihosting.js",
+    "hh-cli-deploy": "bin/hairihosting.js"
   },
-  "main": "./bin/hairihosting.js",
+  "main": "bin/hairihosting.js",
   "scripts": {
     "test": "echo \"No tests\""
   },

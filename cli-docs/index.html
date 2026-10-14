@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CLI Documentation · HairiHosting</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-alt:#f6f8fa;
+  --border:#d0d7de;
+  --border-muted:#eaeef2;
+  --text:#1f2328;
+  --text-muted:#656d76;
+  --text-subtle:#8c959f;
+  --accent:#0969da;
+  --accent-hover:#0860c7;
+  --code-bg:#f6f8fa;
+  --code-text:#1f2328;
+  --sidebar-w:280px;
+  --header-h:60px;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+code{font-family:var(--mono);font-size:13px;background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--code-text)}
+pre{font-family:var(--mono);font-size:13.5px;background:var(--code-bg);border:1px solid var(--border-muted);border-radius:6px;padding:16px;overflow-x:auto;line-height:1.55}
+pre code{background:transparent;padding:0;font-size:13.5px}
+
+/* Top header */
+.top{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:#fff;border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;padding:0 24px}
+.top-logo{height:28px;width:auto;margin-right:16px}
+.top-brand{font-size:15px;font-weight:600;color:var(--text);margin-right:8px}
+.top-sep{color:var(--text-subtle);margin-right:8px}
+.top-title{font-size:15px;font-weight:400;color:var(--text-muted)}
+.top-spacer{flex:1}
+.top-link{font-size:14px;color:var(--text-muted);padding:6px 12px;border-radius:6px;transition:background .15s}
+.top-link:hover{background:var(--bg-alt);color:var(--text);text-decoration:none}
+
+/* Layout */
+.layout{display:flex;max-width:1400px;margin:0 auto;padding-top:var(--header-h)}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;border-right:1px solid var(--border-muted);position:sticky;top:var(--header-h);height:calc(100vh - var(--header-h));overflow-y:auto;padding:24px 16px 48px}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.sb-group{margin-bottom:20px}
+.sb-group-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-subtle);padding:6px 12px;margin-bottom:4px}
+.sb-link{display:block;font-size:14px;color:var(--text-muted);padding:6px 12px;border-radius:6px;margin-bottom:1px;transition:all .12s;text-decoration:none}
+.sb-link:hover{background:var(--bg-alt);color:var(--text);text-decoration:none}
+.sb-link.active{background:#ddf4ff;color:var(--accent);font-weight:500}
+
+/* Main content */
+.main{flex:1;min-width:0;padding:40px 48px 80px;max-width:880px}
+.main h1{font-size:32px;font-weight:600;margin-bottom:8px;letter-spacing:-.02em}
+.main h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border-muted);letter-spacing:-.01em}
+.main h3{font-size:18px;font-weight:600;margin:32px 0 12px}
+.main p{margin-bottom:16px;color:var(--text)}
+.main ul,.main ol{margin:0 0 16px 24px;color:var(--text)}
+.main li{margin-bottom:6px}
+.main hr{border:0;border-top:1px solid var(--border-muted);margin:40px 0}
+.main .lead{font-size:18px;color:var(--text-muted);margin-bottom:32px}
+
+/* Code block with header */
+.cb{position:relative;margin-bottom:20px;border:1px solid var(--border-muted);border-radius:6px;overflow:hidden;background:var(--code-bg)}
+.cb-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#eaeef2;border-bottom:1px solid var(--border-muted)}
+.cb-title{font-family:var(--mono);font-size:11.5px;color:var(--text-muted);font-weight:500}
+.cb-copy{font-size:12px;color:var(--text-muted);padding:4px 10px;border-radius:4px;transition:all .15s;display:flex;align-items:center;gap:4px;font-family:var(--sans)}
+.cb-copy:hover{background:rgba(255,255,255,.6);color:var(--text)}
+.cb-copy svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cb pre{border:0;border-radius:0;margin:0;padding:16px}
+
+/* Callout boxes */
+.callout{padding:14px 18px;border-left:4px solid var(--accent);background:#ddf4ff;border-radius:6px;margin-bottom:20px;font-size:14.5px}
+.callout.warn{border-color:#bf8700;background:#fff8c5}
+.callout.tip{border-color:#1a7f37;background:#dafbe1}
+.callout strong{color:var(--text)}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:14.5px}
+th{text-align:left;padding:10px 12px;background:var(--bg-alt);border:1px solid var(--border-muted);font-weight:600;color:var(--text)}
+td{padding:10px 12px;border:1px solid var(--border-muted);color:var(--text)}
+td code{font-size:12.5px}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.03em}
+.badge-green{background:#dafbe1;color:#1a7f37}
+.badge-blue{background:#ddf4ff;color:#0969da}
+
+/* Steps */
+.step{display:flex;gap:16px;margin-bottom:24px}
+.step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.step-body{flex:1;min-width:0}
+.step-body h3{margin-top:0}
+
+/* Mobile */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{padding:24px 20px 60px}
+  .main h1{font-size:26px}
+  .main h2{font-size:20px}
+  .top{padding:0 16px}
+  .top-brand{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <img class="top-logo" src="/assets/logoUtama/logoUtama.png" alt="HairiHosting">
+  <span class="top-brand">HairiHosting</span>
+  <span class="top-sep">/</span>
+  <span class="top-title">CLI Documentation</span>
+  <div class="top-spacer"></div>
+  <a href="/dashboard/" class="top-link">Dashboard</a>
+  <a href="/" class="top-link">Sign In</a>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-group">
+      <div class="sb-group-title">Getting Started</div>
+      <a href="#introduction" class="sb-link active" data-section="introduction">Introduction</a>
+      <a href="#installation" class="sb-link" data-section="installation">Installation</a>
+      <a href="#quick-start" class="sb-link" data-section="quick-start">Quick Start</a>
+    </div>
+    <div class="sb-group">
+      <div class="sb-group-title">Commands</div>
+      <a href="#cmd-login" class="sb-link" data-section="cmd-login">login</a>
+      <a href="#cmd-deploy" class="sb-link" data-section="cmd-deploy">deploy</a>
+      <a href="#cmd-list" class="sb-link" data-section="cmd-list">list</a>
+      <a href="#cmd-delete" class="sb-link" data-section="cmd-delete">delete</a>
+      <a href="#cmd-whoami" class="sb-link" data-section="cmd-whoami">whoami</a>
+      <a href="#cmd-logout" class="sb-link" data-section="cmd-logout">logout</a>
+    </div>
+    <div class="sb-group">
+      <div class="sb-group-title">Guides</div>
+      <a href="#examples" class="sb-link" data-section="examples">Examples</a>
+      <a href="#cicd" class="sb-link" data-section="cicd">CI/CD Integration</a>
+    </div>
+    <div class="sb-group">
+      <div class="sb-group-title">Help</div>
+      <a href="#faq" class="sb-link" data-section="faq">FAQ</a>
+      <a href="#troubleshooting" class="sb-link" data-section="troubleshooting">Troubleshooting</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <section id="introduction">
+      <h1>CLI Documentation</h1>
+      <p class="lead">Deploy static websites to HairiHosting from your terminal in seconds. No browser, no uploads — just one command.</p>
+
+      <div class="callout tip">
+        <strong>What you'll learn:</strong> install the CLI, get an API key, and deploy your first site in under 2 minutes.
+      </div>
+
+      <h2>Overview</h2>
+      <p>The <code>hh-cli-deploy</code> package gives you a command-line interface for HairiHosting. It works on <strong>any platform</strong> — Termux (Android), Linux, macOS, Windows.</p>
+
+      <p><strong>What you can do:</strong></p>
+      <ul>
+        <li>Deploy a folder of HTML/CSS/JS to <code>yourname.hairiamri.buzz</code></li>
+        <li>Update existing sites with a single command</li>
+        <li>Upload images automatically</li>
+        <li>Manage your sites from the terminal</li>
+        <li>Integrate with CI/CD pipelines</li>
+      </ul>
+    </section>
+
+    <section id="installation">
+      <h2>Installation</h2>
+
+      <h3>Prerequisites</h3>
+      <ul>
+        <li><strong>Node.js 14+</strong> — <a href="https://nodejs.org" target="_blank" rel="noopener">download here</a></li>
+        <li><strong>npm</strong> — included with Node.js</li>
+      </ul>
+
+      <p><strong>Termux (Android):</strong></p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="pkg install nodejs">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>pkg install nodejs</code></pre>
+      </div>
+
+      <p><strong>Install the CLI globally:</strong></p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="npm install -g hh-cli-deploy">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>npm install -g hh-cli-deploy</code></pre>
+      </div>
+
+      <p>Verify installation:</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh --version">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh --version
+# → 1.0.4</code></pre>
+      </div>
+    </section>
+
+    <section id="quick-start">
+      <h2>Quick Start</h2>
+      <p>Deploy your first site in 3 steps.</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Get your API key</h3>
+          <p>Open the API Keys page in your dashboard and create a new key:</p>
+          <p><a href="/dashboard/#/api-keys" target="_blank">Open API Keys →</a></p>
+          <p>Copy the key (starts with <code>hh_live_</code>). You'll only see it once.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Login</h3>
+          <div class="cb">
+            <div class="cb-head">
+              <span class="cb-title">bash</span>
+              <button class="cb-copy" data-copy="hh login hh_live_xxxxxxxxxxxxx">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code>hh login hh_live_xxxxxxxxxxxxx
+# → ✓ Logged in as you@example.com</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Deploy</h3>
+          <p>Navigate to your project folder and run:</p>
+          <div class="cb">
+            <div class="cb-head">
+              <span class="cb-title">bash</span>
+              <button class="cb-copy" data-copy="cd my-website&#10;hh deploy mysite">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <pre><code>cd my-website
+hh deploy mysite</code></pre>
+          </div>
+          <p>Your site is now live at <code>https://mysite.hairiamri.buzz</code> 🎉</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Tip:</strong> If you don't provide a subdomain, the CLI will prompt you for one.
+      </div>
+    </section>
+
+    <hr>
+
+    <h1 style="font-size:28px;margin-bottom:24px">Commands Reference</h1>
+
+    <section id="cmd-login">
+      <h2>login</h2>
+      <p>Save your API key for future deploys.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh login <api-key>">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh login &lt;api-key&gt;</code></pre>
+      </div>
+      <p>The API key is stored in <code>~/.hairihosting/config.json</code> with <code>chmod 600</code> for security. You can also set it via environment variable:</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="export HAIRIHOSTING_API_KEY=hh_live_xxx">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>export HAIRIHOSTING_API_KEY=hh_live_xxx</code></pre>
+      </div>
+    </section>
+
+    <section id="cmd-deploy">
+      <h2>deploy</h2>
+      <p>Deploy the current folder to a subdomain.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh deploy [subdomain] [options]">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh deploy [subdomain] [options]</code></pre>
+      </div>
+
+      <h3>Options</h3>
+      <table>
+        <thead>
+          <tr><th>Flag</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--dir &lt;path&gt;</code></td><td>Folder to deploy (default: <code>.</code>)</td></tr>
+          <tr><td><code>--overwrite</code></td><td>Replace existing site fully (delete old files)</td></tr>
+          <tr><td><code>--merge</code></td><td>Only update provided files, keep the rest</td></tr>
+          <tr><td><code>--no-publish</code></td><td>Upload but keep as draft (not live)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Behavior</h3>
+      <ul>
+        <li><strong>Auto-inject:</strong> CSS files get injected into <code>&lt;head&gt;</code> if not already linked</li>
+        <li><strong>Images:</strong> Uploaded automatically (max 1.5 MB each)</li>
+        <li><strong>Conflict:</strong> If the subdomain exists, CLI prompts <code>Overwrite (o) / Merge (m) / Cancel (c)</code></li>
+        <li><strong>Default:</strong> Site is published live after deploy (<code>--no-publish</code> to keep draft)</li>
+      </ul>
+    </section>
+
+    <section id="cmd-list">
+      <h2>list</h2>
+      <p>List all your sites and their status.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh list">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh list
+
+# → Your sites (3)
+#   portfolio.hairiamri.buzz    ● LIVE
+#   kopi.hairiamri.buzz         ● LIVE
+#   draft-site.hairiamri.buzz   ○ DRAFT</code></pre>
+      </div>
+    </section>
+
+    <section id="cmd-delete">
+      <h2>delete</h2>
+      <p>Delete a site and all its files permanently. Prompts for confirmation.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh delete <subdomain>">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh delete old-project</code></pre>
+      </div>
+    </section>
+
+    <section id="cmd-whoami">
+      <h2>whoami</h2>
+      <p>Show the current logged-in account.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh whoami">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh whoami
+
+# → Email: you@example.com
+#   Name:  Your Name
+#   Role:  user</code></pre>
+      </div>
+    </section>
+
+    <section id="cmd-logout">
+      <h2>logout</h2>
+      <p>Remove the saved API key from your machine.</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh logout">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh logout</code></pre>
+      </div>
+    </section>
+
+    <hr>
+
+    <section id="examples">
+      <h2>Examples</h2>
+
+      <h3>Deploy a simple static site</h3>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="cd ~/my-portfolio&#10;hh deploy">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>cd ~/my-portfolio
+hh deploy</code></pre>
+      </div>
+
+      <h3>Deploy from a build output folder</h3>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="npm run build&#10;hh deploy portfolio --dir ./dist">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>npm run build
+hh deploy portfolio --dir ./dist</code></pre>
+      </div>
+
+      <h3>Update existing site (overwrite)</h3>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh deploy mysite --overwrite">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh deploy mysite --overwrite</code></pre>
+      </div>
+
+      <h3>Deploy as draft (not published)</h3>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="hh deploy staging --no-publish">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>hh deploy staging --no-publish</code></pre>
+      </div>
+    </section>
+
+    <section id="cicd">
+      <h2>CI/CD Integration</h2>
+      <p>Automate deploys from GitHub Actions, GitLab CI, or any pipeline.</p>
+
+      <h3>GitHub Actions</h3>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">.github/workflows/deploy.yml</span>
+          <button class="cb-copy" data-copy="name: Deploy&#10;on:&#10;  push:&#10;    branches: [main]&#10;jobs:&#10;  deploy:&#10;    runs-on: ubuntu-latest&#10;    steps:&#10;      - uses: actions/checkout@v4&#10;      - uses: actions/setup-node@v4&#10;        with:&#10;          node-version: 20&#10;      - run: npm install -g hh-cli-deploy&#10;      - run: hh deploy mysite --overwrite&#10;        env:&#10;          HAIRIHOSTING_API_KEY: &#36;{{ secrets.HAIRIHOSTING_API_KEY }}">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install -g hh-cli-deploy
+      - run: hh deploy mysite --overwrite
+        env:
+          HAIRIHOSTING_API_KEY: ${{ secrets.HAIRIHOSTING_API_KEY }}</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>Security tip:</strong> Always use environment variables in CI, not <code>hh login</code>. Store the API key as a secret in your CI provider.
+      </div>
+    </section>
+
+    <hr>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+
+      <h3>Where do I get an API key?</h3>
+      <p>Go to <a href="/dashboard/#/api-keys">Dashboard → API Keys</a>, click <strong>+ Create API Key</strong>, and copy the key. You'll only see it once.</p>
+
+      <h3>What's the file size limit?</h3>
+      <p>Each image is limited to <strong>1.5 MB</strong>. Files larger than this are skipped with a warning.</p>
+
+      <h3>Can I use a custom domain?</h3>
+      <p>Yes. Add the domain from the dashboard first, then deploy to that site. The CLI deploys to <code>*.hairiamri.buzz</code> subdomains, but custom domains work automatically once verified.</p>
+
+      <h3>How do I roll back a deploy?</h3>
+      <p>Redeploy from a previous version of your folder. There's no automatic rollback — keep your project in Git and checkout the old commit, then deploy.</p>
+
+      <h3>What files get uploaded?</h3>
+      <p>HTML, CSS, JS, and images (PNG/JPG/JPEG/GIF/WebP/SVG/ICO). Other files (JSON, MD, etc.) are skipped. CSS files are auto-injected into <code>&lt;head&gt;</code> if not already linked.</p>
+
+      <h3>Is my API key safe?</h3>
+      <p>Yes. The config file <code>~/.hairihosting/config.json</code> is stored with <code>chmod 600</code> (owner-only). Never commit it to Git.</p>
+
+      <h3>What if I lose my API key?</h3>
+      <p>Generate a new one in the dashboard. The old key keeps working until you revoke it, so revoke it manually to disable.</p>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+
+      <h3>Command not found</h3>
+      <p>Make sure your <code>$PATH</code> includes the npm global bin folder:</p>
+      <div class="cb">
+        <div class="cb-head">
+          <span class="cb-title">bash</span>
+          <button class="cb-copy" data-copy="echo $PATH&#10;# should include: ~/.npm-global/bin OR /usr/local/bin OR Termux $PREFIX/bin">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre><code>echo $PATH
+# should include the npm global bin folder</code></pre>
+      </div>
+
+      <h3>401 Unauthorized</h3>
+      <p>Your API key is invalid or revoked. Run <code>hh logout</code> then <code>hh login &lt;new-key&gt;</code>.</p>
+
+      <h3>Subdomain is reserved</h3>
+      <p>Common subdomains like <code>www</code>, <code>api</code>, <code>admin</code>, <code>dashboard</code> are reserved. Pick another name.</p>
+
+      <h3>Subdomain owned by another user</h3>
+      <p>Each subdomain is unique. If someone else has <code>mysite</code>, choose a different name (e.g. <code>myportfolio</code>).</p>
+
+      <h3>Deploy stuck / timeout</h3>
+      <p>Check your internet connection. If you're uploading many images, try <code>--dir</code> with a smaller folder, or compress images first.</p>
+
+      <hr>
+
+      <p style="text-align:center;color:var(--text-muted);font-size:14px">
+        Need help? <a href="/dashboard/#/support">Contact support →</a>
+      </p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.cb-copy').forEach(function(btn){
+    btn.onclick = function(){
+      var text = btn.dataset.copy.replace(/&#10;/g, '\n');
+      navigator.clipboard.writeText(text).then(function(){
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="stroke:#1a7f37"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+        btn.style.color = '#1a7f37';
+        setTimeout(function(){
+          btn.innerHTML = orig;
+          btn.style.color = '';
+        }, 1800);
+      });
+    };
+  });
+
+  // Sidebar active on scroll
+  var links = document.querySelectorAll('.sb-link[data-section]');
+  var sections = [];
+  links.forEach(function(l){
+    var id = l.dataset.section;
+    var el = document.getElementById(id);
+    if (el) sections.push({ id: id, el: el, link: l });
+  });
+
+  function updateActive(){
+    var scrollPos = window.scrollY + 120;
+    var current = sections[0];
+    sections.forEach(function(s){
+      if (s.el.offsetTop <= scrollPos) current = s;
+    });
+    links.forEach(function(l){ l.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+})();
+</script>
+
+</body>
+</html>

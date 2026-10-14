@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const VERSION = '1.0.0';
+const VERSION = '1.0.4';
 const API_BASE = 'https://hairiamri.buzz';
 const CONFIG_DIR = path.join(os.homedir(), '.hairihosting');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
