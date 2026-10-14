@@ -112,6 +112,10 @@
         if (page === 'tokens') return await this.pageTokens(main);
         if (page === 'notify') return await this.pageNotify(main);
         if (page === 'logs') return await this.pageLogs(main);
+        if (page === 'settings') return await this.pageSettings(main);
+        if (page === 'admins') return await this.pageAdmins(main);
+        if (page === 'admin-sessions') return await this.pageAdminSessions(main);
+        if (page === 'security-log') return await this.pageSecurityLog(main);
       } catch(e){ main.innerHTML = '<div class="loading" style="color:#ff8a8a">Error: ' + esc(e.message) + '</div>'; }
     }
   };
@@ -182,31 +186,64 @@
     el.innerHTML = '<div class="loading">Loading...</div>';
     var r = await fetch('/api/admin/users?q=' + encodeURIComponent(q || ''));
     var d = await r.json();
-    if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff8a8a">' + esc(d.error) + '</div>'; return; }
+    if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff9592">' + esc(d.error) + '</div>'; return; }
     if (!d.users.length) { el.innerHTML = '<div class="loading">No users found</div>'; return; }
-    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Sites</th><th>Joined</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>User</th><th>Plan</th><th>Expires</th><th>Status</th><th>Sites</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
       d.users.map(function(u){
-        var badge = u.status === 'active' ? 'active' : 'suspended';
-        return '<tr><td><div style="font-weight:600">' + esc(u.name || '-') + '</div><div style="font-size:11px;color:#c0c1c6;font-family:var(--mono)">' + esc(u.email) + '</div>' + (u.username ? '<div style="font-size:10px;color:#c0c1c6;opacity:.7">@' + esc(u.username) + '</div>' : '') + '</td>' +
-          '<td><span class="badge" style="background:rgba(169,90,248,.15);color:#c8a3f8">' + u.role + '</span></td>' +
-          '<td><span class="badge badge-' + badge + '">' + u.status + '</span></td>' +
+        var planLabel = u.plan === 'bisnes' ? 'BISNES' : 'PRO';
+        var planCls = u.plan === 'bisnes' ? 'badge-live' : 'badge-draft';
+        var expiresAt = u.plan_expires_at ? new Date(u.plan_expires_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '-';
+        var expired = u.plan_expires_at && new Date(u.plan_expires_at).getTime() < Date.now();
+        return '<tr><td><div style="font-weight:600">' + esc(u.name || '-') + '</div><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono)">' + esc(u.email) + '</div>' + (u.username ? '<div style="font-size:10px;color:#a1a4a5;opacity:.7">@' + esc(u.username) + '</div>' : '') + '</td>' +
+          '<td><span class="badge ' + planCls + '">' + planLabel + '</span></td>' +
+          '<td style="font-family:var(--mono);font-size:12px;' + (expired ? 'color:#ff9592;' : 'color:#a1a4a5;') + '">' + expiresAt + '</td>' +
+          '<td><span class="badge badge-' + (u.status === 'active' ? 'active' : 'suspended') + '">' + u.status + '</span></td>' +
           '<td style="font-family:var(--mono);font-size:13px">' + u.site_count + '</td>' +
-          '<td style="font-family:var(--mono);font-size:11px;color:#c0c1c6;white-space:nowrap">' + timeAgo(u.created_at) + '</td>' +
-          '<td style="text-align:right;white-space:nowrap"><button class="btn btn-sm ' + (u.status === 'active' ? 'btn-ghost' : 'btn-primary') + '" onclick="AdminApp.toggleUser(' + u.id + ',\'' + u.status + '\',\'' + esc(u.email) + '\')">' + (u.status === 'active' ? 'Suspend' : 'Activate') + '</button> <button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(' + u.id + ',\'' + esc(u.email) + '\')">Delete</button></td></tr>';
+          '<td style="text-align:right;white-space:nowrap"><button class="btn btn-sm" onclick="AdminApp.extendUser(' + u.id + ',\'' + esc(u.name || u.email) + '\')">Extend</button> ' +
+          '<button class="btn btn-sm" onclick="AdminApp.changePlan(' + u.id + ',\'' + u.plan + '\',\'' + esc(u.name || u.email) + '\')">Plan</button> ' +
+          '<button class="btn btn-sm" onclick="AdminApp.toggleUser(' + u.id + ',\'' + u.status + '\',\'' + esc(u.email) + '\')">' + (u.status === 'active' ? 'Suspend' : 'Activate') + '</button> ' +
+          '<button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(' + u.id + ',\'' + esc(u.email) + '\')">Delete</button></td></tr>';
       }).join('') + '</tbody></table></div>';
+  };
+
+  App.changePlan = function(id, current, name){
+    var newPlan = current === 'bisnes' ? 'pro' : 'bisnes';
+    var label = newPlan === 'bisnes' ? 'Bisnes (2 tahun)' : 'Pro (5 bulan)';
+    if (!confirm('Tukar ' + name + ' ke ' + label + '?\n\nExpiry akan reset.')) return;
+    (async function(){
+      var r = await fetch('/api/admin/users?id=' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: newPlan }) });
+      var d = await r.json();
+      if (d.ok) { toast('Plan updated','success'); App.loadUsers(document.getElementById('userSearch').value); }
+      else toast(d.error,'error');
+    })();
+  };
+
+  App.extendUser = function(id, name){
+    if (!confirm('Extend plan untuk ' + name + '?\n\nTempoh sama dengan plan semasa.')) return;
+    (async function(){
+      var r = await fetch('/api/admin/users?id=' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ extend: true }) });
+      var d = await r.json();
+      if (d.ok) { toast('Plan extended','success'); App.loadUsers(document.getElementById('userSearch').value); }
+      else toast(d.error,'error');
+    })();
   };
 
   App.showNewUserModal = function(){
     var m = document.createElement('div');
     m.id = 'modalOverlay';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(1,28,66,.85);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-    m.innerHTML = '<div style="background:#0a2757;border:1px solid rgba(52,232,187,.3);border-radius:6px;padding:32px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">' +
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    m.innerHTML = '<div style="background:#000;border:1px solid #292d30;border-radius:16px;padding:32px;max-width:480px;width:100%">' +
       '<div class="eyebrow">Create</div>' +
-      '<h3 style="font-family:var(--display);font-weight:300;font-size:28px;letter-spacing:-.56px;margin-bottom:24px">New User</h3>' +
-      '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c1c6;display:block;margin-bottom:6px">Name</label><input class="input" id="nName" placeholder="Full name"></div>' +
-      '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c1c6;display:block;margin-bottom:6px">Email</label><input class="input" id="nEmail" type="email" placeholder="user@example.com"></div>' +
-      '<div style="margin-bottom:24px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c1c6;display:block;margin-bottom:6px">Role</label><select class="input" id="nRole"><option value="user">User</option><option value="admin">Admin</option></select></div>' +
-      '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost" id="nCancel">Cancel</button><button class="btn btn-primary" id="nCreate">Create User</button></div>' +
+      '<h3 style="font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:-.04em;margin-bottom:24px;color:#fff">New User</h3>' +
+      '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Name</label><input class="input" id="nName" placeholder="Full name"></div>' +
+      '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Email</label><input class="input" id="nEmail" type="email" placeholder="user@example.com"></div>' +
+      '<div style="margin-bottom:24px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Plan</label>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+          '<label style="cursor:pointer;padding:12px;border:1px solid #292d30;border-radius:6px"><input type="radio" name="nPlan" value="pro" checked style="margin-right:8px"><span style="font-size:14px;color:#f0f0f0">Pro</span><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono);margin-left:22px">5 bulan</div></label>' +
+          '<label style="cursor:pointer;padding:12px;border:1px solid #292d30;border-radius:6px"><input type="radio" name="nPlan" value="bisnes" style="margin-right:8px"><span style="font-size:14px;color:#f0f0f0">Bisnes</span><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono);margin-left:22px">2 tahun</div></label>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="nCancel">Cancel</button><button class="btn btn-primary" id="nCreate">Create User</button></div>' +
     '</div>';
     document.body.appendChild(m);
     document.getElementById('nCancel').onclick = function(){ m.remove(); };
@@ -217,37 +254,41 @@
   App.createUser = async function(){
     var name = document.getElementById('nName').value.trim();
     var email = document.getElementById('nEmail').value.trim();
-    var role = document.getElementById('nRole').value;
+    var planEl = document.querySelector('input[name="nPlan"]:checked');
+    var plan = planEl ? planEl.value : 'pro';
     if (!name || !email) { toast('Name and email required','error'); return; }
     var btn = document.getElementById('nCreate');
     btn.disabled = true; btn.textContent = 'Creating...';
     try {
-      var r = await fetch('/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, role: role }) });
+      var r = await fetch('/api/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, plan: plan }) });
       var d = await r.json();
       if (!d.ok) { toast(d.error,'error'); btn.disabled = false; btn.textContent = 'Create User'; return; }
       document.getElementById('modalOverlay').remove();
-      App.showTempPassword(d.user.email, d.user.temp_password);
+      App.showTempPassword(d.user.email, d.user.temp_password, d.user.plan);
     } catch(e) { toast('Error: ' + e.message,'error'); btn.disabled = false; btn.textContent = 'Create User'; }
   };
 
-  App.showTempPassword = function(email, pass){
+  App.showTempPassword = function(email, pass, plan){
+    var planLabel = plan === 'bisnes' ? 'Bisnes (2 tahun)' : 'Pro (5 bulan)';
     var m = document.createElement('div');
     m.id = 'modalOverlay';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(1,28,66,.85);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-    m.innerHTML = '<div style="background:#0a2757;border:1px solid rgba(52,232,187,.3);border-radius:6px;padding:32px;max-width:460px;width:100%">' +
-      '<div class="eyebrow" style="color:#34e8bb">✓ User Created</div>' +
-      '<h3 style="font-family:var(--display);font-weight:300;font-size:24px;letter-spacing:-.5px;margin-bottom:8px">Save credentials</h3>' +
-      '<p style="font-size:13px;color:#c0c1c6;margin-bottom:20px">Share with the user. They can change password after login.</p>' +
-      '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(192,193,198,.2);border-radius:6px;padding:16px;margin-bottom:20px">' +
-        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#c0c1c6;margin-bottom:6px">Email</div>' +
-        '<div style="font-family:var(--mono);font-size:13px;margin-bottom:14px;word-break:break-all">' + esc(email) + '</div>' +
-        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#c0c1c6;margin-bottom:6px">Temp Password</div>' +
-        '<div style="font-family:var(--mono);font-size:16px;font-weight:500;color:#34e8bb;word-break:break-all">' + esc(pass) + '</div>' +
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    m.innerHTML = '<div style="background:#000;border:1px solid #292d30;border-radius:16px;padding:32px;max-width:480px;width:100%">' +
+      '<div class="eyebrow" style="color:#3ad389">User Created</div>' +
+      '<h3 style="font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.04em;margin-bottom:8px;color:#fff">Save credentials</h3>' +
+      '<p style="font-size:13px;color:#a1a4a5;margin-bottom:20px">Share with the user. They can change password after login.</p>' +
+      '<div style="background:#0b0e14;border:1px solid #292d30;border-radius:6px;padding:16px;margin-bottom:20px">' +
+        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;margin-bottom:6px">Email</div>' +
+        '<div style="font-family:var(--mono);font-size:13px;margin-bottom:14px;color:#f0f0f0;word-break:break-all">' + esc(email) + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;margin-bottom:6px">Plan</div>' +
+        '<div style="font-size:14px;color:#f0f0f0;margin-bottom:14px">' + esc(planLabel) + '</div>' +
+        '<div style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;margin-bottom:6px">Temp Password</div>' +
+        '<div style="font-family:var(--mono);font-size:16px;font-weight:500;color:#9281f7;word-break:break-all">' + esc(pass) + '</div>' +
       '</div>' +
-      '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost" id="tpCopy">Copy</button><button class="btn btn-primary" id="tpDone">Done</button></div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="tpCopy">Copy</button><button class="btn btn-primary" id="tpDone">Done</button></div>' +
     '</div>';
     document.body.appendChild(m);
-    document.getElementById('tpCopy').onclick = function(){ navigator.clipboard.writeText('Email: ' + email + '\nPassword: ' + pass).then(function(){ toast('Copied','success'); }); };
+    document.getElementById('tpCopy').onclick = function(){ navigator.clipboard.writeText('Email: ' + email + '\nPlan: ' + planLabel + '\nPassword: ' + pass).then(function(){ toast('Copied','success'); }); };
     document.getElementById('tpDone').onclick = function(){ m.remove(); App.loadUsers(''); };
   };
 

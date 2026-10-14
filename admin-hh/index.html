@@ -117,7 +117,34 @@ tr:hover td{background:rgba(52,232,187,.03)}
   <div class="aurora"></div>
 </header>
 <div class="wrap">
-  <nav class="nav-tabs"><div class="nav-tab active" data-id="overview">Dashboard</div><div class="nav-group" data-group="manage"><div class="nav-tab has-dropdown" data-toggle="manage">Manage</div><div class="dropdown"><div class="dropdown-item" data-id="users">Users</div><div class="dropdown-item" data-id="sites">Sites</div><div class="dropdown-item" data-id="tokens">Login Tokens</div><div class="dropdown-item" data-id="notify">Broadcast</div></div></div><div class="nav-group" data-group="system"><div class="nav-tab has-dropdown" data-toggle="system">System</div><div class="dropdown"><div class="dropdown-item" data-id="logs">Audit Log</div></div></div><div class="nav-tab" id="navLogout">Log Out</div></nav>
+  <nav class="nav-tabs">
+    <div class="nav-tab active" data-id="overview">Dashboard</div>
+    <div class="nav-group" data-group="manage">
+      <div class="nav-tab has-dropdown" data-toggle="manage">Manage</div>
+      <div class="dropdown">
+        <div class="dropdown-item" data-id="users">Users</div>
+        <div class="dropdown-item" data-id="sites">Sites</div>
+        <div class="dropdown-item" data-id="tokens">Login Tokens</div>
+        <div class="dropdown-item" data-id="notify">Broadcast</div>
+      </div>
+    </div>
+    <div class="nav-group" data-group="system">
+      <div class="nav-tab has-dropdown" data-toggle="system">System</div>
+      <div class="dropdown">
+        <div class="dropdown-item" data-id="logs">Audit Log</div>
+        <div class="dropdown-item" data-id="settings">Settings</div>
+      </div>
+    </div>
+    <div class="nav-group" data-group="security">
+      <div class="nav-tab has-dropdown" data-toggle="security">Security</div>
+      <div class="dropdown">
+        <div class="dropdown-item" data-id="admins">Admin Users</div>
+        <div class="dropdown-item" data-id="admin-sessions">Active Sessions</div>
+        <div class="dropdown-item" data-id="security-log">Security Log</div>
+      </div>
+    </div>
+    <div class="nav-tab" id="navLogout">Log Out</div>
+  </nav>
   <div id="main"><div class="loading">Loading...</div></div>
 </div>
 <div class="toast-wrap" id="toastWrap"></div>
