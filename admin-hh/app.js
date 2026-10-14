@@ -95,10 +95,10 @@ var AdminUI = {
       '<h1 class="page-title">Overview</h1>' +
       '<p class="page-sub">Global stats across HairiHosting</p>' +
       '<div class="grid-4">' +
-        '<div class="card"><div class="card-title">Users</div><div class="card-value">' + s.users + '</div><div class="card-meta">' + s.active_users + ' active</div></div>' +
+        '<div class="card card-gold"><div class="card-title">Users</div><div class="card-value">' + s.users + '</div><div class="card-meta">' + s.active_users + ' active</div></div>' +
         '<div class="card"><div class="card-title">Sites</div><div class="card-value">' + s.sites + '</div><div class="card-meta">' + s.live_sites + ' live</div></div>' +
-        '<div class="card"><div class="card-title">Files</div><div class="card-value">' + s.files + '</div><div class="card-meta">' + fmtBytes(s.storage_bytes) + '</div></div>' +
-        '<div class="card"><div class="card-title">Visitors</div><div class="card-value">' + s.visitors + '</div><div class="card-meta">All time</div></div>' +
+        '<div class="card card-coral"><div class="card-title">Files</div><div class="card-value">' + s.files + '</div><div class="card-meta">' + fmtBytes(s.storage_bytes) + '</div></div>' +
+        '<div class="card card-sky"><div class="card-title">Visitors</div><div class="card-value">' + s.visitors + '</div><div class="card-meta">All time</div></div>' +
       '</div>' +
       '<div class="grid-4">' +
         '<div class="card"><div class="card-title">Active Tokens</div><div class="card-value">' + s.active_tokens + '</div><div class="card-meta">Unused, not expired</div></div>' +
