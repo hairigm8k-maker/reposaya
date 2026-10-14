@@ -54,7 +54,22 @@
     c.innerHTML =
       '<div class="page-head"><div class="eyebrow">Account</div><h1 class="page-title">Support</h1><p class="page-sub">Get in touch with us</p></div>' +
       '<div style="max-width:720px;display:flex;flex-direction:column;gap:24px">' +
-        '<div><div style="font-size:13px;color:var(--fog);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:12px">Contact us</div>' +
+        '<a href="/dashboard/cs.html" target="_blank" style="display:block;text-decoration:none;margin-bottom:20px">' +
+            '<div class="card" style="padding:22px 24px;background:linear-gradient(135deg,rgba(204,145,102,.12) 0%,var(--card) 100%);border-color:rgba(204,145,102,.35);cursor:pointer;transition:all .2s">' +
+              '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">' +
+                '<div style="width:48px;height:48px;border-radius:50%;background:var(--copper);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+                  '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:#000;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+                '</div>' +
+                '<div style="flex:1;min-width:180px">' +
+                  '<div style="font-family:var(--serif);font-size:19px;color:var(--white);margin-bottom:4px">Live Chat with AI</div>' +
+                  '<div style="font-size:13px;color:var(--fog);line-height:1.5">Tanya apa-apa pasal HairiHosting — dapat jawapan instant.</div>' +
+                '</div>' +
+                '<div style="font-size:13.5px;color:var(--copper);font-weight:600;white-space:nowrap">Start Chat →</div>' +
+              '</div>' +
+            '</div>' +
+          '</a>' +
+
+          '<div><div style="font-size:13px;color:var(--fog);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:12px">Contact us</div>' +
         '<div style="display:flex;flex-direction:column;gap:10px">' + contactsHtml + '</div></div>' +
         '<div class="card"><div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:6px">Frequently Asked Questions</div>' +
         '<p style="color:var(--fog);font-size:13px;margin-bottom:12px">Quick answers to common questions</p>' + faqHtml + '</div>' +
