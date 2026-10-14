@@ -1,4 +1,4 @@
-import { getCookie, verifySession, json } from '../_utils.js';
+import { getCookie, verifySession, json } from '../../_utils.js';
 
 function genToken() {
   const b = new Uint8Array(16);
