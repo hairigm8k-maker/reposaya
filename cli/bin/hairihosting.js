@@ -36,6 +36,73 @@ function logSuccess(msg) { console.log(color('✓ ' + msg, 'green')); }
 function logInfo(msg) { console.log(color('ℹ ' + msg, 'cyan')); }
 function logWarn(msg) { console.warn(color('⚠ ' + msg, 'yellow')); }
 
+// ===== SPINNER =====
+const SPINNER_FRAMES = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+
+function createSpinner(text) {
+  var frames = SPINNER_FRAMES;
+  var idx = 0;
+  var timer = null;
+  var startTime = Date.now();
+  var isTTY = process.stdout.isTTY;
+
+  function render() {
+    var frame = color(frames[idx % frames.length], 'copper');
+    var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    process.stdout.write('\r\x1b[K  ' + frame + ' ' + text + color(' (' + elapsed + 's)', 'gray'));
+    idx++;
+  }
+
+  return {
+    start: function() {
+      if (!isTTY) {
+        process.stdout.write('  ' + text + '...\n');
+        return this;
+      }
+      render();
+      timer = setInterval(render, 80);
+      return this;
+    },
+    update: function(newText) {
+      text = newText;
+      return this;
+    },
+    succeed: function(msg) {
+      if (timer) clearInterval(timer);
+      var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      if (isTTY) process.stdout.write('\r\x1b[K');
+      console.log('  ' + color('✓', 'green') + ' ' + (msg || text) + color(' (' + elapsed + 's)', 'gray'));
+    },
+    fail: function(msg) {
+      if (timer) clearInterval(timer);
+      if (isTTY) process.stdout.write('\r\x1b[K');
+      console.error('  ' + color('✗', 'red') + ' ' + (msg || text));
+    },
+    info: function(msg) {
+      if (timer) clearInterval(timer);
+      if (isTTY) process.stdout.write('\r\x1b[K');
+      console.log('  ' + color('ℹ', 'cyan') + ' ' + msg);
+    }
+  };
+}
+
+// Multi-step spinner untuk progress tracking
+function createSteps(total) {
+  var current = 0;
+  var lines = [];
+  return {
+    step: function(text) {
+      current++;
+      lines.push(text);
+      var prefix = color('[' + current + '/' + total + ']', 'gray');
+      console.log('  ' + prefix + ' ' + text);
+    },
+    done: function(text) {
+      console.log('  ' + color('✓', 'green') + ' ' + text);
+    }
+  };
+}
+
 // ===== CONFIG =====
 function loadConfig() {
   try {
@@ -161,24 +228,22 @@ async function cmdLogin(args) {
     logError('Invalid API key format. Must start with hh_live_');
     process.exit(1);
   }
-  process.stdout.write('  Verifying API key... ');
+  var spinner = createSpinner('Verifying API key').start();
   try {
     var res = await fetch(API_BASE + '/api/cli/whoami', {
       headers: { 'Authorization': 'Bearer ' + apiKey }
     });
     var data = await res.json();
-    process.stdout.write('\r\x1b[K');
-    if (!data.ok) { logError('Invalid API key: ' + (data.error || 'Unauthorized')); process.exit(1); }
+    if (!data.ok) { spinner.fail('Invalid API key: ' + (data.error || 'Unauthorized')); process.exit(1); }
+    spinner.succeed('Logged in as ' + data.user.email);
     var cfg = loadConfig();
     cfg.api_key = apiKey;
     cfg.user_email = data.user.email;
     cfg.user_name = data.user.name;
     saveConfig(cfg);
-    logSuccess('Logged in as ' + bold(data.user.email));
     log('');
   } catch (e) {
-    process.stdout.write('\r\x1b[K');
-    logError('Connection error: ' + e.message);
+    spinner.fail('Connection error: ' + e.message);
     process.exit(1);
   }
 }
@@ -197,8 +262,9 @@ async function cmdDeploy(args) {
   log('');
 
   var absDir = path.resolve(targetDir);
-  logInfo('Scanning: ' + dim(absDir));
+  var scanSpinner = createSpinner('Scanning folder').start();
   var scan = scanFolder(absDir);
+  scanSpinner.succeed('Found ' + scan.files.length + ' code files + ' + scan.images.length + ' images');
 
   if (!scan.files.length) { logError('No HTML/CSS/JS files found in folder'); process.exit(1); }
 
@@ -271,9 +337,9 @@ async function cmdDeploy(args) {
     publish: shouldPublish
   };
 
-  process.stdout.write('  Uploading... ');
+  var uploadSpinner = createSpinner('Uploading to ' + subdomain + '.hairiamri.buzz').start();
   var res = await apiRequest('POST', '/api/cli/deploy', payload);
-  process.stdout.write('\r\x1b[K');
+  uploadSpinner.info(res.status === 409 ? 'Site exists — waiting for input' : (res.data.ok ? 'Upload complete' : 'Upload failed'));
 
   // Handle exists prompt
   if (res.status === 409 && res.data.needs_confirmation) {
@@ -285,18 +351,38 @@ async function cmdDeploy(args) {
     });
     if (ans === 'c' || ans === '') { log('  Cancelled.'); process.exit(0); }
     payload.mode = ans === 'm' ? 'merge' : 'overwrite';
-    process.stdout.write('  Uploading... ');
+    var upSpinner2 = createSpinner('Uploading (' + payload.mode + ')').start();
     res = await apiRequest('POST', '/api/cli/deploy', payload);
-    process.stdout.write('\r\x1b[K');
+    if (res.data.ok) upSpinner2.succeed('Upload complete');
+    else upSpinner2.fail(res.data.error || 'Failed');
   }
 
   if (!res.data.ok) { logError(res.data.error || 'Deploy failed'); process.exit(1); }
 
-  logSuccess('Deployed successfully!');
+  // Success box
+  var url = res.data.url;
+  var status = res.data.site.status === 'live' ? color('● LIVE', 'green') : color('○ DRAFT', 'yellow');
+  var filesUp = res.data.files_uploaded;
+  var filesSkip = res.data.files_skipped || 0;
+
+  var boxWidth = Math.max(url.length + 12, 50);
+  var top = '  ' + color('┌' + '─'.repeat(boxWidth - 2) + '┐', 'gray');
+  var bot = '  ' + color('└' + '─'.repeat(boxWidth - 2) + '┘', 'gray');
+  function boxLine(content) {
+    var plain = content.replace(/\x1b\[[0-9;]*m/g, '');
+    var padding = boxWidth - 4 - plain.length;
+    if (padding < 0) padding = 0;
+    return '  ' + color('│', 'gray') + ' ' + content + ' '.repeat(padding) + ' ' + color('│', 'gray');
+  }
+
   log('');
-  log('  ' + bold('URL:') + '  ' + color(res.data.url, 'copper'));
-  log('  ' + bold('Files:') + ' ' + res.data.files_uploaded + ' uploaded' + (res.data.files_skipped ? ', ' + res.data.files_skipped + ' skipped' : ''));
-  log('  ' + bold('Status:') + ' ' + (res.data.site.status === 'live' ? color('● LIVE', 'green') : color('○ DRAFT', 'yellow')));
+  log(top);
+  log(boxLine(color('✓ Deployed successfully', 'green')));
+  log(boxLine(''));
+  log(boxLine(bold('URL') + '     ' + color(url, 'copper')));
+  log(boxLine(bold('Status') + '  ' + status));
+  log(boxLine(bold('Files') + '   ' + filesUp + ' uploaded' + (filesSkip ? ', ' + filesSkip + ' skipped' : '')));
+  log(bot);
   log('');
 }
 
@@ -307,11 +393,18 @@ async function cmdList() {
   var sites = res.data.sites || [];
   if (!sites.length) { log(''); logInfo('No sites yet. Deploy one: hairihosting deploy <subdomain>'); log(''); return; }
   log('');
-  log(bold('  Your sites (' + sites.length + ')'));
+  log(bold('  Your sites') + color(' (' + sites.length + ')', 'gray'));
   log('');
+
+  // Table
+  var nameW = Math.max.apply(null, sites.map(function(s){ return s.subdomain.length; }));
+  if (nameW < 10) nameW = 10;
+
   sites.forEach(function(s) {
     var status = s.status === 'live' ? color('● LIVE', 'green') : color('○ DRAFT', 'yellow');
-    log('  ' + color(s.subdomain + '.hairiamri.buzz', 'copper') + '  ' + status);
+    var sub = s.subdomain.padEnd(nameW, ' ');
+    var url = color(sub + '.hairiamri.buzz', 'copper');
+    log('  ' + url + '   ' + status);
   });
   log('');
 }
