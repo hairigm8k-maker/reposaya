@@ -13,7 +13,7 @@ export async function onRequestPost({ request, env }) {
     if (!title) return json({ ok: false, error: 'Title required' }, 400);
     if (!htmlBody) return json({ ok: false, error: 'Body required' }, 400);
     if (title.length > 120) return json({ ok: false, error: 'Title too long' }, 400);
-    if (htmlBody.length > 5000) return json({ ok: false, error: 'Body too long' }, 400);
+    if (htmlBody.length > 20000) return json({ ok: false, error: 'Body too long (max 20000)' }, 400);
 
     if (target === 'user' && userId) {
       await env.DB.prepare('INSERT INTO notifications (user_id, title, body, type) VALUES (?, ?, ?, ?)').bind(userId, title, htmlBody, 'info').run();
