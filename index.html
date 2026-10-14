@@ -22,18 +22,19 @@
     </div>
 
     <div class="hh-eyebrow">Sign In</div>
-    <h1 class="hh-title">Selamat Back</h1>
-    <p class="hh-subtitle">Sign in for urus website you</p>
+    <h1 class="hh-title">Welcome Back</h1>
+    <p class="hh-subtitle">Sign in to manage your websites</p>
 
-    <form id="loginForm" autocomplete="on">
+    <div id="tabNav" style="display:flex;background:#121317;border:1px solid #1c1d22;border-radius:9999px;padding:4px;margin-bottom:24px"><button type="button" id="tabEmailBtn" style="flex:1;background:#fff;color:#000;border:0;padding:10px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Email</button><button type="button" id="tabTokenBtn" style="flex:1;background:transparent;color:#9194a1;border:0;padding:10px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Login Token</button></div>
+  <form id="loginForm" autocomplete="on">
       <div class="hh-field">
         <label class="hh-label" for="email">Email</label>
-        <input type="email" id="email" name="email" class="hh-input" placeholder="nama@email.com" required autocomplete="email" autofocus>
+        <input type="email" id="email" name="email" class="hh-input" placeholder="you@email.com" required autocomplete="email" autofocus>
         <div class="hh-error" id="emailError">Email no sah</div>
       </div>
 
       <div class="hh-field">
-        <label class="hh-label" for="password">Kata Laluan</label>
+        <label class="hh-label" for="password">Password</label>
         <input type="password" id="password" name="password" class="hh-input" placeholder="••••••••" required autocomplete="current-password">
         <div class="hh-error" id="passwordError">Password diperlukan</div>
       </div>
@@ -43,9 +44,11 @@
       </button>
     </form>
 
+  <div id="tokenForm" style="display:none"><div style="margin-bottom:16px"><label style="display:block;font-size:14px;font-weight:500;color:#c7c9d1;margin-bottom:8px">Login Token</label><input type="text" id="loginToken" class="hh-input" placeholder="hh_tok_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"></div><button type="button" class="hh-btn hh-btn-primary" id="tokenSubmitBtn" style="width:100%">Sign In with Token</button><div style="text-align:center;margin-top:16px;font-size:12px;color:#5e616e">Token is single-use. Get it from admin via WhatsApp or Telegram.</div></div>
+
     <div class="hh-link-row">
       <a href="/forgot-password.html" class="hh-link">Forgot password?</a>
-      <span class="hh-muted">Akaun dijemput only</span>
+      <span class="hh-muted">Invite only</span>
     </div>
 
   </div>
@@ -112,5 +115,42 @@ form.addEventListener('submit', async (e) => {
 });
 </script>
 
+
+<script>
+(function(){
+  var tE = document.getElementById("tabEmailBtn");
+  var tT = document.getElementById("tabTokenBtn");
+  var lF = document.getElementById("loginForm");
+  var tF = document.getElementById("tokenForm");
+  if (tE && tT) {
+    function setTab(isEmail){
+      tE.style.background = isEmail ? "#fff" : "transparent";
+      tE.style.color = isEmail ? "#000" : "#9194a1";
+      tT.style.background = isEmail ? "transparent" : "#fff";
+      tT.style.color = isEmail ? "#9194a1" : "#000";
+      if (lF) lF.style.display = isEmail ? "" : "none";
+      if (tF) tF.style.display = isEmail ? "none" : "";
+    }
+    tE.onclick = function(){ setTab(true); };
+    tT.onclick = function(){ setTab(false); };
+  }
+  var bT = document.getElementById("tokenSubmitBtn");
+  var iT = document.getElementById("loginToken");
+  if (bT && iT) {
+    bT.onclick = async function(){
+      var tk = iT.value.trim();
+      if (!tk) { alert("Enter your token"); return; }
+      bT.disabled = true; bT.textContent = "Signing in...";
+      try {
+        var r = await fetch("/api/auth/login-token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: tk }) });
+        var d = await r.json();
+        if (d.ok) { window.location.href = d.redirect || "/dashboard/"; }
+        else { alert(d.error || "Failed"); bT.disabled = false; bT.textContent = "Sign In with Token"; }
+      } catch (e) { alert("Error: " + e.message); bT.disabled = false; bT.textContent = "Sign In with Token"; }
+    };
+    iT.addEventListener("keydown", function(e){ if (e.key === "Enter") bT.click(); });
+  }
+})();
+</script>
 </body>
 </html>
