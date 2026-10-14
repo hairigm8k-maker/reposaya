@@ -23,7 +23,7 @@ export async function onRequestPost({ request, env }) {
 
     let result;
     try {
-      result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      result = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
       });
     } catch (e1) {
       // Fallback ke Mistral kalau Llama fail
-      result = await env.AI.run('@cf/mistral/mistral-7b-instruct-v0.2', {
+      result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
