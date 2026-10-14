@@ -56,11 +56,12 @@
       '<div style="max-width:720px;display:flex;flex-direction:column;gap:24px">' +
         '<div><div style="font-size:13px;color:var(--fog);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:12px">Contact us</div>' +
         '<div style="display:flex;flex-direction:column;gap:10px">' + contactsHtml + '</div></div>' +
-        '<div class="card"><div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:6px">Frequently Asked Questions</div>' +
+        '<div class="card" style="padding:0;overflow:hidden"><div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--panel)"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#cc9166,#5e616e);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:14px;flex-shrink:0">H</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--white)">Hairi Assistant</div><div style="font-size:11px;color:#4ade80;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block"></span>Online — AI powered</div></div></div><div id="csMessages" style="height:400px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)"></div><div style="padding:12px;border-top:1px solid var(--border);background:var(--panel)"><div style="display:flex;gap:8px;align-items:flex-end"><textarea id="csInput" placeholder="Ask anything about HairiHosting..." style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:14px;padding:10px 14px;font-size:13.5px;color:var(--white);font-family:inherit;outline:none;resize:none;max-height:100px;line-height:1.4;min-height:22px" rows="1"></textarea><button id="csSend" style="width:38px;height:38px;border-radius:50%;background:#cc9166;border:0;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#000;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div></div><div class="card"><div style="font-family:var(--serif);font-size:20px;color:var(--white);margin-bottom:6px">Frequently Asked Questions</div>' +
         '<p style="color:var(--fog);font-size:13px;margin-bottom:12px">Quick answers to common questions</p>' + faqHtml + '</div>' +
       '</div>';
 
-    c.querySelectorAll('.faq-item').forEach(function(el){
+    if (App.initSupportChat) App.initSupportChat();
+      c.querySelectorAll('.faq-item').forEach(function(el){
       el.addEventListener('click', function(){
         var ans = el.querySelector('.faq-answer');
         var arrow = el.querySelector('.faq-arrow');
