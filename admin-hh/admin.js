@@ -505,5 +505,198 @@
       }).join('') + '</tbody></table></div>';
   };
 
+  App.pageSettings = async function(main){
+    var r = await fetch('/api/admin/settings');
+    var d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    var s = d.settings;
+    main.innerHTML =
+      '<div class="eyebrow">System</div>' +
+      '<h1 class="page-title">Settings</h1>' +
+      '<p class="page-sub">Global configuration for HairiHosting</p>' +
+      '<div class="card" style="max-width:640px">' +
+        '<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--graphite)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:16px">' +
+            '<div><div style="font-size:14px;color:var(--bone);margin-bottom:4px">Maintenance Mode</div><div style="font-size:12px;color:var(--ash);font-family:var(--mono)">Block new signups + show maintenance banner</div></div>' +
+            '<select class="input" id="sMaint" style="max-width:120px"><option value="off"' + (s.maintenance_mode === 'off' ? ' selected' : '') + '>OFF</option><option value="on"' + (s.maintenance_mode === 'on' ? ' selected' : '') + '>ON</option></select>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--graphite)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;gap:16px">' +
+            '<div><div style="font-size:14px;color:var(--bone);margin-bottom:4px">Signups Enabled</div><div style="font-size:12px;color:var(--ash);font-family:var(--mono)">Allow new user registration</div></div>' +
+            '<select class="input" id="sSignup" style="max-width:120px"><option value="on"' + (s.signup_enabled === 'on' ? ' selected' : '') + '>ON</option><option value="off"' + (s.signup_enabled === 'off' ? ' selected' : '') + '>OFF</option></select>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--graphite)">' +
+          '<div style="font-size:14px;color:var(--bone);margin-bottom:8px">Max Sites per User</div>' +
+          '<input class="input" id="sMaxSites" type="number" value="' + esc(s.max_sites_per_user) + '" style="max-width:120px">' +
+        '</div>' +
+        '<div style="margin-bottom:24px">' +
+          '<div style="font-size:14px;color:var(--bone);margin-bottom:8px">Announcement Banner</div>' +
+          '<textarea class="input" id="sAnnounce" placeholder="HTML allowed. Kosongkan untuk tutup." style="min-height:100px">' + esc(s.announcement || '') + '</textarea>' +
+        '</div>' +
+        '<button class="btn btn-primary" id="sSave">Save Settings</button>' +
+      '</div>';
+    document.getElementById('sSave').onclick = async function(){
+      var payload = {
+        maintenance_mode: document.getElementById('sMaint').value,
+        signup_enabled: document.getElementById('sSignup').value,
+        max_sites_per_user: document.getElementById('sMaxSites').value,
+        announcement: document.getElementById('sAnnounce').value
+      };
+      var r = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      var d = await r.json();
+      if (d.ok) toast('Settings saved','success');
+      else toast(d.error,'error');
+    };
+  };
+
+  App.pageAdmins = async function(main){
+    main.innerHTML =
+      '<div class="eyebrow">Security</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:32px"><div><h1 class="page-title">Admin Users</h1><p class="page-sub" style="margin-bottom:0">Manage who has admin access</p></div><button class="btn btn-primary" id="btnNewAdmin">+ New Admin</button></div>' +
+      '<div class="card" style="padding:0;overflow:hidden"><div id="adminList"><div class="loading">Loading...</div></div></div>';
+    document.getElementById('btnNewAdmin').onclick = function(){ App.showNewAdminModal(); };
+    App.loadAdmins();
+  };
+
+  App.loadAdmins = async function(){
+    var el = document.getElementById('adminList');
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    var r = await fetch('/api/admin/admins');
+    var d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff9592">' + esc(d.error) + '</div>'; return; }
+    if (!d.admins.length) { el.innerHTML = '<div class="loading">No admins yet</div>'; return; }
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Admin</th><th>Role</th><th>Status</th><th>Joined</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+      d.admins.map(function(a){
+        var isMe = a.id === App.user.id;
+        return '<tr><td><div style="font-weight:600">' + esc(a.name || '-') + (isMe ? ' <span style="font-size:11px;color:#9281f7">(you)</span>' : '') + '</div><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono)">' + esc(a.email) + '</div></td>' +
+          '<td><span class="badge badge-violet">' + esc(a.role) + '</span></td>' +
+          '<td><span class="badge badge-' + a.status + '">' + a.status + '</span></td>' +
+          '<td style="font-family:var(--mono);font-size:11px;color:#a1a4a5">' + timeAgo(a.created_at) + '</td>' +
+          '<td style="text-align:right">' + (isMe ? '<span style="font-size:11px;color:#a1a4a5;font-family:var(--mono)">—</span>' : '<button class="btn btn-sm btn-danger" onclick="AdminApp.demoteAdmin(' + a.id + ',\'' + esc(a.email) + '\')">Demote</button>') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  };
+
+  App.showNewAdminModal = function(){
+    var m = document.createElement('div');
+    m.id = 'modalOverlay';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    m.innerHTML = '<div style="background:#000;border:1px solid #292d30;border-radius:16px;padding:32px;max-width:480px;width:100%">' +
+      '<div class="eyebrow">Create</div>' +
+      '<h3 style="font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:-.04em;margin-bottom:24px;color:#fff">New Admin</h3>' +
+      '<div style="margin-bottom:16px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Name</label><input class="input" id="aName" placeholder="Full name"></div>' +
+      '<div style="margin-bottom:24px"><label style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a1a4a5;display:block;margin-bottom:8px">Email</label><input class="input" id="aEmail" type="email" placeholder="admin@example.com"></div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn" id="aCancel">Cancel</button><button class="btn btn-primary" id="aCreate">Create Admin</button></div>' +
+    '</div>';
+    document.body.appendChild(m);
+    document.getElementById('aCancel').onclick = function(){ m.remove(); };
+    document.getElementById('aCreate').onclick = async function(){
+      var name = document.getElementById('aName').value.trim();
+      var email = document.getElementById('aEmail').value.trim();
+      if (!name || !email) { toast('Name and email required','error'); return; }
+      var btn = this;
+      btn.disabled = true; btn.textContent = 'Creating...';
+      var r = await fetch('/api/admin/admins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email }) });
+      var d = await r.json();
+      if (!d.ok) { toast(d.error,'error'); btn.disabled = false; btn.textContent = 'Create Admin'; return; }
+      m.remove();
+      if (d.promoted) { toast('User promoted to admin','success'); App.loadAdmins(); }
+      else {
+        alert('Admin created!\n\nEmail: ' + d.admin.email + '\nPassword: ' + d.admin.temp_password);
+        App.loadAdmins();
+      }
+    };
+    setTimeout(function(){ document.getElementById('aName').focus(); }, 100);
+  };
+
+  App.demoteAdmin = async function(id, email){
+    if (!confirm('Demote ' + email + ' to regular user?\n\nTheir sessions will be revoked.')) return;
+    var r = await fetch('/api/admin/admins?id=' + id, { method: 'DELETE' });
+    var d = await r.json();
+    if (d.ok) { toast('Admin demoted','success'); App.loadAdmins(); }
+    else toast(d.error,'error');
+  };
+
+  App.pageAdminSessions = async function(main){
+    main.innerHTML =
+      '<div class="eyebrow">Security</div>' +
+      '<h1 class="page-title">Active Admin Sessions</h1>' +
+      '<p class="page-sub">Devices currently signed in as admin</p>' +
+      '<div class="card" style="padding:0;overflow:hidden"><div id="sessionsList"><div class="loading">Loading...</div></div></div>';
+    var el = document.getElementById('sessionsList');
+    var r = await fetch('/api/admin/admin-sessions');
+    var d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff9592">' + esc(d.error) + '</div>'; return; }
+    if (!d.sessions.length) { el.innerHTML = '<div class="loading">No active sessions</div>'; return; }
+    function deviceIcon(ua){
+      if (!ua) return 'Unknown';
+      var u = ua.toLowerCase();
+      if (/ipad|tablet/.test(u)) return 'Tablet';
+      if (/mobile|iphone|android/.test(u)) return 'Mobile';
+      return 'Desktop';
+    }
+    function browser(ua){
+      if (!ua) return 'Unknown';
+      if (/edg\//i.test(ua)) return 'Edge';
+      if (/chrome\//i.test(ua)) return 'Chrome';
+      if (/firefox\//i.test(ua)) return 'Firefox';
+      if (/safari\//i.test(ua)) return 'Safari';
+      return 'Browser';
+    }
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Admin</th><th>Device</th><th>IP</th><th>Last Active</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+      d.sessions.map(function(s){
+        var isMe = s.token_prefix + '' === '' ? false : false;
+        return '<tr><td><div style="font-weight:600">' + esc(s.name || '-') + '</div><div style="font-size:11px;color:#a1a4a5;font-family:var(--mono)">' + esc(s.email) + '</div></td>' +
+          '<td><div style="font-size:13px">' + esc(browser(s.user_agent)) + ' on ' + esc(deviceIcon(s.user_agent)) + '</div></td>' +
+          '<td style="font-family:var(--mono);font-size:11px;color:#a1a4a5">' + esc(s.ip) + '</td>' +
+          '<td style="font-family:var(--mono);font-size:11px;color:#a1a4a5">' + timeAgo(s.last_active) + '</td>' +
+          '<td style="text-align:right"><button class="btn btn-sm btn-danger" onclick="AdminApp.revokeAdminSession(\'' + s.token_prefix + '\')">Revoke</button></td></tr>';
+      }).join('') + '</tbody></table></div>';
+  };
+
+  App.revokeAdminSession = async function(prefix){
+    if (!confirm('Revoke this admin session?')) return;
+    var r = await fetch('/api/admin/admin-sessions?prefix=' + encodeURIComponent(prefix), { method: 'DELETE' });
+    var d = await r.json();
+    if (d.ok) { toast('Session revoked','success'); App.render('admin-sessions'); }
+    else toast(d.error,'error');
+  };
+
+  App.pageSecurityLog = async function(main){
+    main.innerHTML =
+      '<div class="eyebrow">Security</div>' +
+      '<h1 class="page-title">Security Log</h1>' +
+      '<p class="page-sub">All login attempts — success and failed</p>' +
+      '<div class="card" style="margin-bottom:16px;padding:16px;display:flex;gap:10px">' +
+        '<button class="btn btn-sm" id="filterAll">All</button>' +
+        '<button class="btn btn-sm" id="filterSuccess">Success</button>' +
+        '<button class="btn btn-sm" id="filterFailed">Failed</button>' +
+      '</div>' +
+      '<div class="card" style="padding:0;overflow:hidden"><div id="secLogList"><div class="loading">Loading...</div></div></div>';
+    document.getElementById('filterAll').onclick = function(){ App.loadSecurityLog('all'); };
+    document.getElementById('filterSuccess').onclick = function(){ App.loadSecurityLog('success'); };
+    document.getElementById('filterFailed').onclick = function(){ App.loadSecurityLog('failed'); };
+    App.loadSecurityLog('all');
+  };
+
+  App.loadSecurityLog = async function(filter){
+    var el = document.getElementById('secLogList');
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    var r = await fetch('/api/admin/security?filter=' + filter);
+    var d = await r.json();
+    if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff9592">' + esc(d.error) + '</div>'; return; }
+    if (!d.logs.length) { el.innerHTML = '<div class="loading">No entries</div>'; return; }
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Time</th><th>Email</th><th>Status</th><th>Reason</th><th>IP</th></tr></thead><tbody>' +
+      d.logs.map(function(l){
+        var isSuccess = l.status === 'success';
+        return '<tr><td style="font-family:var(--mono);font-size:11px;color:#a1a4a5;white-space:nowrap">' + timeAgo(l.created_at) + '</td>' +
+          '<td style="font-family:var(--mono);font-size:12px">' + esc(l.email || '-') + '</td>' +
+          '<td><span class="badge badge-' + (isSuccess ? 'active' : 'suspended') + '">' + l.status + '</span></td>' +
+          '<td style="font-size:12px;color:#a1a4a5;font-family:var(--mono)">' + esc(l.reason || '-') + '</td>' +
+          '<td style="font-family:var(--mono);font-size:11px;color:#a1a4a5">' + esc(l.ip || '-') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  };
+
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
 })();
