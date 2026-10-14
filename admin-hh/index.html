@@ -9,10 +9,9 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#08080a;color:#e2e3e9;font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
-.header{text-align:center;padding:48px 20px 32px;border-bottom:1px solid #1c1d22;background:radial-gradient(circle at 50% 0%,rgba(204,145,102,.08) 0%,transparent 60%)}
-.header img{width:160px;height:auto;filter:brightness(0) invert(1);margin-bottom:16px;display:inline-block}
-.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:rgba(204,145,102,.15);color:#cc9166;padding:5px 14px;border-radius:9999px;border:1px solid rgba(204,145,102,.3)}
-.content{flex:1;padding:32px 24px;max-width:1200px;margin:0 auto;width:100%}
+.header{text-align:center;padding:32px 20px 24px;background:radial-gradient(circle at 50% 0%,rgba(204,145,102,.10) 0%,transparent 60%)}
+.header img{width:min(90vw,600px);height:auto;filter:brightness(0) invert(1);display:inline-block}
+.content{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
 .loading-wrap{display:flex;justify-content:center;padding:60px}
 .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:#cc9166;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -21,7 +20,6 @@ body{background:#08080a;color:#e2e3e9;font-family:'Inter',system-ui,sans-serif;f
 <body>
 <header class="header">
   <img src="/assets/logoUtama/logoUtama.png" alt="HairiHosting">
-  <div><span class="badge">Admin Console</span></div>
 </header>
 <div class="content" id="content">
   <div class="loading-wrap"><div class="spinner"></div></div>
