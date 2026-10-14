@@ -128,7 +128,7 @@
     main.innerHTML =
       '<div class="eyebrow">Overview</div>' +
       '<h1 class="page-title">Command Center</h1>' +
-      '<p class="page-sub">Welcome back, ' + esc(this.user.name || 'Admin') + '. Here\'s what\'s happening across LogoUtama.</p>' +
+      '<p class="page-sub">Welcome back, ' + esc(this.user.name || 'Admin') + '. Here\'s what\'s happening across HairiHosting.</p>' +
 
       '<div class="grid">' +
         '<div class="card card-teal hoverable" onclick="AdminApp.setPage(\'users\')">' +
@@ -171,7 +171,7 @@
   App.pageUsers = async function(main){
     main.innerHTML =
       '<div class="eyebrow">Manage</div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:32px"><div><h1 class="page-title">Users</h1><p class="page-sub" style="margin-bottom:0">Manage all LogoUtama accounts</p></div><button class="btn btn-primary" id="btnNewUser">+ New User</button></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:32px"><div><h1 class="page-title">Users</h1><p class="page-sub" style="margin-bottom:0">Manage all HairiHosting accounts</p></div><button class="btn btn-primary" id="btnNewUser">+ New User</button></div>' +
       '<div class="card" style="margin-bottom:16px;padding:16px"><input class="input" id="userSearch" placeholder="Search by name, email or username..."></div>' +
       '<div class="card" style="padding:0;overflow:hidden"><div id="userList"><div class="loading">Loading...</div></div></div>';
     document.getElementById('btnNewUser').onclick = function(){ App.showNewUserModal(); };
@@ -513,7 +513,7 @@
     main.innerHTML =
       '<div class="eyebrow">System</div>' +
       '<h1 class="page-title">Settings</h1>' +
-      '<p class="page-sub">Global configuration for LogoUtama</p>' +
+      '<p class="page-sub">Global configuration for HairiHosting</p>' +
       '<div class="card" style="max-width:640px">' +
         '<div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--graphite)">' +
           '<div style="display:flex;justify-content:space-between;align-items:center;gap:16px">' +

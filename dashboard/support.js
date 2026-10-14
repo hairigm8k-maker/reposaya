@@ -17,7 +17,7 @@
     { q: 'How do I publish my site?', a: 'Open your site in the editor, make your changes, then click the Publish button at the bottom. Your site goes live instantly at <span style="color:var(--copper);font-family:var(--mono)">yourname.hairiamri.buzz</span>.' },
     { q: 'What is the file size limit?', a: 'Each image upload is limited to 1.5 MB. For larger files, we recommend compressing images before uploading.' },
     { q: 'How do I change my subdomain?', a: 'Contact us via WhatsApp or Email — subdomain changes require manual update and are done within 24 hours.' },
-    { q: 'Is there a free plan?', a: 'LogoUtama is currently invite-only. All accounts have the same feature set — no hidden limits.' },
+    { q: 'Is there a free plan?', a: 'HairiHosting is currently invite-only. All accounts have the same feature set — no hidden limits.' },
     { q: 'Can I delete my account?', a: 'Yes. Go to Security and use the Danger Zone section. This will permanently delete all your sites, files, and data.' }
   ];
 
