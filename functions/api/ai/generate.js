@@ -16,44 +16,50 @@ export async function onRequestPost({ request, env }) {
 
     const langName = language === 'ms' ? 'Bahasa Melayu' : 'English';
 
-    const system = `You are a senior UI designer who writes production-quality HTML+CSS. You output ONLY raw HTML (no markdown, no code fences, no explanation). Start with <!DOCTYPE html>.
+    const system = `You are a copywriter. Output ONLY valid JSON. No markdown, no explanation, no code fences.
 
-DESIGN SYSTEM — follow exactly:
-- Fonts: Use system font stack: font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif
-- Headings: font-weight 700-800, tight letter-spacing (-0.02em), large sizes (48-72px hero, 32-40px section, 20-24px card)
-- Body: 16-17px, line-height 1.6, color #4b5563 on light bg
-- Layout: Use CSS Grid and Flexbox. Never use tables for layout.
-- Spacing: Generous. Sections min padding 80px top/bottom. Cards padding 32px.
-- Border radius: Cards 16px, buttons 9999px (pill), inputs 10px
-- Shadows: Soft. box-shadow: 0 4px 20px rgba(0,0,0,0.08)
-- Responsive: Mobile-first with @media queries at 768px
-- Container: max-width 1200px, margin auto, padding 0 24px
+Produce content for a one-page website based on the user's topic. Language: ${langName}. Tone: ${style}.
 
-STYLE GUIDE for "${style}":
-${style.includes('dark') ? '- Dark theme: bg #0a0a0a, cards #141414, text #f5f5f5, muted #9ca3af, accent should pop' : ''}
-${style.includes('bold') || style.includes('colorful') ? '- Vibrant: bold color blocks, gradient hero, playful shapes, thick borders' : ''}
-${style.includes('elegant') || style.includes('editorial') ? '- Editorial: serif headings (Georgia or Playfair Display), high contrast, refined spacing' : ''}
-${style.includes('minimal') ? '- Minimalist: lots of whitespace, monochrome + 1 accent color, thin borders, no gradients' : ''}
-${style.includes('playful') ? '- Playful: rounded shapes, warm colors, friendly emoji-friendly, bouncy interactions' : ''}
-${style.includes('corporate') ? '- Corporate: trust-building blues, structured grid, professional, credible' : ''}
+Return JSON with EXACTLY this structure:
+{
+  "brand": "Brand or business name (2-3 words max)",
+  "nav": ["Link 1", "Link 2", "Link 3", "Link 4"],
+  "hero": {
+    "eyebrow": "Small tagline above headline (3-6 words)",
+    "headline": "Big bold headline (6-10 words, punchy)",
+    "subheadline": "Supporting sentence (15-25 words)",
+    "cta_primary": "Primary button text (2-3 words)",
+    "cta_secondary": "Secondary button text (2-3 words)"
+  },
+  "features": [
+    { "icon": "one-word-icon-name", "title": "Feature title (2-4 words)", "description": "Feature description (12-18 words)" },
+    { "icon": "one-word-icon-name", "title": "Feature title (2-4 words)", "description": "Feature description (12-18 words)" },
+    { "icon": "one-word-icon-name", "title": "Feature title (2-4 words)", "description": "Feature description (12-18 words)" }
+  ],
+  "stats": [
+    { "value": "50+", "label": "Short label (2-3 words)" },
+    { "value": "10k", "label": "Short label (2-3 words)" },
+    { "value": "99%", "label": "Short label (2-3 words)" }
+  ],
+  "cta_section": {
+    "headline": "Closing CTA headline (5-8 words)",
+    "subheadline": "Supporting sentence (12-18 words)",
+    "button": "Button text (2-3 words)"
+  },
+  "footer": {
+    "tagline": "Short brand tagline (8-12 words)",
+    "links": ["Link 1", "Link 2", "Link 3"],
+    "copyright": "Copyright text"
+  }
+}
 
-STRUCTURE — build these sections:
-1. Sticky nav bar (logo left, 3-5 menu links center/right, CTA button right)
-2. Hero section (big headline, subtext, 2 CTA buttons, visual element on side or below)
-3. Features / benefits (3-4 cards in grid with icon, title, description)
-4. Social proof or stats section
-5. Call-to-action section (bold, centered, with button)
-6. Footer (3-4 columns: brand, links, social, copyright)
+Icon names — pick from: "star", "zap", "heart", "shield", "rocket", "sparkles", "globe", "clock", "users", "award", "leaf", "coffee", "camera", "code", "book".
 
-ICONS: Use inline SVG (stroke-based, 1.5-2 stroke-width, currentColor). No external icon libraries, no emoji in production sections.
+Output JSON only. No prefix, no suffix, no code fences.`;
 
-INTERACTIONS: Add hover states (transform, color shift, shadow) and smooth transitions (transition: all 0.2s).
+    const user = `Topic: ${topic}
 
-OUTPUT: Complete HTML document. All CSS inline in <style> tag in head. No external resources. Language: ${langName}.`;
-
-    const user = `Create a beautiful, production-quality single-page website for: ${topic}
-
-Return ONLY the complete HTML document starting with <!DOCTYPE html>. No explanations. No markdown fences. Just raw HTML.`;
+Generate content JSON.`;
 
     let result;
     try {
@@ -62,8 +68,8 @@ Return ONLY the complete HTML document starting with <!DOCTYPE html>. No explana
           { role: 'system', content: system },
           { role: 'user', content: user }
         ],
-        max_tokens: 4096,
-        temperature: 0.6
+        max_tokens: 2000,
+        temperature: 0.7
       });
     } catch (e1) {
       result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
@@ -71,27 +77,36 @@ Return ONLY the complete HTML document starting with <!DOCTYPE html>. No explana
           { role: 'system', content: system },
           { role: 'user', content: user }
         ],
-        max_tokens: 4096,
-        temperature: 0.6
+        max_tokens: 2000,
+        temperature: 0.7
       });
     }
 
-    let html = (result && (result.response || result.output_text || '')) + '';
-    html = html.trim();
-    html = html.replace(/^```html\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
+    let raw = (result && (result.response || result.output_text || '')) + '';
+    raw = raw.trim();
 
-    const doctypeIdx = html.indexOf('<!DOCTYPE');
-    const htmlIdx = html.indexOf('<html');
-    if (doctypeIdx > 0) html = html.slice(doctypeIdx);
-    else if (htmlIdx > 0) html = html.slice(htmlIdx);
+    // Strip markdown fences
+    raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
 
-    if (html && html.indexOf('<html') < 0) {
-      html = '<!DOCTYPE html>\n<html lang="' + language + '">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n</head>\n<body>\n' + html + '\n</body>\n</html>';
+    // Find JSON object
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if (start < 0 || end < 0) return json({ ok: false, error: 'AI returned invalid response. Try again.' }, 500);
+    raw = raw.slice(start, end + 1);
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      return json({ ok: false, error: 'AI returned invalid JSON. Try again.' }, 500);
     }
 
-    if (!html) return json({ ok: false, error: 'AI returned empty response. Try again.' }, 500);
+    // Validate structure
+    if (!data.hero || !data.hero.headline) {
+      return json({ ok: false, error: 'AI content incomplete. Try again.' }, 500);
+    }
 
-    return json({ ok: true, html: html });
+    return json({ ok: true, content: data });
   } catch (err) {
     return json({ ok: false, error: err.message || 'AI generation failed' }, 500);
   }

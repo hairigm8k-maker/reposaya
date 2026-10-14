@@ -79,7 +79,8 @@
       });
       var d = await r.json();
       if (!d.ok) throw new Error(d.error || 'Failed');
-      App.showAIPreview(d.html);
+      var html = App.renderAITemplate(d.content);
+      App.showAIPreview(html);
     } catch(e) {
       alertBox.innerHTML = '<div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);color:#f87171;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px">Error: ' + escHtml(e.message) + '</div>';
       btn.disabled = false;
