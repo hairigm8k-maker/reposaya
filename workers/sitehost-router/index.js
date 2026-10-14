@@ -5,6 +5,20 @@ export default {
     const parts = host.split('.');
     const path = url.pathname;
 
+    // ===== MAINTENANCE MODE CHECK =====
+    try {
+      const mr = await env.DB.prepare("SELECT value FROM global_settings WHERE key = 'maintenance_mode'").first();
+      if (mr && mr.value === 'on') {
+        const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Under Maintenance</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:wght@400&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#08080a;color:#e2e3e9;font-family:Inter,system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}.wrap{max-width:520px}h1{font-family:Playfair Display,Georgia,serif;font-weight:400;font-size:32px;color:#fff;margin-bottom:16px;line-height:1.2}p{font-size:15px;color:#9194a1;line-height:1.6;margin-bottom:8px}.icon{width:64px;height:64px;margin:0 auto 24px;border-radius:50%;background:rgba(204,145,102,.1);display:flex;align-items:center;justify-content:center}.icon svg{width:32px;height:32px;stroke:#cc9166;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}</style></head><body><div class="wrap"><div class="icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><h1>We will be back soon</h1><p>This website is currently under maintenance.</p><p style="font-size:13px;color:#5e616e;margin-top:16px">Please check back in a few minutes.</p></div></body></html>';
+        return new Response(html, {
+          status: 503,
+          headers: { 'Content-Type': 'text/html;charset=UTF-8', 'Cache-Control': 'no-store', 'Retry-After': '300' }
+        });
+      }
+    } catch (e) {}
+    // ===== END MAINTENANCE CHECK =====
+
+
     let customDomain = null;
     if (host.indexOf('hairiamri.buzz') < 0 && host.indexOf('workers.dev') < 0) {
       customDomain = await env.DB.prepare(
