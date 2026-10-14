@@ -38,16 +38,6 @@
             toggle('setReduceAnim', 'Reduce animations', 'Faster transitions, less motion', s.appearance.reduceAnimations) +
             toggle('setLockZoom', 'Lock screen zoom', 'Prevent pinch-to-zoom (kiosk style)', s.appearance.lockZoom || false)
           ) +
-          card('Language & Region', 'Set your language and timezone.',
-            select('setLang', 'Language', [{v:'en',l:'English'},{v:'ms',l:'Bahasa Melayu'}], s.region.language) +
-            select('setTz', 'Timezone', tzList, s.region.timezone) +
-            select('setDateFormat', 'Date format', [{v:'dmy',l:'13 Oct 2026'},{v:'ymd',l:'2026-10-13'},{v:'mdy',l:'Oct 13, 2026'}], s.region.dateFormat)
-          ) +
-          card('Defaults', 'Applied when creating new sites.',
-            select('setTpl', 'Default template', [{v:'blank',l:'Blank'},{v:'bio',l:'Link in Bio'},{v:'product',l:'Product Landing'},{v:'portfolio',l:'Portfolio'}], s.defaults.template) +
-            '<div class="field"><label class="label">Subdomain prefix</label><input type="text" class="input" id="setPrefix" value="' + escHtml(s.defaults.subdomainPrefix || '') + '" placeholder="e.g. hairi-" maxlength="15"></div>' +
-            toggle('setAutoPub', 'Auto-publish on create', 'Skip draft and go live', s.defaults.autoPublish)
-          ) +
           card('Notifications', 'Email alerts for account activity.',
             toggle('setEmailLogin', 'Email on new sign-in', 'Alert when account signs in from new device', s.notifications.emailLogin) +
             toggle('setEmailPublish', 'Email on publish', 'Alert each time a site goes live', s.notifications.emailPublish) +
@@ -74,8 +64,6 @@
   App.saveSettings = async function(){
     var payload = {
       appearance: { reduceAnimations: document.getElementById('setReduceAnim').checked, lockZoom: document.getElementById('setLockZoom').checked },
-      region: { language: document.getElementById('setLang').value, timezone: document.getElementById('setTz').value, dateFormat: document.getElementById('setDateFormat').value },
-      defaults: { template: document.getElementById('setTpl').value, subdomainPrefix: document.getElementById('setPrefix').value.trim(), autoPublish: document.getElementById('setAutoPub').checked },
       notifications: { emailLogin: document.getElementById('setEmailLogin').checked, emailPublish: document.getElementById('setEmailPublish').checked, emailWeekly: document.getElementById('setEmailWeekly').checked },
       data: { autoDeleteAnalytics: document.getElementById('setAutoDelAna').checked, autoDeleteDeployments: document.getElementById('setAutoDelDep').checked }
     };

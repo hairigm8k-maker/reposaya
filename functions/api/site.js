@@ -48,15 +48,7 @@ export async function onRequestPost({ request, env }) {
     const existing = await env.DB.prepare('SELECT id FROM sites WHERE subdomain = ?').bind(sub).first();
     if (existing) return json({ ok: false, error: 'Subdomain already taken' }, 400);
 
-    const templates = {
-      blank: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Hello World</h1>\n<p>Your new site is ready.</p>\n</body>\n</html>', css: '', js: '' },
-      bio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n<p>Personal links page</p>\n</body>\n</html>', css: '', js: '' },
-      product: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n</body>\n</html>', css: '', js: '' },
-      portfolio: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>' + name + '</h1>\n</body>\n</html>', css: '', js: '' },
-      feedback: { html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + name + '</title>\n</head>\n<body>\n<h1>Feedback</h1>\n</body>\n</html>', css: '', js: '' }
-    };
-
-    const tpl = templates[template] || templates.blank;
+    const tpl = { html: '', css: '', js: '' };
 
     const result = await env.DB.prepare(
       'INSERT INTO sites (user_id, name, subdomain, html, css, js, status) VALUES (?, ?, ?, ?, ?, ?, \'draft\')'
