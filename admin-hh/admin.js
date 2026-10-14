@@ -137,7 +137,7 @@
     var d = await r.json();
     if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff8a8a">' + esc(d.error) + '</div>'; return; }
     if (!d.users.length) { el.innerHTML = '<div class="loading">No users found</div>'; return; }
-    el.innerHTML = '<table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Sites</th><th>Joined</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Sites</th><th>Joined</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
       d.users.map(function(u){
         var badge = u.status === 'active' ? 'active' : 'suspended';
         return '<tr><td><div style="font-weight:600">' + esc(u.name || '-') + '</div><div style="font-size:11px;color:#c0c1c6;font-family:var(--mono)">' + esc(u.email) + '</div>' + (u.username ? '<div style="font-size:10px;color:#c0c1c6;opacity:.7">@' + esc(u.username) + '</div>' : '') + '</td>' +
@@ -146,7 +146,7 @@
           '<td style="font-family:var(--mono);font-size:13px">' + u.site_count + '</td>' +
           '<td style="font-family:var(--mono);font-size:11px;color:#c0c1c6;white-space:nowrap">' + timeAgo(u.created_at) + '</td>' +
           '<td style="text-align:right;white-space:nowrap"><button class="btn btn-sm ' + (u.status === 'active' ? 'btn-ghost' : 'btn-primary') + '" onclick="AdminApp.toggleUser(' + u.id + ',\'' + u.status + '\',\'' + esc(u.email) + '\')">' + (u.status === 'active' ? 'Suspend' : 'Activate') + '</button> <button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(' + u.id + ',\'' + esc(u.email) + '\')">Delete</button></td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
   };
 
   App.showNewUserModal = function(){
@@ -239,7 +239,7 @@
     if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff8a8a">' + esc(d.error) + '</div>'; return; }
     if (!d.tokens.length) { el.innerHTML = '<div class="loading">No tokens yet</div>'; return; }
     var now = Date.now();
-    el.innerHTML = '<table><thead><tr><th>User</th><th>Label</th><th>Prefix</th><th>Status</th><th>Expires</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>User</th><th>Label</th><th>Prefix</th><th>Status</th><th>Expires</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
       d.tokens.map(function(t){
         var status = t.used_at ? 'USED' : (new Date(t.expires_at).getTime() < now ? 'EXPIRED' : 'ACTIVE');
         var cls = status === 'ACTIVE' ? 'active' : (status === 'USED' ? 'used' : 'suspended');
@@ -249,7 +249,7 @@
           '<td><span class="badge badge-' + cls + '">' + status + '</span></td>' +
           '<td style="font-family:var(--mono);font-size:11px;color:#c0c1c6;white-space:nowrap">' + timeAgo(t.expires_at) + '</td>' +
           '<td style="text-align:right"><button class="btn btn-sm btn-danger" onclick="AdminApp.revokeToken(' + t.id + ')">Revoke</button></td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
   };
 
   App.showNewTokenModal = async function(){
@@ -333,14 +333,14 @@
     var d = await r.json();
     if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff8a8a">' + esc(d.error) + '</div>'; return; }
     if (!d.sites.length) { el.innerHTML = '<div class="loading">No sites found</div>'; return; }
-    el.innerHTML = '<table><thead><tr><th>Site</th><th>Owner</th><th>Status</th><th>Updated</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Site</th><th>Owner</th><th>Status</th><th>Updated</th><th style="text-align:right">Actions</th></tr></thead><tbody>' +
       d.sites.map(function(x){
         return '<tr><td><div style="font-weight:600">' + esc(x.name) + '</div><div style="font-size:11px;color:#c0c1c6;font-family:var(--mono)">' + esc(x.subdomain) + '.hairiamri.buzz</div></td>' +
           '<td><div style="font-size:13px">' + esc(x.owner_name || '-') + '</div><div style="font-size:11px;color:#c0c1c6;font-family:var(--mono)">' + esc(x.owner_email) + '</div></td>' +
           '<td><span class="badge badge-' + (x.status === 'live' ? 'live' : 'draft') + '">' + x.status + '</span></td>' +
           '<td style="font-family:var(--mono);font-size:11px;color:#c0c1c6;white-space:nowrap">' + timeAgo(x.updated_at) + '</td>' +
           '<td style="text-align:right"><button class="btn btn-sm btn-danger" onclick="AdminApp.deleteSite(' + x.id + ',\'' + esc(x.subdomain) + '\')">Delete</button></td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
   };
 
   App.deleteSite = async function(id, sub){
@@ -407,14 +407,14 @@
     var d = await r.json();
     if (!d.ok) { el.innerHTML = '<div class="loading" style="color:#ff8a8a">' + esc(d.error) + '</div>'; return; }
     if (!d.logs.length) { el.innerHTML = '<div class="loading">No logs yet</div>'; return; }
-    el.innerHTML = '<table><thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th><th>Details</th></tr></thead><tbody>' +
+    el.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Target</th><th>Details</th></tr></thead><tbody>' +
       d.logs.map(function(l){
         return '<tr><td style="font-family:var(--mono);font-size:11px;color:#c0c1c6;white-space:nowrap">' + timeAgo(l.created_at) + '</td>' +
           '<td style="font-size:13px">' + esc(l.admin_name || l.admin_email || '-') + '</td>' +
           '<td><span class="badge" style="background:rgba(52,232,187,.12);color:#34e8bb">' + esc(l.action) + '</span></td>' +
           '<td style="font-family:var(--mono);font-size:11px;color:#c0c1c6">' + esc(l.target_type || '-') + (l.target_id ? ' #' + l.target_id : '') + '</td>' +
           '<td style="font-size:12.5px;color:#c0c1c6">' + esc(l.details || '-') + '</td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
   };
 
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
