@@ -194,21 +194,21 @@
   };
 
   App.revokeSession = async function(prefix){
-    if (!confirm('Revoke this session? The device will be signed out.')) return;
+    if (!(await App.confirm('Revoke this session? The device will be signed out.'))) return;
     try { var r = await fetch('/api/auth/sessions?prefix=' + encodeURIComponent(prefix), { method: 'DELETE' }); var d = await r.json();
       if (d.ok) { toast('Session revoked', 'success'); App.load('security'); } else toast(d.error || 'Failed', 'error');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   };
 
   App.logoutAllDevices = async function(){
-    if (!confirm('Sign out all other devices?\n\nYou will stay signed in on this device.')) return;
+    if (!(await App.confirm('Sign out all other devices?\n\nYou will stay signed in on this device.'))) return;
     try { var r = await fetch('/api/auth/sessions?all=1', { method: 'DELETE' }); var d = await r.json();
       if (d.ok) { toast('All other devices signed out', 'success'); App.load('security'); } else toast(d.error || 'Failed', 'error');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
   };
 
   App.reactivateAccount = async function(){
-    if (!confirm('Reactivate your account?')) return;
+    if (!(await App.confirm('Reactivate your account?'))) return;
     try { var r = await fetch('/api/auth/deactivate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reactivate' }) }); var d = await r.json();
       if (d.ok) { toast('Account reactivated', 'success'); App.load('security'); } else toast(d.error || 'Failed', 'error');
     } catch (e) { toast('Error: ' + e.message, 'error'); }
@@ -228,8 +228,8 @@
     } catch (e) { toast('Export failed: ' + e.message, 'error'); }
   };
 
-  App.deactivateAccount = function(){
-    if (!confirm('Deactivate your account?\n\nYou will be signed out. Your sites will not be accessible until you sign in again and reactivate.')) return;
+  App.deactivateAccount = async function(){
+    if (!(await App.confirm('Deactivate your account?\n\nYou will be signed out. Your sites will not be accessible until you sign in again and reactivate.'))) return;
     (async function(){
       try { var r = await fetch('/api/auth/deactivate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'deactivate' }) }); var d = await r.json();
         if (d.ok) { toast('Account deactivated', 'success'); setTimeout(function(){ window.location.href = '/'; }, 1000); } else toast(d.error || 'Failed', 'error');
@@ -237,10 +237,10 @@
     })();
   };
 
-  App.deleteAccount = function(){
-    var email = prompt('Type your email to confirm account deletion:\n\nThis will permanently delete all your sites, files, analytics, and data. This cannot be undone.');
+  App.deleteAccount = async function(){
+    var email = await App.prompt('Type your email to confirm account deletion:\n\nThis will permanently delete all your sites, files, analytics, and data. This cannot be undone.', { title: 'Confirm Deletion', okText: 'Delete Account', danger: true, inputType: 'email', placeholder: 'your@email.com' });
     if (!email) return;
-    if (!confirm('FINAL WARNING: Permanently delete your account?')) return;
+    if (!(await App.confirm('FINAL WARNING: Permanently delete your account?'))) return;
     (async function(){
       try { var r = await fetch('/api/auth/delete-account', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm_email: email }) }); var d = await r.json();
         if (d.ok) { toast('Account deleted', 'success'); setTimeout(function(){ window.location.href = '/'; }, 1000); } else toast(d.error || 'Failed', 'error');
