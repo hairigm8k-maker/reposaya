@@ -32,7 +32,7 @@ async function logAttempt(env, userId, email, status, reason, request) {
   } catch (e) {}
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   try {
     const body = await request.json();
     const email = (body.email || '').trim().toLowerCase();
@@ -87,7 +87,7 @@ export async function onRequestPost({ request, env }) {
         var os = detectOS(ua2);
         var deviceStr = browser + ' on ' + os;
         var timeStr = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kuala_Lumpur', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        sendEmail(env, user.email, 'New sign-in to your HairiHosting account', loginAlertEmail(user.name || 'there', ip2, deviceStr, timeStr)).catch(function(){});
+        var emailPromise = sendEmail(env, user.email, 'New sign-in to your HairiHosting account', loginAlertEmail(user.name || 'there', ip2, deviceStr, timeStr)); if (waitUntil) { waitUntil(emailPromise); } else { await emailPromise; }
       }
     } catch(e) {}
     // ===== END EMAIL ALERT =====
