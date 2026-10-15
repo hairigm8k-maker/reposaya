@@ -294,7 +294,7 @@ async function loadSites() {
         : '<span style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;">○ DRAFT</span>';
 
       html += '<tr>' +
-        '<td><strong style="color: var(--hh-white);">' + HHT.esc(site.name) + '</strong></td>' +
+        '<td><div style="display:flex;align-items:center;gap:10px"><img src="/api/screenshot?url=https://' + site.subdomain + '.hairiamri.buzz&w=80&h=60" style="width:80px;height:60px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:#121317;flex-shrink:0" loading="lazy"><strong style="color: var(--hh-white);">' + HHT.esc(site.name) + '</strong></div></td>' +
         '<td><span style="font-family: var(--hh-mono); font-size: 12px; color: var(--hh-copper);">' + HHT.esc(site.subdomain) + '.hairiamri.buzz</span></td>' +
         '<td>' + statusBadge + '</td>' +
         '<td style="color: var(--hh-fog); font-size: 13px;">' + HHT.formatDate(site.updated_at) + '</td>' +
