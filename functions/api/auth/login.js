@@ -35,6 +35,12 @@ async function logAttempt(env, userId, email, status, reason, request) {
 export async function onRequestPost({ request, env, waitUntil }) {
   try {
     const body = await request.json();
+
+    // Turnstile verification
+    const tsResult = await verifyTurnstile(env, body.turnstile_token, request.headers.get('CF-Connecting-IP') || '');
+    if (!tsResult.ok) {
+      return json({ ok: false, error: 'Captcha verification failed' }, 403);
+    }
     const email = (body.email || '').trim().toLowerCase();
     const password = body.password || '';
 

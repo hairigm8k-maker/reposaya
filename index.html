@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/hh-common.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -39,7 +40,8 @@
         <div class="hh-error" id="passwordError">Password diperlukan</div>
       </div>
 
-      <button type="submit" class="hh-btn hh-btn-primary" id="submitBtn">
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFXYkp4-x-R1aMji" data-theme="dark" style="margin-bottom:12px;display:flex;justify-content:center"></div>
+        <button type="submit" class="hh-btn hh-btn-primary" id="submitBtn">
         <span id="btnText">Sign In</span>
       </button>
     </form>
@@ -92,7 +94,7 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, turnstile_token: document.querySelector('[name="cf-turnstile-response"]')?.value || '' })
     });
 
     const data = await res.json();

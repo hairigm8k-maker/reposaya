@@ -1,4 +1,4 @@
-import { hashPassword, generateToken, createSession, buildCookie, json } from '../_utils.js';
+import { hashPassword, generateToken, createSession, buildCookie, json, verifyTurnstile } from '../_utils.js';
 
 async function logAttempt(env, userId, email, status, reason, request) {
   try {
@@ -13,6 +13,12 @@ async function logAttempt(env, userId, email, status, reason, request) {
 export async function onRequestPost({ request, env }) {
   try {
     const body = await request.json();
+
+    // Turnstile verification
+    const tsResult = await verifyTurnstile(env, body.turnstile_token, request.headers.get('CF-Connecting-IP') || '');
+    if (!tsResult.ok) {
+      return json({ ok: false, error: 'Captcha verification failed' }, 403);
+    }
     const classCode = (body.class_code || '').trim().toUpperCase();
     const token = (body.token || '').trim();
 

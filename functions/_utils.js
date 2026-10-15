@@ -149,3 +149,26 @@ export function studentBlocked(feature) {
     code: 'STUDENT_BLOCKED'
   }, 403);
 }
+
+export async function verifyTurnstile(env, token, ip) {
+  if (!token) return { ok: false, error: 'Captcha token missing' };
+  if (!env.TURNSTILE_SECRET_KEY) {
+    console.warn('TURNSTILE_SECRET_KEY not set - skipping verification');
+    return { ok: true };
+  }
+  try {
+    const formData = new FormData();
+    formData.append('secret', env.TURNSTILE_SECRET_KEY);
+    formData.append('response', token);
+    if (ip) formData.append('remoteip', ip);
+    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await r.json();
+    if (data.success) return { ok: true };
+    return { ok: false, error: 'Captcha failed', codes: data['error-codes'] };
+  } catch (e) {
+    return { ok: false, error: 'Captcha error: ' + e.message };
+  }
+}
