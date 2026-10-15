@@ -1,62 +1,73 @@
 // HairiHosting WebAuthn UI — auto-inject into Security page
 (function() {
-  if (typeof App === 'undefined') return;
+  var wrapped = false;
 
-  var originalPageSecurity = App.pageSecurity;
+  function doWrap() {
+    if (wrapped) return;
+    if (typeof App === 'undefined' || !App.pageSecurity) return;
+    wrapped = true;
 
-  App.pageSecurity = async function(main) {
-    // Call original function
-    await originalPageSecurity.call(App, main);
+    var originalPageSecurity = App.pageSecurity;
 
-    // Inject biometric section
-    setTimeout(function() {
-      var content = main.querySelector('.content') || main;
-      var target = content.querySelector('#securityContent') || content;
-      if (!target) return;
+    App.pageSecurity = async function() {
+      await originalPageSecurity.apply(App, arguments);
+      // Tunggu original function selesai render
+      setTimeout(function() { injectBiometricSection(); }, 150);
+    };
+  }
 
-      // Avoid double inject
-      if (document.getElementById('webauthnSection')) return;
+  function injectBiometricSection() {
+    var c = document.getElementById('content');
+    if (!c) return;
+    if (document.getElementById('webauthnSection')) return;
 
-      var section = document.createElement('div');
-      section.id = 'webauthnSection';
-      section.className = 'card';
-      section.style.cssText = 'margin-top:16px;padding:24px';
-      section.innerHTML =
+    // Cari page-head — inject selepas
+    var pageHead = c.querySelector('.page-head');
+    if (!pageHead) return;
+
+    var section = document.createElement('div');
+    section.id = 'webauthnSection';
+    section.style.cssText = 'max-width:720px;margin-top:20px';
+    section.innerHTML =
+      '<div class="card">' +
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
-          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cc9166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10v4a2 2 0 0 0 2 2h1v-6a7 7 0 1 1 14 0v6h1a2 2 0 0 0 2-2v-4a10 10 0 0 0-10-10z"/><path d="M8 14v2"/><path d="M12 14v4"/><path d="M16 14v2"/></svg>' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cc9166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/></svg>' +
           '<div style="font-family:var(--serif);font-size:20px;color:var(--white)">Biometric Login</div>' +
         '</div>' +
         '<p style="color:var(--fog);font-size:13px;line-height:1.6;margin-bottom:16px">Login tanpa password guna cap jari, Face ID, atau Windows Hello. Lebih pantas dan selamat.</p>' +
         '<div id="webauthnList" style="margin-bottom:14px"></div>' +
-        '<button id="webauthnAddBtn" style="background:var(--copper);color:#08080a;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">' +
+        '<button id="webauthnAddBtn" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px">' +
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
           'Add Biometric' +
         '</button>' +
-        '<div id="webauthnMsg" style="margin-top:12px;font-size:12.5px;line-height:1.5"></div>';
+        '<div id="webauthnMsg" style="margin-top:12px;font-size:12.5px;line-height:1.5"></div>' +
+      '</div>';
 
-      target.appendChild(section);
+    // Cari tempat inject — selepas page-head, sebelum "Change Password" card
+    var cards = c.querySelectorAll('.card');
+    if (cards.length > 0) {
+      // Insert section selepas card terakhir (bawah sekali)
+      cards[cards.length - 1].parentNode.appendChild(section);
+    } else {
+      pageHead.parentNode.appendChild(section);
+    }
 
-      // Attach events
-      var addBtn = document.getElementById('webauthnAddBtn');
-      addBtn.onclick = function() { App.webauthnAdd(); };
-
-      // Load list
-      App.webauthnLoad();
-    }, 100);
-  };
+    document.getElementById('webauthnAddBtn').onclick = App.webauthnAdd;
+    App.webauthnLoad();
+  }
 
   App.webauthnLoad = async function() {
     var listEl = document.getElementById('webauthnList');
     if (!listEl) return;
 
-    // Wait for HHWebAuthn up to 5 seconds
     var waited = 0;
-    while ((!window.HHWebAuthn) && waited < 5000) {
+    while (!window.HHWebAuthn && waited < 5000) {
       await new Promise(function(r){ setTimeout(r, 200); });
       waited += 200;
     }
+
     if (!window.HHWebAuthn || !window.HHWebAuthn.isSupported()) {
-      listEl.innerHTML = '<p style="color:var(--fog);font-size:12.5px">Peranti ini tidak sokong biometric.</p>';
+      listEl.innerHTML = '<p style="color:var(--fog);font-size:12.5px">Peranti ini tidak sokong biometric. Guna Chrome/Safari/Firefox terkini.</p>';
       var btn = document.getElementById('webauthnAddBtn');
       if (btn) btn.disabled = true;
       return;
@@ -107,7 +118,7 @@
       if (msg) msg.innerHTML = '<span style="color:#f87171">Gagal: ' + err.message + '</span>';
     }
 
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Biometric'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Add Biometric'; }
   };
 
   App.webauthnDelete = async function(id) {
@@ -121,4 +132,14 @@
       if (msg) msg.innerHTML = '<span style="color:#f87171">Gagal: ' + err.message + '</span>';
     }
   };
+
+  // Wait for App to exist
+  var check = setInterval(function() {
+    if (typeof App !== 'undefined' && App.pageSecurity) {
+      clearInterval(check);
+      doWrap();
+    }
+  }, 100);
+  // Stop checking after 10s
+  setTimeout(function() { clearInterval(check); }, 10000);
 })();
