@@ -712,12 +712,69 @@
   };
 
 
+  App.mailTemplates = {
+    'welcome': {
+      subject: 'Welcome to HairiHosting',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">Welcome to <strong style="color:#146ef5">HairiHosting</strong> &mdash; we&rsquo;re glad you&rsquo;re here.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Your first site takes less than 2 minutes. Pick a template, edit in the browser, and go live.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Reply to this email if you need help.</p>'
+    },
+    'feature': {
+      subject: 'New Feature: Custom Domain',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">We&rsquo;ve just launched <strong style="color:#146ef5">Custom Domain</strong> support.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Connect your own domain to any site &mdash; no coding needed.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Head to <strong style="color:#1d1d1f">Sites &rarr; Custom Domain</strong> to get started.</p>'
+    },
+    'maintenance': {
+      subject: 'Scheduled Maintenance',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">Scheduled maintenance on <strong style="color:#d97706">25 Oct, 2:00&ndash;4:00 AM</strong>.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">All sites will be temporarily offline during this window. No data will be lost.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">We&rsquo;ll post an update once the work is complete.</p>'
+    },
+    'security': {
+      subject: 'Security Notice',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6"><strong style="color:#dc2626">Security notice:</strong> please review your account.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">We detected unusual activity. If this wasn&rsquo;t you, change your password immediately from <strong style="color:#1d1d1f">Settings &rarr; Security</strong>.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Contact feedback@hairiamri.buzz if you need help.</p>'
+    },
+    'expiry': {
+      subject: 'Your plan expires soon',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">Your <strong style="color:#d97706">plan expires in 3 days</strong>.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">To keep your sites online and avoid interruption, please renew your plan from the dashboard.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Head to <strong style="color:#1d1d1f">Settings &rarr; Billing</strong> to renew.</p>'
+    },
+    'payment': {
+      subject: 'Payment Received',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6"><strong style="color:#16a34a">Payment received.</strong> Thank you!</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Your plan has been renewed and is valid until <strong style="color:#1d1d1f">25 Nov 2026</strong>.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">A receipt has been sent to your email.</p>'
+    },
+    'promo': {
+      subject: 'Special offer for you',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">Get <strong style="color:#146ef5">30% off</strong> when you upgrade to Pro.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Limited time only. Unlock unlimited sites, custom domains, and priority support.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Use code <strong style="font-family:monospace;color:#146ef5">PRO30</strong> at checkout.</p>'
+    },
+    'storage': {
+      subject: 'Storage almost full',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">Your storage is <strong style="color:#d97706">90% full</strong>.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Once you reach the limit, you won&rsquo;t be able to upload new files until you free up space or upgrade your plan.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Manage your files from the dashboard.</p>'
+    },
+    'reengagement': {
+      subject: 'We miss you',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6">It&rsquo;s been a while since your last visit.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">We&rsquo;ve added new templates, faster deploys, and better analytics since you were last here.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">Come back and see what&rsquo;s new in your dashboard.</p>'
+    },
+    'milestone': {
+      subject: 'Congrats on 1000 visits!',
+      body: '<p style="margin:0 0 12px;font-size:14px;color:#1d1d1f;line-height:1.6"><strong style="color:#16a34a">Milestone unlocked!</strong> Your site just hit <strong style="color:#146ef5">1,000 visits</strong>.</p><p style="margin:0 0 12px;font-size:13px;color:#5a5a5a;line-height:1.6">Great work &mdash; keep building and sharing. Check your analytics for insights.</p><p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.6">View your stats in the dashboard.</p>'
+    }
+  };
+
   App.pageMailsender = async function(main){
     main.innerHTML =
       '<div class="eyebrow">Manage</div>' +
       '<h1 class="page-title">Send Email</h1>' +
       '<p class="page-sub">Send a custom email to all users or a specific user</p>' +
       '<div class="card" style="max-width:680px">' +
+        '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin-bottom:6px">Quick Template</label>' +
+        '<select class="input" id="eTemplate" style="margin-bottom:18px">' +
+          '<option value="">-- Select a template --</option>' +
+          '<option value="welcome">Welcome</option>' +
+          '<option value="feature">Feature Launch</option>' +
+          '<option value="maintenance">Maintenance</option>' +
+          '<option value="security">Security Alert</option>' +
+          '<option value="expiry">Plan Expiry</option>' +
+          '<option value="payment">Payment Success</option>' +
+          '<option value="promo">Promo / Discount</option>' +
+          '<option value="storage">Storage Warning</option>' +
+          '<option value="reengagement">Re-engagement</option>' +
+          '<option value="milestone">Milestone</option>' +
+        '</select>' +
         '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin-bottom:6px">Target</label>' +
         '<select class="input" id="eTarget"><option value="all">All Users</option></select>' +
         '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Subject</label>' +
@@ -726,6 +783,15 @@
         '<textarea class="input" id="eBody" style="min-height:220px;font-family:var(--mono);font-size:12.5px;line-height:1.6" placeholder="<p>Your message...</p>"></textarea>' +
         '<button class="btn btn-primary" id="btnSendEmail" style="margin-top:18px">Send Email</button>' +
       '</div>';
+
+    document.getElementById('eTemplate').onchange = function(){
+      var key = this.value;
+      if (!key || !App.mailTemplates[key]) return;
+      var t = App.mailTemplates[key];
+      document.getElementById('eSubject').value = t.subject;
+      document.getElementById('eBody').value = t.body;
+    };
+
     try {
       var r = await fetch('/api/admin/users');
       var d = await r.json();
