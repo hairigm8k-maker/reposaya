@@ -730,3 +730,8 @@ App.pageSendemail = async function(main){
   document.getElementById('btnSendEmail').onclick = function(){ alert('STEP 2 OK — submit belum dipasang'); };
   console.log('pageSendemail rendered OK');
 };
+
+App.pageMailSender = async function(main){
+  main.innerHTML = '<div class="eyebrow">Manage</div><h1 class="page-title">Send Email</h1><p class="page-sub">Send a custom email to all users or a specific user</p><div class="card" style="max-width:680px"><button class="btn btn-primary" id="btnSendEmail" style="margin-top:8px">Test Render OK</button></div>';
+  document.getElementById('btnSendEmail').onclick = function(){ alert('pageMailSender works!'); };
+};
