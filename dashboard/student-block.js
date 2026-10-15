@@ -22,7 +22,6 @@
   App.load = function(id){
     if (isStudent()){
       if (id === 'domains') {
-        document.getElementById('content').innerHTML = blockScreen('Custom Domains');
         return;
       }
       if (id === 'api-keys') {

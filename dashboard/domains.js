@@ -139,7 +139,6 @@
       c.innerHTML =
         '<div class="page-head">' +
           '<div class="eyebrow">Publishing</div>' +
-          '<h1 class="page-title">Custom Domains</h1>' +
           '<p class="page-sub">Guna domain sendiri untuk gantikan subdomain HairiHosting</p>' +
         '</div>' +
         '<div style="max-width:820px">' +
