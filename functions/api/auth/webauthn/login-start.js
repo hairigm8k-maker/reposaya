@@ -20,7 +20,7 @@ export async function onRequestPost({ request, env }) {
 
     const host = new URL(request.url).hostname.replace(/^www\./, '');
 
-    const { generateAuthenticationOptions } = await import('../../_simplewebauthn.js');
+    const { generateAuthenticationOptions } = await import('../../../_simplewebauthn.js');
     const options = await generateAuthenticationOptions({
       rpID: host,
       allowCredentials: creds.results.map(c => ({

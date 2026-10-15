@@ -25,7 +25,7 @@ export async function onRequestPost({ request, env }) {
     const host = new URL(request.url).hostname.replace(/^www\./, '');
     const origin = 'https://' + host;
 
-    const { verifyAuthenticationResponse } = await import('../../_simplewebauthn.js');
+    const { verifyAuthenticationResponse } = await import('../../../_simplewebauthn.js');
     const verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge: stored.challenge,
