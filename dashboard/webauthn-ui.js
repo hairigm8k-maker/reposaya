@@ -49,6 +49,12 @@
     var listEl = document.getElementById('webauthnList');
     if (!listEl) return;
 
+    // Wait for HHWebAuthn up to 5 seconds
+    var waited = 0;
+    while ((!window.HHWebAuthn) && waited < 5000) {
+      await new Promise(function(r){ setTimeout(r, 200); });
+      waited += 200;
+    }
     if (!window.HHWebAuthn || !window.HHWebAuthn.isSupported()) {
       listEl.innerHTML = '<p style="color:var(--fog);font-size:12.5px">Peranti ini tidak sokong biometric.</p>';
       var btn = document.getElementById('webauthnAddBtn');
