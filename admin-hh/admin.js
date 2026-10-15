@@ -711,18 +711,17 @@
       }).join('') + '</tbody></table></div>';
   };
 
+
+  App.pageMailsender = async function(main){
+    main.innerHTML =
+      '<div class="eyebrow">Manage</div>' +
+      '<h1 class="page-title">Send Email</h1>' +
+      '<p class="page-sub">Send custom email to users</p>' +
+      '<div class="card" style="max-width:680px">' +
+        '<button class="btn btn-primary" id="btnTestMail">Test Button</button>' +
+      '</div>';
+    document.getElementById('btnTestMail').onclick = function(){ alert('WORKS!'); };
+  };
+
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
 })();
-
-
-
-App.pageMailsender = async function(main){
-  main.innerHTML =
-    '<div class="eyebrow">Manage</div>' +
-    '<h1 class="page-title">Send Email</h1>' +
-    '<p class="page-sub">Send a custom email to all users or a specific user</p>' +
-    '<div class="card" style="max-width:680px">' +
-      '<button class="btn btn-primary" id="btnTestMail">Test Button</button>' +
-    '</div>';
-  document.getElementById('btnTestMail').onclick = function(){ alert('WORKS!'); };
-};
