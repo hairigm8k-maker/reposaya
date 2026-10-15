@@ -70,8 +70,7 @@ const MENU = [
     items: [
       { id: 'publish', label: 'Publish', icon: 'rocket' },
       { id: 'deployments', label: 'Deployments', icon: 'layers' },
-      { id: 'subdomains', label: 'Subdomains', icon: 'link' },
-      { id: 'domains', label: 'Custom Domains', icon: 'external' }
+      { id: 'subdomains', label: 'Subdomains', icon: 'link' }
     ]
   },
   {
