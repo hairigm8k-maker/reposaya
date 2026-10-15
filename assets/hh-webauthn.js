@@ -1,4 +1,3 @@
-// HairiHosting WebAuthn Helper — dynamic import
 (function() {
   var lib = null;
   var libPromise = null;
@@ -15,16 +14,22 @@
 
   window.HHWebAuthn = {
     isSupported: function() {
-      // Chrome/Edge/Safari/Firefox modern — support WebAuthn
-      try {
-        return !!(navigator.credentials && window.PublicKeyCredential);
-      } catch (e) {
-        return false;
-      }
+      // Diagnostic — return true always, let call fail naturally
+      return true;
+    },
+
+    diagnose: function() {
+      return {
+        hasPublicKey: typeof window.PublicKeyCredential !== 'undefined',
+        hasCredentials: typeof navigator.credentials !== 'undefined',
+        isSecure: window.isSecureContext === true,
+        hasCreate: navigator.credentials && typeof navigator.credentials.create === 'function',
+        protocol: window.location.protocol,
+        inIframe: window.top !== window.self
+      };
     },
 
     register: async function(name) {
-      if (!this.isSupported()) throw new Error('Biometric not supported');
       var l = await loadLib();
       var startRes = await fetch('/api/auth/webauthn/register-start', {
         method: 'POST', credentials: 'include',
@@ -44,7 +49,6 @@
     },
 
     login: async function(email) {
-      if (!this.isSupported()) throw new Error('Biometric not supported');
       var l = await loadLib();
       var startRes = await fetch('/api/auth/webauthn/login-start', {
         method: 'POST', credentials: 'include',
