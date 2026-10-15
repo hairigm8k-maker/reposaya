@@ -8,12 +8,12 @@ export async function onRequestGet({ request, env }) {
   const force = url.searchParams.get('force') === '1';
 
   if (!target) return json({ ok: false, error: 'url required' }, 400);
-  if (!/^https?:\/\//.test(target)) return json({ ok: false, error: 'url must start with http' }, 400);
+  if (!/^https?:\/\//i.test(target)) return json({ ok: false, error: 'url must start with http' }, 400);
 
-  // Whitelist — only hairiamri.buzz
+  // Whitelist only hairiamri.buzz
   try {
     const host = new URL(target).hostname;
-    if (!/\.hairiamri\.buzz$/i.test(host) && host !== 'hairiamri.buzz') {
+    if (host !== 'hairiamri.buzz' && !host.endsWith('.hairiamri.buzz')) {
       return json({ ok: false, error: 'Only hairiamri.buzz URLs allowed' }, 403);
     }
   } catch (e) {
@@ -22,12 +22,12 @@ export async function onRequestGet({ request, env }) {
 
   const cacheKey = 'shot:' + target + ':' + width + 'x' + height;
 
+  // Check KV cache (kalau ada binding)
   if (!force && env.BOT_KV) {
     try {
-      const cached = await env.BOT_KV.get(cacheKey);
+      const cached = await env.BOT_KV.get(cacheKey, { type: 'arrayBuffer' });
       if (cached) {
-        const buffer = Uint8Array.from(atob(cached), function(c) { return c.charCodeAt(0); });
-        return new Response(buffer, {
+        return new Response(cached, {
           headers: {
             'Content-Type': 'image/png',
             'Cache-Control': 'public, max-age=86400',
@@ -38,10 +38,10 @@ export async function onRequestGet({ request, env }) {
     } catch (e) {}
   }
 
+  // Fetch dari thum.io (primary) atau mShots (fallback)
   try {
     const shotUrl = 'https://image.thum.io/get/width/' + width + '/crop/' + height + '/noanimate/' + target;
-    const r = await fetch(shotUrl, { headers: { 'User-Agent': 'HairiHosting/1.0' } });
-
+    let r = await fetch(shotUrl, { headers: { 'User-Agent': 'HairiHosting/1.0' } });
     let buf = null;
     let fromFallback = false;
 
@@ -55,6 +55,7 @@ export async function onRequestGet({ request, env }) {
       fromFallback = true;
     }
 
+    // Save to KV cache (kalau ada)
     if (env.BOT_KV) {
       try {
         const b64 = btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
