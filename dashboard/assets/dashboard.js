@@ -18,20 +18,23 @@ async function checkAuth() {
     }
 
     HH_USER = data.user;
-  if (data.user && data.user.role === 'admin') {
-    setTimeout(function() {
-      var bell = document.getElementById('tbBell');
-      if (bell && !document.getElementById('tbAdminBtn')) {
-        var btn = document.createElement('a');
-        btn.id = 'tbAdminBtn';
-        btn.href = '/admin-hh/';
-        btn.title = 'Admin Panel';
-        btn.style.cssText = 'width:32px;height:32px;background:rgba(204,145,102,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#cc9166;text-decoration:none;border:1px solid rgba(204,145,102,0.3);margin-right:8px';
-        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.5 8.5 9 9 5.5-.5 9-4 9-9V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg>';
-        bell.parentNode.insertBefore(btn, bell);
-      }
-    }, 50);
-  }
+  console.log('DEBUG checkAuth:', data.user.email, 'role:', data.user.role);
+  setTimeout(function() {
+    var bell = document.getElementById('tbBell');
+    console.log('DEBUG bell found:', !!bell);
+    if (bell) {
+      var existing = document.getElementById('tbAdminBtn');
+      if (existing) existing.remove();
+      var btn = document.createElement('a');
+      btn.id = 'tbAdminBtn';
+      btn.href = '/admin-hh/';
+      btn.title = 'Admin Panel (role: ' + (data.user.role || 'unknown') + ')';
+      btn.textContent = 'A';
+      btn.style.cssText = 'background:' + (data.user.role === 'admin' ? '#16a34a' : '#dc2626') + ';color:#fff;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:bold;margin-right:8px';
+      bell.parentNode.insertBefore(btn, bell);
+    }
+  }, 100);
+
     return data.user;
   } catch (err) {
     window.location.href = '/';
