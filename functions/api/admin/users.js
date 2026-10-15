@@ -64,7 +64,7 @@ export async function onRequestPost({ request, env }) {
     ).bind(email, name, hash, plan, expiresAt).run();
     const newId = result.meta ? result.meta.last_row_id : null;
     await logAdmin(env, guard.session.userId, 'user.create', 'user', newId, email + ' (' + plan + ' - RM' + (PLAN_PRICES[plan] || 0) + ')', request);
-    try { await sendEmail(env, email, 'Welcome to HairiHosting', welcomeEmail(name)); } catch (e) { console.error('Welcome email failed:', e); }
+    try { await sendEmail(env, email, 'Selamat Datang ke HairiHosting 🎉', welcomeEmail(name, email, tempPassword, plan)); } catch (e) { console.error('Welcome email failed:', e); }
     return json({ ok: true, user: { id: newId, email: email, name: name, plan: plan, plan_expires_at: expiresAt, temp_password: tempPassword } });
   } catch (err) { return json({ ok: false, error: err.message }, 500); }
 }
