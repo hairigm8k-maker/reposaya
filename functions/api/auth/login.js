@@ -1,4 +1,4 @@
-import { verifyPassword, createSession, buildCookie, json } from '../../_utils.js';
+import { verifyPassword, createSession, buildCookie, json, verifyTurnstile } from '../../_utils.js';
 import { sendEmail, loginAlertEmail } from '../../_emails.js';
 
 
