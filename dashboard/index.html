@@ -399,5 +399,27 @@ window.copyText=copyText;
 <script src="/dashboard/prompts-data.js"></script>
 <script src="/dashboard/prompts.js"></script>
 <script src="/dashboard/student-block.js"></script>
+
+<!-- Admin Quick Link (fixed, top-right) -->
+<a id="adminQuickLink" href="/admin-hh/" style="display:none;position:fixed;top:14px;right:14px;z-index:9999;background:rgba(204,145,102,0.95);color:#08080a;text-decoration:none;padding:8px 14px;border-radius:9999px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(0,0,0,0.3)">Admin Panel</a>
+
+<script>
+(function(){
+  var checkCount = 0;
+  var check = setInterval(function(){
+    checkCount++;
+    if (window.HH_USER && window.HH_USER.role === 'admin') {
+      var btn = document.getElementById('adminQuickLink');
+      if (btn) btn.style.display = 'block';
+      console.log('Admin button shown. Role:', window.HH_USER.role);
+      clearInterval(check);
+    }
+    if (checkCount > 40) {
+      console.log('Admin check timeout. HH_USER:', window.HH_USER);
+      clearInterval(check);
+    }
+  }, 250);
+})();
+</script>
 </body>
 </html>
