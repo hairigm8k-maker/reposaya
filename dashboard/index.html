@@ -405,20 +405,19 @@ window.copyText=copyText;
 
 <script>
 (function(){
-  var checkCount = 0;
-  var check = setInterval(function(){
-    checkCount++;
-    if (window.HH_USER && window.HH_USER.role === 'admin') {
-      var btn = document.getElementById('adminQuickLink');
-      if (btn) btn.style.display = 'block';
-      console.log('Admin button shown. Role:', window.HH_USER.role);
-      clearInterval(check);
-    }
-    if (checkCount > 40) {
-      console.log('Admin check timeout. HH_USER:', window.HH_USER);
-      clearInterval(check);
-    }
-  }, 250);
+  fetch('/api/auth/session', { credentials: 'include' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      console.log('Session API:', d);
+      if (d && d.ok && d.authenticated && d.user && d.user.role === 'admin') {
+        var btn = document.getElementById('adminQuickLink');
+        if (btn) btn.style.display = 'block';
+        console.log('Admin button SHOWN');
+      } else {
+        console.log('Not admin. Role:', d && d.user && d.user.role);
+      }
+    })
+    .catch(function(e){ console.error('Session fetch error:', e); });
 })();
 </script>
 </body>
