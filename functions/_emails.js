@@ -28,10 +28,10 @@ export function welcomeEmail(name, email, tempPassword, plan) {
   const fontStack = "'WF Visual Sans Variable','Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
   const monoFont = "'WF Visual Sans Mono','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace";
 
-  const iconPlus = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#080808" stroke-width="1.8" stroke-linecap="round"/></svg>';
-  const iconEdit = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#080808" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const iconRocket = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09zM12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" stroke="#080808" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const iconLock = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#080808" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#080808" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const iconPlus = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
+  const iconEdit = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const iconRocket = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09zM12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const iconLock = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#080808" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -41,75 +41,95 @@ export function welcomeEmail(name, email, tempPassword, plan) {
 <meta name="color-scheme" content="light only">
 <title>Welcome to HairiHosting</title>
 </head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:${fontStack};-webkit-font-smoothing:antialiased">
+<body style="margin:0;padding:0;background:#f0f0f0;font-family:${fontStack};-webkit-font-smoothing:antialiased">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">Your HairiHosting account is ready. Sign in to get started.</div>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;padding:48px 20px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;padding:32px 16px">
 <tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border:1px solid #d8d8d8;border-radius:8px">
-<tr><td style="padding:20px 40px;background:#080808;border-radius:8px 8px 0 0">
-<img src="https://hairiamri.buzz/assets/logoUtama/logoUtama-white.png" alt="HairiHosting" width="140" style="height:26px;width:auto;display:block;border:0">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background:#ffffff;border:1px solid #d8d8d8;border-radius:8px;overflow:hidden">
+
+<!-- Header -->
+<tr><td style="padding:16px 32px;background:#080808">
+<img src="https://hairiamri.buzz/assets/logoUtama/logoUtama-white.png" alt="HairiHosting" width="130" style="height:24px;width:auto;display:block;border:0">
 </td></tr>
-<tr><td style="padding:48px 40px 32px">
-<p style="margin:0 0 16px;font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#5a5a5a">New Account</p>
-<h1 style="margin:0 0 16px;font-size:40px;font-weight:600;line-height:1.04;letter-spacing:-0.4px;color:#080808">Welcome to HairiHosting</h1>
-<p style="margin:0;font-size:16px;font-weight:400;line-height:1.6;color:#5a5a5a">Hi ${name}, your account is ready. Let&rsquo;s get your first website live.</p>
+
+<!-- Hero -->
+<tr><td style="padding:36px 32px 24px">
+<p style="margin:0 0 12px;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">New Account</p>
+<h1 style="margin:0 0 12px;font-size:32px;font-weight:600;line-height:1.15;letter-spacing:-0.4px;color:#080808">Welcome to HairiHosting</h1>
+<p style="margin:0;font-size:15px;font-weight:400;line-height:1.55;color:#5a5a5a">Hi ${name}, your account is ready. Let&rsquo;s get your first website live.</p>
 </td></tr>
-<tr><td style="padding:0 40px 32px">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:8px">
-<tr><td style="padding:16px 20px;border-bottom:1px solid #d8d8d8">
-<p style="margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#5a5a5a">Email</p>
-<p style="margin:0;font-family:${monoFont};font-size:13px;color:#080808;word-break:break-all">${email}</p>
+
+<!-- Credentials -->
+<tr><td style="padding:0 32px 24px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:6px">
+<tr><td style="padding:14px 16px;border-bottom:1px solid #d8d8d8">
+<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Email</p>
+<p style="margin:0;font-family:${monoFont};font-size:13px;color:#080808;word-break:break-all;line-height:1.4">${email}</p>
 </td></tr>
-<tr><td style="padding:16px 20px;border-bottom:1px solid #d8d8d8">
-<p style="margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#5a5a5a">Temporary Password</p>
-<p style="margin:0;font-family:${monoFont};font-size:16px;font-weight:500;letter-spacing:0.5px;color:#080808">${tempPassword}</p>
+<tr><td style="padding:14px 16px;border-bottom:1px solid #d8d8d8">
+<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Temporary Password</p>
+<p style="margin:0;font-family:${monoFont};font-size:15px;font-weight:600;letter-spacing:0.5px;color:#080808;line-height:1.4">${tempPassword}</p>
 </td></tr>
-<tr><td style="padding:16px 20px">
-<p style="margin:0 0 4px;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:#5a5a5a">Plan</p>
-<p style="margin:0;font-size:14px;font-weight:600;color:#080808">${planLabel}</p>
+<tr><td style="padding:14px 16px">
+<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Plan</p>
+<p style="margin:0;font-size:14px;font-weight:600;color:#080808;line-height:1.4">${planLabel}</p>
 </td></tr>
 </table>
 </td></tr>
-<tr><td style="padding:0 40px 48px">
-<a href="${dashUrl}" style="display:inline-block;background:#146ef5;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:4px;font-family:${fontStack};font-size:14px;font-weight:500;letter-spacing:0">Open Dashboard</a>
+
+<!-- CTA Full Width -->
+<tr><td style="padding:0 32px 32px">
+<a href="${dashUrl}" style="display:block;background:#146ef5;color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:4px;font-family:${fontStack};font-size:14px;font-weight:600;letter-spacing:0;text-align:center">Open Dashboard &rarr;</a>
 </td></tr>
-<tr><td style="padding:0 40px"><div style="border-top:1px solid #d8d8d8"></div></td></tr>
-<tr><td style="padding:40px 40px 32px">
-<p style="margin:0 0 24px;font-size:24px;font-weight:600;line-height:1.3;letter-spacing:-0.24px;color:#080808">Get started</p>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px"><tr>
-<td width="40" valign="top"><div style="width:36px;height:36px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:36px">${iconPlus}</div></td>
-<td style="padding-left:14px" valign="top">
-<p style="margin:0 0 2px;font-size:16px;font-weight:600;color:#080808;line-height:1.4">Create your first site</p>
-<p style="margin:0;font-size:14px;color:#5a5a5a;line-height:1.5">Click "Create New Site" and pick a template, or start from blank.</p>
+
+<!-- Divider -->
+<tr><td style="padding:0 32px"><div style="border-top:1px solid #d8d8d8"></div></td></tr>
+
+<!-- Get Started -->
+<tr><td style="padding:32px 32px 24px">
+<p style="margin:0 0 20px;font-size:18px;font-weight:600;line-height:1.3;letter-spacing:-0.2px;color:#080808">Get started</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr>
+<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconPlus}</div></td>
+<td style="padding-left:12px" valign="top">
+<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Create your first site</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Click "Create New Site" and pick a template, or start from blank.</p>
 </td></tr></table>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px"><tr>
-<td width="40" valign="top"><div style="width:36px;height:36px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:36px">${iconEdit}</div></td>
-<td style="padding-left:14px" valign="top">
-<p style="margin:0 0 2px;font-size:16px;font-weight:600;color:#080808;line-height:1.4">Edit in the editor</p>
-<p style="margin:0;font-size:14px;color:#5a5a5a;line-height:1.5">Write HTML, CSS, and JS directly, or upload your own files.</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr>
+<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconEdit}</div></td>
+<td style="padding-left:12px" valign="top">
+<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Edit in the editor</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Write HTML, CSS, and JS directly, or upload your own files.</p>
 </td></tr></table>
+
 <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="40" valign="top"><div style="width:36px;height:36px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:36px">${iconRocket}</div></td>
-<td style="padding-left:14px" valign="top">
-<p style="margin:0 0 2px;font-size:16px;font-weight:600;color:#080808;line-height:1.4">Publish and share</p>
-<p style="margin:0;font-size:14px;color:#5a5a5a;line-height:1.5">Your site goes live at <span style="font-family:${monoFont};color:#080808">subdomain.hairiamri.buzz</span>.</p>
+<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconRocket}</div></td>
+<td style="padding-left:12px" valign="top">
+<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Publish and share</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Your site goes live at <span style="font-family:${monoFont};color:#080808">subdomain.hairiamri.buzz</span>.</p>
 </td></tr></table>
 </td></tr>
-<tr><td style="padding:0 40px 40px">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:8px"><tr><td style="padding:16px 18px">
+
+<!-- Security -->
+<tr><td style="padding:0 32px 32px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:6px"><tr><td style="padding:14px 16px">
 <table cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="24" valign="top" style="padding-top:1px">${iconLock}</td>
+<td width="22" valign="top" style="padding-top:1px">${iconLock}</td>
 <td style="padding-left:8px" valign="top">
-<p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#080808">Security tip</p>
-<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Change your password after first login. Never share it with anyone.</p>
+<p style="margin:0 0 2px;font-size:12px;font-weight:600;color:#080808">Security tip</p>
+<p style="margin:0;font-size:12px;color:#5a5a5a;line-height:1.5">Change your password after first login. Never share it with anyone.</p>
 </td></tr></table>
 </td></tr></table>
 </td></tr>
-<tr><td style="padding:24px 40px;background:#f0f0f0;border-top:1px solid #d8d8d8;border-radius:0 0 8px 8px">
-<p style="margin:0 0 8px;font-size:13px;color:#5a5a5a;line-height:1.5">Questions? Reply to this email or reach us at <a href="mailto:feedback@hairiamri.buzz" style="color:#146ef5;text-decoration:none">feedback@hairiamri.buzz</a>.</p>
-<p style="margin:0 0 8px;font-size:11px;color:#bdbdbd;line-height:1.5">This email was automatically generated. Please do not reply directly to this message.</p>
-<p style="margin:0;font-size:12px;color:#5a5a5a">HairiHosting &middot; hairiamri.buzz</p>
+
+<!-- Footer -->
+<tr><td style="padding:20px 32px;background:#f0f0f0;border-top:1px solid #d8d8d8">
+<p style="margin:0 0 8px;font-size:12px;color:#5a5a5a;line-height:1.5">Questions? Reply to this email or reach us at <a href="mailto:feedback@hairiamri.buzz" style="color:#146ef5;text-decoration:none">feedback@hairiamri.buzz</a>.</p>
+<p style="margin:0 0 8px;font-size:10px;color:#bdbdbd;line-height:1.5">This email was automatically generated. Please do not reply directly to this message.</p>
+<p style="margin:0;font-size:11px;color:#5a5a5a">HairiHosting &middot; hairiamri.buzz</p>
 </td></tr>
+
 </table>
 </td></tr>
 </table>
