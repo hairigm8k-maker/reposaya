@@ -716,11 +716,53 @@
     main.innerHTML =
       '<div class="eyebrow">Manage</div>' +
       '<h1 class="page-title">Send Email</h1>' +
-      '<p class="page-sub">Send custom email to users</p>' +
+      '<p class="page-sub">Send a custom email to all users or a specific user</p>' +
       '<div class="card" style="max-width:680px">' +
-        '<button class="btn btn-primary" id="btnTestMail">Test Button</button>' +
+        '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin-bottom:6px">Target</label>' +
+        '<select class="input" id="eTarget"><option value="all">All Users</option></select>' +
+        '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Subject</label>' +
+        '<input type="text" class="input" id="eSubject" placeholder="Email subject" maxlength="200">' +
+        '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Body (HTML allowed)</label>' +
+        '<textarea class="input" id="eBody" style="min-height:220px;font-family:var(--mono);font-size:12.5px;line-height:1.6" placeholder="<p>Your message...</p>"></textarea>' +
+        '<button class="btn btn-primary" id="btnSendEmail" style="margin-top:18px">Send Email</button>' +
       '</div>';
-    document.getElementById('btnTestMail').onclick = function(){ alert('WORKS!'); };
+    try {
+      var r = await fetch('/api/admin/users');
+      var d = await r.json();
+      if (d && d.ok && d.users) {
+        var sel = document.getElementById('eTarget');
+        d.users.forEach(function(u){
+          var o = document.createElement('option');
+          o.value = 'user:' + u.id;
+          o.textContent = 'User - ' + (u.name || u.email);
+          sel.appendChild(o);
+        });
+      }
+    } catch(e) { console.error('load users:', e); }
+    document.getElementById('btnSendEmail').onclick = function(){ App.sendEmailBroadcast(); };
+  };
+
+  App.sendEmailBroadcast = async function(){
+    var target = document.getElementById('eTarget').value;
+    var subject = document.getElementById('eSubject').value.trim();
+    var body = document.getElementById('eBody').value.trim();
+    if (!subject || !body) { toast('Subject and body required', 'error'); return; }
+    var payload = { subject: subject, body: body, target: 'all' };
+    if (target.indexOf('user:') === 0) { payload.target = 'user'; payload.user_id = parseInt(target.slice(5)); }
+    var btn = document.getElementById('btnSendEmail');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      var r = await fetch('/api/admin/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      var d = await r.json();
+      if (d && d.ok) {
+        toast('Sent to ' + d.sent + ' user(s)' + (d.failed ? ' (' + d.failed + ' failed)' : ''), 'success');
+        document.getElementById('eSubject').value = '';
+        document.getElementById('eBody').value = '';
+      } else {
+        toast((d && d.error) || 'Failed', 'error');
+      }
+    } catch(e) { toast('Error: ' + e.message, 'error'); }
+    btn.disabled = false; btn.textContent = 'Send Email';
   };
 
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
