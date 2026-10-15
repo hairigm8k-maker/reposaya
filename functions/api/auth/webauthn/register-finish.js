@@ -55,7 +55,7 @@ export async function onRequestPost({ request, env }) {
 
     const now = new Date().toISOString();
     await env.DB.prepare(
-      'INSERT INTO webauthn_credentials (id, user_id, public_key, counter, device_type, backed_up, name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      'INSERT OR REPLACE INTO webauthn_credentials (id, user_id, public_key, counter, device_type, backed_up, name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     ).bind(credIdB64, session.userId, pubKeyB64, counter, deviceType, backedUp, name || 'Biometric', now).run();
 
     await env.DB.prepare('DELETE FROM webauthn_challenges WHERE user_id = ? AND type = ?')
