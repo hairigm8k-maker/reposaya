@@ -15,7 +15,12 @@
 
   window.HHWebAuthn = {
     isSupported: function() {
-      return !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create);
+      // Chrome/Edge/Safari/Firefox modern — support WebAuthn
+      try {
+        return !!(navigator.credentials && window.PublicKeyCredential);
+      } catch (e) {
+        return false;
+      }
     },
 
     register: async function(name) {
