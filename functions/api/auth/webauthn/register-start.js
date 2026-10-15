@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
 
     const host = new URL(request.url).hostname.replace(/^www\./, '');
 
-    const { generateRegistrationOptions } = await import('https://esm.sh/@simplewebauthn/server@11.0.0');
+    const { generateRegistrationOptions } = await import('../../_simplewebauthn.js');
     const options = await generateRegistrationOptions({
       rpName: 'HairiHosting',
       rpID: host,
