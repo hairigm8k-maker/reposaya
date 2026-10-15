@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="index,follow">
+<title>Privacy & Cookies — HairiHosting</title>
+<meta name="description" content="How HairiHosting uses cookies and protects your privacy.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08080a;--panel:#121317;--border:#1c1d22;--fg:#e2e3e9;--muted:#9194a1;
+  --copper:#cc9166;--white:#ffffff;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+.topbar{background:#000;border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:10}
+.topbar-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white);font-family:'Playfair Display',Georgia,serif;font-size:16px}
+.brand img{height:24px;width:auto;display:block}
+.back{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:9999px;transition:all .15s}
+.back:hover{color:var(--copper);border-color:var(--copper)}
+main{max-width:720px;margin:0 auto;padding:40px 20px 80px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:var(--copper);font-weight:600;margin-bottom:12px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:34px;color:var(--white);margin-bottom:8px;line-height:1.15;letter-spacing:-0.3px}
+.updated{font-size:13px;color:var(--muted);margin-bottom:32px}
+h2{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:22px;color:var(--white);margin:36px 0 12px;line-height:1.3}
+h3{font-size:15px;font-weight:600;color:var(--white);margin:20px 0 8px}
+p{margin-bottom:14px;color:var(--fg)}
+ul{margin:0 0 16px 20px;color:var(--fg)}
+li{margin-bottom:6px}
+li::marker{color:var(--copper)}
+a{color:var(--copper);text-decoration:none}
+a:hover{text-decoration:underline}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin:16px 0}
+.card-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:16px;height:16px;stroke:var(--copper);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.card p{font-size:13.5px;color:var(--muted);margin:0}
+.card p+p{margin-top:8px}
+code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#1a1b20;color:var(--copper);padding:2px 6px;border-radius:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;background:#0d0e11}
+td{color:var(--fg)}
+td:first-child{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--copper)}
+footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;font-size:12px;color:var(--muted)}
+@media(max-width:540px){
+  h1{font-size:26px}
+  h2{font-size:19px}
+  main{padding:28px 16px 60px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand">
+      <img src="/assets/logoUtama/logoUtama-white.png" alt="HairiHosting">
+      HairiHosting
+    </a>
+    <a href="/" class="back">← Back</a>
+  </div>
+</div>
+
+<main>
+  <div class="eyebrow">Legal</div>
+  <h1>Privacy & Cookie Policy</h1>
+  <p class="updated">Last updated: October 2026</p>
+
+  <p>At HairiHosting, we take your privacy seriously. This page explains what data we collect, how we use it, and how you can control cookies when using our platform.</p>
+
+  <h2>1. What We Collect</h2>
+  <p>We only collect the minimum amount of information needed to run HairiHosting:</p>
+  <ul>
+    <li><strong>Account info</strong> — your email, name, and hashed password</li>
+    <li><strong>Website content</strong> — HTML, CSS, JS files you upload</li>
+    <li><strong>Usage analytics</strong> — anonymous visit counts for your sites</li>
+    <li><strong>Session data</strong> — to keep you logged in securely</li>
+  </ul>
+
+  <h2>2. Cookies We Use</h2>
+  <p>Cookies are small text files stored in your browser. We use only what is necessary and helpful:</p>
+
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Purpose</th><th>Type</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>hh_session</td><td>Keeps you logged in</td><td>Essential</td></tr>
+      <tr><td>hh_cookie_consent</td><td>Remembers your cookie choice</td><td>Essential</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+      No tracking cookies
+    </div>
+    <p>We do <strong>not</strong> use advertising cookies, third-party trackers, or fingerprinting scripts. Your data is not sold to anyone.</p>
+  </div>
+
+  <h2>3. How We Use Your Data</h2>
+  <p>Your information is used strictly to:</p>
+  <ul>
+    <li>Provide hosting services and serve your websites</li>
+    <li>Authenticate your account and secure sessions</li>
+    <li>Send transactional emails (login alerts, password resets, welcome)</li>
+    <li>Improve platform reliability and performance</li>
+  </ul>
+
+  <h2>4. Your Choices</h2>
+  <p>You can control cookies through our banner or your browser settings:</p>
+  <ul>
+    <li><strong>Accept</strong> — allow all cookies (recommended for full functionality)</li>
+    <li><strong>Reject</strong> — disable non-essential cookies (session still required)</li>
+    <li><strong>Browser settings</strong> — you can block cookies entirely, but login will not work</li>
+  </ul>
+
+  <h2>5. Data Retention</h2>
+  <p>We retain your data as long as your account is active. When you delete your account, all associated data (sites, files, analytics) is permanently removed within 30 days.</p>
+
+  <h2>6. Third-Party Services</h2>
+  <p>HairiHosting relies on these trusted providers:</p>
+  <ul>
+    <li><strong>Cloudflare</strong> — CDN, hosting, and security</li>
+    <li><strong>Resend</strong> — transactional email delivery</li>
+  </ul>
+  <p>These providers process data only on our behalf and under strict data protection agreements.</p>
+
+  <h2>7. Contact</h2>
+  <p>Questions about privacy? Reach us at <a href="mailto:feedback@hairiamri.buzz">feedback@hairiamri.buzz</a> or via WhatsApp from the dashboard support page.</p>
+</main>
+
+<footer>
+  HairiHosting · <a href="/">hairiamri.buzz</a>
+</footer>
+
+<script src="/assets/hh-common.js"></script>
+</body>
+</html>
