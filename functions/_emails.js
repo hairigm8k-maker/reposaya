@@ -24,14 +24,17 @@ function wrap(title, body) {
 export function welcomeEmail(name, email, tempPassword, plan) {
   const planLabel = plan === 'bisnes' ? 'Bisnes' : (plan === 'pro' ? 'Pro' : (plan === 'monthly' ? 'Monthly' : 'Free'));
   const dashUrl = 'https://hairiamri.buzz/dashboard/';
+  const cliDocsUrl = 'https://hairiamri.buzz/cli-docs/';
 
   const fontStack = "'WF Visual Sans Variable','Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
   const monoFont = "'WF Visual Sans Mono','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace";
 
-  const iconPlus = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
-  const iconEdit = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const iconRocket = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09zM12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" stroke="#080808" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const iconLock = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#080808" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#080808" stroke-width="2" stroke-linecap="round"/></svg>';
+  const iconTerminal = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17l6-6-6-6M12 19h8" stroke="#146ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const stepNum = function(n) {
+    return '<div style="width:28px;height:28px;border-radius:50%;background:#146ef5;color:#ffffff;font-size:13px;font-weight:600;text-align:center;line-height:28px;font-family:' + fontStack + '">' + n + '</div>';
+  };
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -45,73 +48,81 @@ export function welcomeEmail(name, email, tempPassword, plan) {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">Your HairiHosting account is ready. Sign in to get started.</div>
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;padding:32px 16px">
 <tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background:#ffffff;border:1px solid #d8d8d8;border-radius:8px;overflow:hidden">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background:#ffffff;border:1px solid #d8d8d8;border-radius:10px;overflow:hidden">
 
-<!-- Header -->
-<tr><td style="padding:16px 32px;background:#080808">
+<tr><td style="padding:18px 32px;background:#080808">
 <img src="https://hairiamri.buzz/assets/logoUtama/logoUtama-white.png" alt="HairiHosting" width="130" style="height:24px;width:auto;display:block;border:0">
 </td></tr>
 
-<!-- Hero -->
-<tr><td style="padding:36px 32px 24px">
-<p style="margin:0 0 12px;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">New Account</p>
-<h1 style="margin:0 0 12px;font-size:32px;font-weight:600;line-height:1.15;letter-spacing:-0.4px;color:#080808">Welcome to HairiHosting</h1>
-<p style="margin:0;font-size:15px;font-weight:400;line-height:1.55;color:#5a5a5a">Hi ${name}, your account is ready. Let&rsquo;s get your first website live.</p>
+<tr><td style="padding:40px 32px 28px">
+<p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#146ef5">New Account</p>
+<h1 style="margin:0 0 14px;font-size:34px;font-weight:600;line-height:1.1;letter-spacing:-0.5px;color:#080808">Welcome to HairiHosting</h1>
+<p style="margin:0;font-size:15px;font-weight:400;line-height:1.55;color:#5a5a5a">Hi ${name}, your account is ready. Let&rsquo;s get your first website live in under 2 minutes.</p>
 </td></tr>
 
-<!-- Credentials -->
 <tr><td style="padding:0 32px 24px">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:6px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:8px">
 <tr><td style="padding:14px 16px;border-bottom:1px solid #d8d8d8">
-<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Email</p>
+<p style="margin:0 0 4px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Email</p>
 <p style="margin:0;font-family:${monoFont};font-size:13px;color:#080808;word-break:break-all;line-height:1.4">${email}</p>
 </td></tr>
 <tr><td style="padding:14px 16px;border-bottom:1px solid #d8d8d8">
-<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Temporary Password</p>
+<p style="margin:0 0 4px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Temporary Password</p>
 <p style="margin:0;font-family:${monoFont};font-size:15px;font-weight:600;letter-spacing:0.5px;color:#080808;line-height:1.4">${tempPassword}</p>
 </td></tr>
 <tr><td style="padding:14px 16px">
-<p style="margin:0 0 3px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Plan</p>
-<p style="margin:0;font-size:14px;font-weight:600;color:#080808;line-height:1.4">${planLabel}</p>
+<p style="margin:0 0 4px;font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a5a5a">Plan</p>
+<p style="margin:0;font-size:14px;font-weight:600;color:#146ef5;line-height:1.4">${planLabel}</p>
 </td></tr>
 </table>
 </td></tr>
 
-<!-- CTA Full Width -->
 <tr><td style="padding:0 32px 32px">
-<a href="${dashUrl}" style="display:block;background:#146ef5;color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:4px;font-family:${fontStack};font-size:14px;font-weight:600;letter-spacing:0;text-align:center">Open Dashboard &rarr;</a>
+<a href="${dashUrl}" style="display:block;background:#146ef5;color:#ffffff;text-decoration:none;padding:15px 20px;border-radius:6px;font-family:${fontStack};font-size:14px;font-weight:600;letter-spacing:0;text-align:center">Open Dashboard &nbsp;&rarr;</a>
 </td></tr>
 
-<!-- Divider -->
-<tr><td style="padding:0 32px"><div style="border-top:1px solid #d8d8d8"></div></td></tr>
+<tr><td style="padding:32px 32px 8px;border-top:1px solid #d8d8d8">
+<p style="margin:0;font-size:18px;font-weight:600;line-height:1.3;letter-spacing:-0.2px;color:#080808">Get started in 3 steps</p>
+</td></tr>
 
-<!-- Get Started -->
-<tr><td style="padding:32px 32px 24px">
-<p style="margin:0 0 20px;font-size:18px;font-weight:600;line-height:1.3;letter-spacing:-0.2px;color:#080808">Get started</p>
-
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr>
-<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconPlus}</div></td>
+<tr><td style="padding:20px 32px 0">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px"><tr>
+<td width="40" valign="top">${stepNum(1)}</td>
 <td style="padding-left:12px" valign="top">
-<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Create your first site</p>
-<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Click "Create New Site" and pick a template, or start from blank.</p>
+<p style="margin:0 0 3px;font-size:15px;font-weight:600;color:#080808;line-height:1.4">Create your first site</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.55">Click "Create New Site" and pick a template, or start from a blank canvas.</p>
 </td></tr></table>
+</td></tr>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr>
-<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconEdit}</div></td>
+<tr><td style="padding:0 32px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px"><tr>
+<td width="40" valign="top">${stepNum(2)}</td>
 <td style="padding-left:12px" valign="top">
-<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Edit in the editor</p>
-<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Write HTML, CSS, and JS directly, or upload your own files.</p>
+<p style="margin:0 0 3px;font-size:15px;font-weight:600;color:#080808;line-height:1.4">Build it your way</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.55">Use the visual editor to write HTML, CSS, and JS. Or upload your own files directly.</p>
 </td></tr></table>
+</td></tr>
 
+<tr><td style="padding:0 32px 28px">
 <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="36" valign="top"><div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;text-align:center;line-height:32px">${iconRocket}</div></td>
+<td width="40" valign="top">${stepNum(3)}</td>
 <td style="padding-left:12px" valign="top">
-<p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#080808;line-height:1.4">Publish and share</p>
-<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.5">Your site goes live at <span style="font-family:${monoFont};color:#080808">subdomain.hairiamri.buzz</span>.</p>
+<p style="margin:0 0 3px;font-size:15px;font-weight:600;color:#080808;line-height:1.4">Publish &amp; share</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a;line-height:1.55">Your site goes live instantly at <span style="font-family:${monoFont};color:#080808;font-size:12px">yourname.hairiamri.buzz</span></p>
 </td></tr></table>
 </td></tr>
 
-<!-- Security -->
+<tr><td style="padding:0 32px 28px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:8px;border-left:3px solid #146ef5"><tr><td style="padding:16px 18px">
+<table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px"><tr>
+<td width="22" valign="middle" style="padding-right:6px">${iconTerminal}</td>
+<td valign="middle"><p style="margin:0;font-size:12px;font-weight:600;color:#080808;letter-spacing:0.02em">Prefer the command line?</p></td>
+</tr></table>
+<p style="margin:0 0 12px;font-size:12px;color:#5a5a5a;line-height:1.55">Deploy sites straight from your terminal with our CLI tool. Install once, deploy forever.</p>
+<a href="${cliDocsUrl}" style="display:inline-block;color:#146ef5;text-decoration:none;font-size:12px;font-weight:600">Read CLI docs &nbsp;&rarr;</a>
+</td></tr></table>
+</td></tr>
+
 <tr><td style="padding:0 32px 32px">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;border-radius:6px"><tr><td style="padding:14px 16px">
 <table cellpadding="0" cellspacing="0" border="0"><tr>
@@ -123,7 +134,6 @@ export function welcomeEmail(name, email, tempPassword, plan) {
 </td></tr></table>
 </td></tr>
 
-<!-- Footer -->
 <tr><td style="padding:20px 32px;background:#f0f0f0;border-top:1px solid #d8d8d8">
 <p style="margin:0 0 8px;font-size:12px;color:#5a5a5a;line-height:1.5">Questions? Reply to this email or reach us at <a href="mailto:feedback@hairiamri.buzz" style="color:#146ef5;text-decoration:none">feedback@hairiamri.buzz</a>.</p>
 <p style="margin:0 0 8px;font-size:10px;color:#bdbdbd;line-height:1.5">This email was automatically generated. Please do not reply directly to this message.</p>
