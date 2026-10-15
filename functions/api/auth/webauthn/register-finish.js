@@ -1,5 +1,4 @@
 import { getCookie, verifySession, json } from '../../../_utils.js';
-import { verifyRegistrationResponse } from 'https://esm.sh/@simplewebauthn/server@11.0.0';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -25,6 +24,7 @@ export async function onRequestPost({ request, env }) {
     const host = new URL(request.url).hostname.replace(/^www\./, '');
     const origin = 'https://' + host;
 
+    const { verifyRegistrationResponse } = await import('https://esm.sh/@simplewebauthn/server@11.0.0');
     const verification = await verifyRegistrationResponse({
       response,
       expectedChallenge: stored.challenge,

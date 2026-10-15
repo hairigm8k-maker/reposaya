@@ -1,5 +1,4 @@
 import { json } from '../../../_utils.js';
-import { generateAuthenticationOptions } from 'https://esm.sh/@simplewebauthn/server@11.0.0';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -21,6 +20,7 @@ export async function onRequestPost({ request, env }) {
 
     const host = new URL(request.url).hostname.replace(/^www\./, '');
 
+    const { generateAuthenticationOptions } = await import('https://esm.sh/@simplewebauthn/server@11.0.0');
     const options = await generateAuthenticationOptions({
       rpID: host,
       allowCredentials: creds.results.map(c => ({

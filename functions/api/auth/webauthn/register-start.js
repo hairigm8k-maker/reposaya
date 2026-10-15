@@ -1,5 +1,4 @@
 import { getCookie, verifySession, json } from '../../../_utils.js';
-import { generateRegistrationOptions } from 'https://esm.sh/@simplewebauthn/server@11.0.0';
 
 export async function onRequestPost({ request, env }) {
   try {
@@ -18,6 +17,7 @@ export async function onRequestPost({ request, env }) {
 
     const host = new URL(request.url).hostname.replace(/^www\./, '');
 
+    const { generateRegistrationOptions } = await import('https://esm.sh/@simplewebauthn/server@11.0.0');
     const options = await generateRegistrationOptions({
       rpName: 'HairiHosting',
       rpID: host,
