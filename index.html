@@ -178,11 +178,22 @@ form.addEventListener('submit', async (e) => {
   if (!btn) return;
   
   // Show button if biometric supported
-  setTimeout(function(){
-    if (window.HHWebAuthn && window.HHWebAuthn.isSupported()) {
-      btn.style.display = 'flex';
+  var waited = 0;
+  var checkFn = setInterval(function(){
+    waited += 200;
+    if (window.HHWebAuthn) {
+      clearInterval(checkFn);
+      if (window.HHWebAuthn.isSupported()) {
+        btn.style.display = 'flex';
+      } else {
+        console.log('WebAuthn not supported on this device');
+      }
     }
-  }, 500);
+    if (waited > 10000) {
+      clearInterval(checkFn);
+      console.log('HHWebAuthn load timeout');
+    }
+  }, 200);
   
   btn.onclick = async function(){
     var email = (emailEl && emailEl.value || '').trim().toLowerCase();
