@@ -18,6 +18,20 @@ async function checkAuth() {
     }
 
     HH_USER = data.user;
+  if (data.user && data.user.role === 'admin') {
+    setTimeout(function() {
+      var bell = document.getElementById('tbBell');
+      if (bell && !document.getElementById('tbAdminBtn')) {
+        var btn = document.createElement('a');
+        btn.id = 'tbAdminBtn';
+        btn.href = '/admin-hh/';
+        btn.title = 'Admin Panel';
+        btn.style.cssText = 'width:32px;height:32px;background:rgba(204,145,102,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#cc9166;text-decoration:none;border:1px solid rgba(204,145,102,0.3);margin-right:8px';
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v6c0 5 3.5 8.5 9 9 5.5-.5 9-4 9-9V7l-9-5z"/><path d="M9 12l2 2 4-4"/></svg>';
+        bell.parentNode.insertBefore(btn, bell);
+      }
+    }, 50);
+  }
     return data.user;
   } catch (err) {
     window.location.href = '/';
@@ -299,7 +313,7 @@ async function loadSites() {
         '<td>' + statusBadge + '</td>' +
         '<td style="color: var(--hh-fog); font-size: 13px;">' + HHT.formatDate(site.updated_at) + '</td>' +
         '<td style="text-align: right;">' +
-          '<button class="hh-btn hh-btn-ghost hh-btn-sm" onclick="window.location.hash=\\'#/editor/' + site.id + '\\'">Edit</button>' +
+        '<button class="hh-btn hh-btn-ghost hh-btn-sm" onclick="window.location.hash=&#39;#/editor/' + site.id + '&#39;">Edit</button>' +
         '</td>' +
         '</tr>';
     });
