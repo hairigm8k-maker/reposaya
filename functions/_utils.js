@@ -127,3 +127,25 @@ export async function authenticate(request, env) {
   }
   return null;
 }
+
+// ============================================
+// STUDENT TIER CHECK
+// ============================================
+
+export async function isStudentUser(env, userId) {
+  try {
+    const row = await env.DB.prepare('SELECT is_student, plan FROM users WHERE id = ?').bind(userId).first();
+    if (!row) return false;
+    return row.is_student === 1 || row.plan === 'student';
+  } catch (e) {
+    return false;
+  }
+}
+
+export function studentBlocked(feature) {
+  return json({
+    ok: false,
+    error: 'Student accounts cannot access ' + (feature || 'this feature') + '. Contact admin to upgrade.',
+    code: 'STUDENT_BLOCKED'
+  }, 403);
+}

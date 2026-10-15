@@ -1,9 +1,10 @@
-import { getCookie, verifySession, hashPassword, generateToken, json } from '../../_utils.js';
+import { getCookie, verifySession, hashPassword, generateToken, isStudentUser, studentBlocked, json } from '../../_utils.js';
 
 export async function onRequestGet({ request, env }) {
   const token = getCookie(request, 'hh_session');
   const session = await verifySession(env, token);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
+  if (await isStudentUser(env, session.userId)) return studentBlocked('API Keys');
 
   try {
     const { results } = await env.DB.prepare(
@@ -20,6 +21,7 @@ export async function onRequestPost({ request, env }) {
   const token = getCookie(request, 'hh_session');
   const session = await verifySession(env, token);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
+  if (await isStudentUser(env, session.userId)) return studentBlocked('API Keys');
 
   try {
     const body = await request.json();
@@ -66,6 +68,7 @@ export async function onRequestDelete({ request, env }) {
   const token = getCookie(request, 'hh_session');
   const session = await verifySession(env, token);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
+  if (await isStudentUser(env, session.userId)) return studentBlocked('API Keys');
 
   const url = new URL(request.url);
   const id = parseInt(url.searchParams.get('id'));

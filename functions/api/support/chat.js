@@ -1,4 +1,4 @@
-import { authenticate, json } from '../../_utils.js';
+import { authenticate, isStudentUser, studentBlocked, json } from '../../_utils.js';
 
 const KNOWLEDGE = `You are Lana, the AI customer support assistant for HairiHosting (hairiamri.buzz), a Malaysian HTML website hosting platform.
 
@@ -81,6 +81,7 @@ const KNOWLEDGE = `You are Lana, the AI customer support assistant for HairiHost
 export async function onRequestPost({ request, env }) {
   const session = await authenticate(request, env);
   if (!session) return json({ ok: false, error: 'Unauthorized' }, 401);
+  if (await isStudentUser(env, session.userId)) return studentBlocked('AI Chat');
   if (!env.AI) return json({ ok: false, error: 'AI not configured' }, 500);
 
   try {
