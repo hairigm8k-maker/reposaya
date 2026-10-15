@@ -713,25 +713,15 @@
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
 })();
 
-App.pageSendemail = async function(main){
+
+
+App.pageMailsender = async function(main){
   main.innerHTML =
     '<div class="eyebrow">Manage</div>' +
     '<h1 class="page-title">Send Email</h1>' +
     '<p class="page-sub">Send a custom email to all users or a specific user</p>' +
     '<div class="card" style="max-width:680px">' +
-      '<label style="font-family:var(--mono);font-size:11px;text-transform:uppercase;color:#c0c0c6;display:block;margin-bottom:6px">Target</label>' +
-      '<select class="input" id="eTarget"><option value="all">All Users</option></select>' +
-      '<label style="font-family:var(--mono);font-size:11px;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Subject</label>' +
-      '<input type="text" class="input" id="eSubject" placeholder="Email subject" maxlength="200">' +
-      '<label style="font-family:var(--mono);font-size:11px;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Body (HTML allowed)</label>' +
-      '<textarea class="input" id="eBody" style="min-height:220px;font-family:var(--mono);font-size:12.5px;line-height:1.6" placeholder="<p>Your message...</p>"></textarea>' +
-      '<button class="btn btn-primary" id="btnSendEmail" style="margin-top:18px">Send Email</button>' +
+      '<button class="btn btn-primary" id="btnTestMail">Test Button</button>' +
     '</div>';
-  document.getElementById('btnSendEmail').onclick = function(){ alert('STEP 2 OK — submit belum dipasang'); };
-  console.log('pageSendemail rendered OK');
-};
-
-App.pageMailSender = async function(main){
-  main.innerHTML = '<div class="eyebrow">Manage</div><h1 class="page-title">Send Email</h1><p class="page-sub">Send a custom email to all users or a specific user</p><div class="card" style="max-width:680px"><button class="btn btn-primary" id="btnSendEmail" style="margin-top:8px">Test Render OK</button></div>';
-  document.getElementById('btnSendEmail').onclick = function(){ alert('pageMailSender works!'); };
+  document.getElementById('btnTestMail').onclick = function(){ alert('WORKS!'); };
 };
