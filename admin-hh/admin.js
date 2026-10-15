@@ -110,6 +110,7 @@
         if (page === 'users') return await this.pageUsers(main);
         if (page === 'sites') return await this.pageSites(main);
         if (page === 'tokens') return await this.pageTokens(main);
+    if (page === 'bulk-tokens' && this.pageBulkTokens) return await this.pageBulkTokens(main);
         if (page === 'notify') return await this.pageNotify(main);
         if (page === 'logs') return await this.pageLogs(main);
         if (page === 'settings') return await this.pageSettings(main);
