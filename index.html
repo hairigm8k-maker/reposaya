@@ -44,7 +44,21 @@
         <button type="submit" class="hh-btn hh-btn-primary" id="submitBtn">
         <span id="btnText">Sign In</span>
       </button>
-    </form>
+    
+          <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--ash)">
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+            <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase">or</div>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <button type="button" id="biometricLoginBtn" class="hh-btn" style="width:100%;background:transparent;color:var(--copper);border:1.5px solid var(--copper);display:none;align-items:center;justify-content:center;gap:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+            </svg>
+            Sign in with Biometric
+          </button>
+          <div id="biometricMsg" style="margin-top:12px;font-size:12.5px;line-height:1.5;text-align:center"></div>
+        </form>
 
   <div id="tokenForm" style="display:none"><div style="margin-bottom:16px"><label style="display:block;font-size:14px;font-weight:500;color:#c7c9d1;margin-bottom:8px">Login Token</label><input type="text" id="loginToken" class="hh-input" placeholder="hh_tok_xxxxxxxxxxxx" autocomplete="off" spellcheck="false"></div><button type="button" class="hh-btn hh-btn-primary" id="tokenSubmitBtn" style="width:100%">Sign In with Token</button><div style="text-align:center;margin-top:16px;font-size:12px;color:#5e616e">Token is single-use. Get it from admin via WhatsApp or Telegram.</div></div>
 
@@ -152,6 +166,53 @@ form.addEventListener('submit', async (e) => {
     };
     iT.addEventListener("keydown", function(e){ if (e.key === "Enter") bT.click(); });
   }
+})();
+</script>
+<script src="/assets/hh-webauthn.js" defer></script>
+<script>
+(function(){
+  var btn = document.getElementById('biometricLoginBtn');
+  var msg = document.getElementById('biometricMsg');
+  var emailEl = document.getElementById('email');
+  
+  if (!btn) return;
+  
+  // Show button if biometric supported
+  setTimeout(function(){
+    if (window.HHWebAuthn && window.HHWebAuthn.isSupported()) {
+      btn.style.display = 'flex';
+    }
+  }, 500);
+  
+  btn.onclick = async function(){
+    var email = (emailEl && emailEl.value || '').trim().toLowerCase();
+    if (!email) {
+      if (msg) msg.innerHTML = '<span style="color:#f87171">Sila masukkan email dulu</span>';
+      emailEl && emailEl.focus();
+      return;
+    }
+    
+    if (!window.HHWebAuthn || !window.HHWebAuthn.isSupported()) {
+      if (msg) msg.innerHTML = '<span style="color:#f87171">Peranti ini tidak sokong biometric</span>';
+      return;
+    }
+    
+    btn.disabled = true;
+    if (msg) msg.innerHTML = '<span style="color:var(--ash)">Sila scan cap jari / Face ID...</span>';
+    
+    try {
+      var result = await window.HHWebAuthn.login(email);
+      if (result.ok) {
+        if (msg) msg.innerHTML = '<span style="color:#4ade80">✓ Berjaya! Redirecting...</span>';
+        setTimeout(function(){ window.location.href = result.redirect || '/dashboard/'; }, 500);
+      } else {
+        throw new Error(result.error || 'Login gagal');
+      }
+    } catch (err) {
+      if (msg) msg.innerHTML = '<span style="color:#f87171">Gagal: ' + err.message + '</span>';
+      btn.disabled = false;
+    }
+  };
 })();
 </script>
 </body>
