@@ -116,6 +116,7 @@
         if (page === 'settings') return await this.pageSettings(main);
         if (page === 'admins') return await this.pageAdmins(main);
         if (page === 'admin-sessions') return await this.pageAdminSessions(main);
+    if (page === 'mailsender' && this.pageMailsender) return await this.pageMailsender(main);
         if (page === 'security-log') return await this.pageSecurityLog(main);
       } catch(e){ main.innerHTML = '<div class="loading" style="color:#ff8a8a">Error: ' + esc(e.message) + '</div>'; }
     }
