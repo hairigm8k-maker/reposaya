@@ -1,5 +1,6 @@
 export default {
   async fetch(request, env) {
+      try {
     const url = new URL(request.url);
     const host = url.hostname;
     const parts = host.split('.');
