@@ -836,15 +836,43 @@
 
 AdminApp.resetStudent = async function(id, email) {
   if (!confirm('Reset akaun untuk ' + email + '? Pelajar akan di-logout dan dapat password baru.')) return;
+  
   try {
     var r = await fetch('/api/admin/reset-student', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: id })
     });
     var d = await r.json();
+    
     if (d.ok) {
-      alert('✅ BERJAYA!\\n\\nPassword Baru: ' + d.new_password + '\\n\\nSila berikan password ini kepada pelajar.');
+      // --- UI MODAL CANTIK ---
+      var modalHtml = `
+      <div id="resetPassModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;">
+        <div style="background:#08080a;border:1px solid #1c1d22;border-radius:14px;max-width:400px;width:100%;padding:24px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+          
+          <div style="width:56px;height:56px;background:rgba(74,222,128,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          
+          <h2 style="color:#fff;font-family:Georgia,serif;font-size:22px;margin:0 0 8px;font-weight:400;">Reset Berjaya</h2>
+          <p style="color:#9194a1;font-size:13px;margin:0 0 20px;line-height:1.5;">Password baru untuk <strong style="color:#cc9166;">${email}</strong> telah dijana.</p>
+          
+          <div style="background:#121317;border:1px solid #2a2d36;border-radius:8px;padding:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+            <code style="color:#cc9166;font-size:18px;letter-spacing:1px;font-weight:bold;font-family:monospace;">${d.new_password}</code>
+            <button onclick="navigator.clipboard.writeText('${d.new_password}'); this.innerText='Copied!'; this.style.color='#4ade80'; setTimeout(()=>{this.innerText='Copy'; this.style.color='#fff';}, 2000);" style="background:#2a2d36;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;transition:0.2s;">Copy</button>
+          </div>
+
+          <p style="color:#f59e0b;font-size:12px;margin-bottom:20px;text-align:left;padding:12px;background:rgba(245,158,11,0.1);border-radius:6px;line-height:1.4;">⚠️ Sila berikan password ini kepada pelajar. Ia tidak akan dipaparkan lagi.</p>
+
+          <button onclick="document.getElementById('resetPassModal').remove()" style="width:100%;background:#cc9166;color:#08080a;border:none;padding:14px;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;">Tutup</button>
+        </div>
+      </div>`;
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
       App.loadUsers();
-    } else { toast('Gagal: ' + d.error, 'error'); }
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+    } else { 
+      toast('Gagal: ' + d.error, 'error'); 
+    }
+  } catch(e) { 
+    toast('Error: ' + e.message, 'error'); 
+  }
 };
