@@ -85,4 +85,29 @@ else{showAlert(d.error||'Failed','error');btn.disabled=false;btn.textContent='Jo
     });
   });
 </script>
+
+<!-- MODAL: KREDENSIAL -->
+<div id="credModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#121317; border:1px solid #2a2d36; border-radius:12px; max-width:400px; width:100%; padding:24px; text-align:center;">
+    <div style="width:48px; height:48px; background:rgba(74,222,128,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h2 style="color:#fff; font-family:'Playfair Display', serif; font-size:24px; margin-bottom:8px;">Akaun Berjaya Dibuat!</h2>
+    <p style="color:#9194a1; font-size:14px; margin-bottom:24px; line-height:1.5;">Sila simpan maklumat ini. Anda perlu menggunakannya untuk login pada masa akan datang.</p>
+    
+    <div style="background:#08080a; border:1px solid #2a2d36; border-radius:8px; padding:16px; text-align:left; margin-bottom:24px;">
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px; color:#5e616e; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Email Login</div>
+        <div style="color:#cc9166; font-family:monospace; font-size:14px; word-break:break-all;" id="credEmail">-</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#5e616e; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Password</div>
+        <div style="color:#fff; font-family:monospace; font-size:16px; font-weight:bold; letter-spacing:1px;" id="credPass">-</div>
+      </div>
+    </div>
+    
+    <button onclick="proceedToDashboard()" style="width:100%; background:#cc9166; color:#08080a; border:none; padding:14px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer;">Saya Dah Simpan, Teruskan</button>
+  </div>
+</div>
+
 </body></html>

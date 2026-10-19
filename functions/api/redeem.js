@@ -99,6 +99,7 @@ export async function onRequestPost({ request, env }) {
 
     return json({
       ok: true,
+      temp_password: tempPassword,
       user: { id: newUserId, email: email, name: username, username: username, plan: 'student' },
       cohort: cls.cohort,
       redirect: '/dashboard/'
