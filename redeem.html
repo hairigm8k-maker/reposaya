@@ -25,6 +25,15 @@ h1{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--white);te
 .spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:-2px;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<style id="layout-fix">
+  /* Benarkan page scroll kalau skrin kecil */
+  body { height: auto !important; min-height: 100vh !important; overflow-y: auto !important; padding: 20px 0 !important; }
+  .hh-auth-wrap { min-height: 100vh; height: auto !important; padding: 20px !important; overflow-y: auto !important; display: flex; align-items: center; justify-content: center; }
+  .hh-card { max-height: none !important; margin: auto !important; }
+  /* Pastikan error tak tolak content sangat */
+  #alertEl { margin-bottom: 15px; }
+</style>
 </head><body>
 <div class="card">
 <img class="logo" src="/assets/logoUtama/logoUtama.png" alt="HairiHosting">
@@ -62,4 +71,18 @@ else{showAlert(d.error||'Failed','error');btn.disabled=false;btn.textContent='Jo
 }catch(err){showAlert('Connection error','error');btn.disabled=false;btn.textContent='Join Class'}
 };
 </script><script src="/assets/hh-common.js"></script>
+
+<script id="ux-fix">
+  document.addEventListener('DOMContentLoaded', function() {
+    var inputs = document.querySelectorAll('input');
+    inputs.forEach(function(input) {
+      input.addEventListener('input', function() {
+        var alertEl = document.getElementById('alertEl');
+        if (alertEl && alertEl.style.display !== 'none') {
+          alertEl.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
 </body></html>
