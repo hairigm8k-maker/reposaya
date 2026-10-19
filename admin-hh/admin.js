@@ -204,7 +204,7 @@
           '<td style="text-align:right;white-space:nowrap"><button class="btn btn-sm" onclick="AdminApp.extendUser(' + u.id + ',\'' + esc(u.name || u.email) + '\')">Extend</button> ' +
           '<button class="btn btn-sm" onclick="AdminApp.changePlan(' + u.id + ',\'' + u.plan + '\',\'' + esc(u.name || u.email) + '\')">Plan</button> ' +
           '<button class="btn btn-sm" onclick="AdminApp.toggleUser(' + u.id + ',\'' + u.status + '\',\'' + esc(u.email) + '\')">' + (u.status === 'active' ? 'Suspend' : 'Activate') + '</button> ' +
-          '<button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(' + u.id + ',\'' + esc(u.email) + '\')">Delete</button></td></tr>';
+          '<button class="btn btn-sm btn-primary" style="margin-right:6px;background:#cc9166;border:none;color:#000;" onclick="AdminApp.resetStudent(' + u.id + ',\'' + esc(u.email) + '\')">Reset</button><button class="btn btn-sm btn-danger" onclick="AdminApp.deleteUser(' + u.id + ',\'' + esc(u.email) + '\')">Delete</button></td></tr>';
       }).join('') + '</tbody></table></div>';
   };
 
@@ -833,3 +833,18 @@
 
   document.addEventListener('DOMContentLoaded', function(){ App.init(); });
 })();
+
+AdminApp.resetStudent = async function(id, email) {
+  if (!confirm('Reset akaun untuk ' + email + '? Pelajar akan di-logout dan dapat password baru.')) return;
+  try {
+    var r = await fetch('/api/admin/reset-student', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: id })
+    });
+    var d = await r.json();
+    if (d.ok) {
+      alert('✅ BERJAYA!\\n\\nPassword Baru: ' + d.new_password + '\\n\\nSila berikan password ini kepada pelajar.');
+      App.loadUsers();
+    } else { toast('Gagal: ' + d.error, 'error'); }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+};
