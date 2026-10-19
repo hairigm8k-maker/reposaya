@@ -45,7 +45,7 @@ var codeEl=document.getElementById('code'),tokenEl=document.getElementById('toke
 function showAlert(msg,type){alertEl.className='alert '+type;alertEl.textContent=msg}
 function clearAlert(){alertEl.className='alert';alertEl.textContent=''}
 var DEVICE_KEY='hh_class_redeem_'+location.hostname;
-if(localStorage.getItem(DEVICE_KEY)){showAlert('Device ni dah pernah redeem. Kalau ada masalah, contact admin.','error');btn.disabled=true}
+if(localStorage.getItem(DEVICE_KEY)){showAlert('This device has already redeemed a token. Please contact the administrator for assistance.','error');btn.disabled=true}
 document.getElementById('form').onsubmit=async function(e){
 e.preventDefault();clearAlert();
 var code=codeEl.value.trim().toUpperCase(),tok=tokenEl.value.trim();
