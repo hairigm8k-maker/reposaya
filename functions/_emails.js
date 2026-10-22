@@ -178,3 +178,99 @@ export function resetPasswordEmail(name, resetUrl, expiresMinutes) {
     '<p style="margin:0 0 8px;color:#5e616e;font-size:12px;line-height:1.6">This link expires in ' + expiresMinutes + ' minutes and can only be used once.</p>' +
     '<p style="margin:0;color:#5e616e;font-size:12px;line-height:1.6">If you did not request this, you can safely ignore this email.</p>');
 }
+
+export function receiptEmail(name, email, plan, price, invoiceId, expiryDate) {
+  const fontStack = "'WF Visual Sans Variable','Inter',ui-sans-serif,system-ui,-apple-system,sans-serif";
+  const monoFont = "'WF Visual Sans Mono','JetBrains Mono',ui-monospace,SFMono-Regular,monospace";
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f0f0f0;font-family:${fontStack};-webkit-font-smoothing:antialiased">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">Receipt for your HairiHosting purchase.</div>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f0f0;padding:32px 16px">
+<tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background:#ffffff;border:1px solid #d8d8d8;border-radius:10px;overflow:hidden">
+
+<!-- Header -->
+<tr><td style="padding:20px 32px;background:#080808">
+<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+<td><img src="https://hairiamri.buzz/assets/logoUtama/logoUtama-white.png" alt="HairiHosting" width="130" style="height:24px;display:block;border:0"></td>
+<td align="right"><span style="font-family:${fontStack};font-size:12px;font-weight:600;color:#146ef5;letter-spacing:0.05em;text-transform:uppercase">Receipt</span></td>
+</tr></table>
+</td></tr>
+
+<!-- Invoice Details -->
+<tr><td style="padding:32px 32px 20px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td valign="top">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:0.1em">Billed To</p>
+<p style="margin:0;font-size:14px;font-weight:600;color:#080808">${name}</p>
+<p style="margin:0;font-size:13px;color:#5a5a5a">${email}</p>
+</td>
+<td valign="top" align="right">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:0.1em">Invoice No.</p>
+<p style="margin:0 0 12px;font-family:${monoFont};font-size:13px;font-weight:600;color:#080808">${invoiceId}</p>
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#5a5a5a;text-transform:uppercase;letter-spacing:0.1em">Date</p>
+<p style="margin:0;font-size:13px;color:#080808">${dateStr}</p>
+</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- Items Table -->
+<tr><td style="padding:0 32px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #d8d8d8;border-bottom:1px solid #d8d8d8">
+<tr>
+<td style="padding:12px 0;font-size:12px;font-weight:600;color:#080808;text-transform:uppercase;letter-spacing:0.05em">Description</td>
+<td align="right" style="padding:12px 0;font-size:12px;font-weight:600;color:#080808;text-transform:uppercase;letter-spacing:0.05em">Amount</td>
+</tr>
+<tr>
+<td style="padding:16px 0">
+<p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#080808">${plan} Plan</p>
+<p style="margin:0;font-size:12px;color:#5a5a5a">Valid until ${expiryDate}</p>
+</td>
+<td align="right" style="padding:16px 0;font-family:${monoFont};font-size:14px;font-weight:600;color:#080808">RM ${price.toFixed(2)}</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- Total -->
+<tr><td style="padding:20px 32px">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td align="right" style="padding-bottom:8px;font-size:13px;color:#5a5a5a">Subtotal</td>
+<td align="right" width="80" style="padding-bottom:8px;font-family:${monoFont};font-size:13px;color:#080808">RM ${price.toFixed(2)}</td>
+</tr>
+<tr>
+<td align="right" style="padding-bottom:16px;font-size:13px;color:#5a5a5a;border-bottom:1px solid #d8d8d8">Tax</td>
+<td align="right" style="padding-bottom:16px;font-family:${monoFont};font-size:13px;color:#080808;border-bottom:1px solid #d8d8d8">RM 0.00</td>
+</tr>
+<tr>
+<td align="right" style="padding-top:16px;font-size:16px;font-weight:600;color:#080808">Total Paid</td>
+<td align="right" style="padding-top:16px;font-family:${monoFont};font-size:18px;font-weight:700;color:#16a34a">RM ${price.toFixed(2)}</td>
+</tr>
+</table>
+</td></tr>
+
+<!-- Status Badge -->
+<tr><td style="padding:0 32px 32px">
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px;text-align:center">
+<span style="font-size:12px;font-weight:600;color:#16a34a">✅ PAYMENT SUCCESSFUL</span>
+</div>
+</td></tr>
+
+<!-- Footer -->
+<tr><td style="padding:20px 32px;background:#f0f0f0;border-top:1px solid #d8d8d8">
+<p style="margin:0 0 8px;font-size:12px;color:#5a5a5a;text-align:center">Thank you for choosing HairiHosting.</p>
+<p style="margin:0;font-size:10px;color:#bdbdbd;text-align:center">This is an automatically generated receipt. Please keep it for your records.</p>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}

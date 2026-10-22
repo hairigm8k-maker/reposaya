@@ -1,6 +1,6 @@
 import { requireAdmin, logAdmin } from '../../_admin.js';
 import { hashPassword, generateToken, json } from '../../_utils.js';
-import { sendEmail, welcomeEmail } from '../../_emails.js';
+import { sendEmail, welcomeEmail, receiptEmail } from '../../_emails.js';
 
 const PLAN_DURATIONS = {
   monthly: 1,    // 1 bulan
@@ -64,6 +64,21 @@ export async function onRequestPost({ request, env }) {
     ).bind(email, name, hash, plan, expiresAt).run();
     const newId = result.meta ? result.meta.last_row_id : null;
     await logAdmin(env, guard.session.userId, 'user.create', 'user', newId, email + ' (' + plan + ' - RM' + (PLAN_PRICES[plan] || 0) + ')', request);
+
+    // Send Emails (Welcome + Receipt)
+    try {
+      // 1. Welcome Email
+      await sendEmail(env, email, 'Welcome to HairiHosting', welcomeEmail(name, email, tempPassword, plan));
+      
+      // 2. Receipt Email
+      const price = PLAN_PRICES[plan] || 0;
+      const invoiceId = 'INV-' + Date.now().toString().slice(-6);
+      const expiryStr = new Date(expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      await sendEmail(env, email, 'Receipt for your purchase - ' + invoiceId, receiptEmail(name, email, plan, price, invoiceId, expiryStr));
+      
+    } catch (e) { 
+      console.error('Failed to send emails:', e); 
+    }
     try { await sendEmail(env, email, 'Selamat Datang ke HairiHosting 🎉', welcomeEmail(name, email, tempPassword, plan)); } catch (e) { console.error('Welcome email failed:', e); }
     return json({ ok: true, user: { id: newId, email: email, name: name, plan: plan, plan_expires_at: expiresAt, temp_password: tempPassword } });
   } catch (err) { return json({ ok: false, error: err.message }, 500); }
