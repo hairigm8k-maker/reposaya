@@ -776,7 +776,11 @@
           '<option value="milestone">Milestone</option>' +
         '</select>' +
         '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin-bottom:6px">Target</label>' +
-        '<select class="input" id="eTarget"><option value="all">All Users</option></select>' +
+      '<select class="input" id="eTarget">' +
+        '<option value="all">All Users</option>' +
+        '<option value="custom">Custom Email...</option>' +
+      '</select>' +
+      '<input type="email" class="input" id="eCustomEmail" placeholder="Enter email address" style="display:none;margin-top:10px;">' +
         '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Subject</label>' +
         '<input type="text" class="input" id="eSubject" placeholder="Email subject" maxlength="200">' +
         '<label style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#c0c0c6;display:block;margin:18px 0 6px">Body (HTML allowed)</label>' +
