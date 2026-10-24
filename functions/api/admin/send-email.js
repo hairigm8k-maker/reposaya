@@ -19,6 +19,17 @@ export async function onRequestPost({ request, env }) {
 
     const wrappedHtml = wrapEmail(htmlBody);
 
+    if (target === 'custom' && body.custom_email) {
+      const customEmail = body.custom_email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customEmail)) {
+        return json({ ok: false, error: 'Invalid email format' }, 400);
+      }
+      const r = await sendEmail(env, customEmail, subject, wrappedHtml);
+      if (!r.ok) return json({ ok: false, error: 'Email failed: ' + (r.error || 'unknown') }, 500);
+      await logAdmin(env, guard.session.userId, 'email.custom', 'user', null, subject + ' -> ' + customEmail, request);
+      return json({ ok: true, sent: 1 });
+    }
+
     if (target === 'user' && userId) {
       const user = await env.DB.prepare("SELECT id, email, name FROM users WHERE id = ? AND role = 'user'").bind(userId).first();
       if (!user) return json({ ok: false, error: 'User not found' }, 404);
