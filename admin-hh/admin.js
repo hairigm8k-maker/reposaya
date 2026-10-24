@@ -818,7 +818,14 @@
     var subject = document.getElementById('eSubject').value.trim();
     var body = document.getElementById('eBody').value.trim();
     if (!subject || !body) { toast('Subject and body required', 'error'); return; }
-    var payload = { subject: subject, body: body, target: 'all' };
+    var targetVal = document.getElementById('eTarget').value; 
+    var payload = { subject: subject, body: body, target: targetVal };
+    if (targetVal === 'custom') {
+      payload.custom_email = document.getElementById('eCustomEmail').value.trim();
+    } else if (targetVal.indexOf('user:') === 0) {
+      payload.target = 'user';
+      payload.user_id = parseInt(targetVal.slice(5));
+    }
     if (target.indexOf('user:') === 0) { payload.target = 'user'; payload.user_id = parseInt(target.slice(5)); }
     var btn = document.getElementById('btnSendEmail');
     btn.disabled = true; btn.textContent = 'Sending...';
