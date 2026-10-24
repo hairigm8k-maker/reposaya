@@ -809,6 +809,7 @@
         });
       }
     } catch(e) { console.error('load users:', e); }
+    document.getElementById('eTarget').addEventListener('change', function() { var custom = document.getElementById('eCustomEmail'); if (custom) { custom.style.display = (this.value === 'custom') ? 'block' : 'none'; } });
     document.getElementById('btnSendEmail').onclick = function(){ App.sendEmailBroadcast(); };
   };
 
