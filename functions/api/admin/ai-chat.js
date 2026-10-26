@@ -11,42 +11,17 @@ export async function onRequestPost({ request, env }) {
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
     const tools = [
-      {
-        type: "function",
-        function: {
-          name: "toggle_maintenance",
-          description: "Turn HairiHosting maintenance mode ON or OFF. Only use if user explicitly asks to turn on/off maintenance.",
-          parameters: {
-            type: "object",
-            properties: { status: { type: "string", enum: ["on", "off"] } },
-            required: ["status"]
-          }
-        }
-      },
-      {
-        type: "function",
-        function: {
-          name: "list_sites",
-          description: "List all websites hosted on HairiHosting. Only use if user explicitly asks to see their sites.",
-          parameters: { type: "object", properties: {} }
-        }
-      },
-      {
-        type: "function",
-        function: {
-          name: "count_users",
-          description: "Get the total number of registered users. Only use if user asks about user count.",
-          parameters: { type: "object", properties: {} }
-        }
-      }
+      { type: "function", function: { name: "toggle_maintenance", description: "Turn maintenance ON or OFF", parameters: { type: "object", properties: { status: { type: "string", enum: ["on", "off"] } }, required: ["status"] } } },
+      { type: "function", function: { name: "list_sites", description: "List all websites", parameters: { type: "object", properties: {} } } },
+      { type: "function", function: { name: "count_users", description: "Count total users", parameters: { type: "object", properties: {} } } }
     ];
 
-    // Prompt ditegaskan supaya AI tak main panggil tool kalau user cuma sembang
-    const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
+    // UPGRADE: Guna Llama 3.3 70B (Jauh lebih pandai dan patuh arahan)
+    const aiResponse = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
       messages: [
         { 
           role: 'system', 
-          content: 'You are a helpful AI assistant for HairiHosting. If the user says "Hi", "Hello", or asks a general question, reply normally and DO NOT call any tools. ONLY call a tool if the user EXPLICITLY commands you to do so (e.g., "list my sites", "turn on maintenance").' 
+          content: 'You are Lana, a polite AI assistant for HairiHosting. If the user asks casual questions (like "What is your name?", "Hello", "Who are you?"), just reply normally. DO NOT use any tools for casual chat. ONLY use tools if the user explicitly asks to perform administrative tasks like listing sites, counting users, or toggling maintenance.' 
         },
         { role: 'user', content: userMessage }
       ],
@@ -55,7 +30,7 @@ export async function onRequestPost({ request, env }) {
 
     let reply = aiResponse.response || "";
 
-    // Kalau AI panggil tool
+    // Kalau AI betul-betul panggil tool
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
@@ -85,14 +60,11 @@ export async function onRequestPost({ request, env }) {
         if (dataLine) { try { mcpData = JSON.parse(dataLine.replace('data: ', '')); } catch (err) {} }
       }
 
-      if (!mcpData) {
-        reply = `⚠️ Gagal parse respons MCP.`;
-      } else if (mcpData.error) {
-        reply = `❌ Ralat MCP: ${mcpData.error.message}`;
-      } else if (mcpData.result && mcpData.result.content) {
+      if (!mcpData) reply = `⚠️ Gagal parse respons MCP.`;
+      else if (mcpData.error) reply = `❌ MCP Error: ${mcpData.error.message}`;
+      else if (mcpData.result && mcpData.result.content) {
         const resultText = mcpData.result.content[0].text;
         
-        // FORMAT KHASUS UNTUK LIST_SITES (Buang JSON, tukar jadi bullet points)
         if (functionName === 'list_sites') {
           try {
             const sites = JSON.parse(resultText);
