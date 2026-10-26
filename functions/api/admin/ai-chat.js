@@ -28,7 +28,7 @@ export async function onRequestPost({ request, env }) {
       }
     ];
 
-    // 2. Panggil Llama 3 dengan Tools
+    // 2. Panggil Llama 3
     const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages: [
         { role: 'system', content: 'You are a helpful assistant for HairiHosting. Use the provided tools to fulfill the user request.' },
@@ -43,9 +43,18 @@ export async function onRequestPost({ request, env }) {
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
       
-      if (toolCall.function.name === 'toggle_maintenance') {
-        const args = JSON.parse(toolCall.function.arguments);
-        
+      // FIX: Handle kedua-dua format respons (dengan .function atau tanpa .function)
+      const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
+      const rawArgs = toolCall.function ? toolCall.function.arguments : toolCall.arguments;
+      
+      let args = {};
+      try {
+        args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
+      } catch (e) {
+        console.error("Failed to parse tool arguments:", rawArgs);
+      }
+
+      if (functionName === 'toggle_maintenance' && args.status) {
         // Panggil MCP Server
         const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
           method: 'POST',
@@ -76,15 +85,18 @@ export async function onRequestPost({ request, env }) {
         } else {
           reply = `⚠️ Respons MCP tidak diketahui: ${JSON.stringify(mcpData)}`;
         }
+      } else {
+        // Debug: tunjuk apa AI sebenarnya hantar
+        reply += `\n\n[Debug Tool Call: ${functionName} - ${JSON.stringify(args)}]`;
       }
     } 
-    // Kalau AI tak panggil tool, dan reply kosong, kita paksa default
     else if (!reply) {
       reply = "Maaf, saya tidak faham arahan anda. Sila cuba lagi.";
     }
 
     return json({ ok: true, reply: reply });
   } catch (err) {
+    // Tangkap error dan pulangkan ke UI supaya senang debug
     return json({ ok: false, error: err.message }, 500);
   }
 }
