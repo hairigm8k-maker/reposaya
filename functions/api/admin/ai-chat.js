@@ -10,12 +10,8 @@ export async function onRequestPost({ request, env }) {
     const userMessage = body.message;
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
-    // --- CHECK KUNCI RAHSIA ---
-    if (!env.MCP_SECRET_KEY) {
-      return json({ ok: false, error: 'System Error: MCP_SECRET_KEY is missing in Cloudflare Pages environment variables.' }, 500);
-    }
-
-    const tools = [ /* ... (sama macam tadi) ... */ 
+    // 1. Daftarkan SEMUA tools yang ada dalam MCP Server kau
+    const tools = [
       {
         type: "function",
         function: {
@@ -27,12 +23,48 @@ export async function onRequestPost({ request, env }) {
             required: ["status"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "list_sites",
+          description: "List all websites hosted on HairiHosting",
+          parameters: { type: "object", properties: {} }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "count_users",
+          description: "Get the total number of registered users",
+          parameters: { type: "object", properties: {} }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_and_deploy_site",
+          description: "Deploy a brand new HTML site",
+          parameters: {
+            type: "object",
+            properties: {
+              subdomain: { type: "string" },
+              name: { type: "string" },
+              html: { type: "string" }
+            },
+            required: ["subdomain", "name", "html"]
+          }
+        }
       }
     ];
 
+    // 2. Panggil Llama 3 dengan semua tools
     const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages: [
-        { role: 'system', content: 'You are a helpful assistant for HairiHosting. Use the provided tools to fulfill the user request.' },
+        { 
+          role: 'system', 
+          content: 'You are a helpful AI assistant for HairiHosting. If the user asks a general question, answer normally. If the user asks to manage the platform, use the provided tools. Be concise.' 
+        },
         { role: 'user', content: userMessage }
       ],
       tools: tools
@@ -40,44 +72,53 @@ export async function onRequestPost({ request, env }) {
 
     let reply = aiResponse.response || "";
 
+    // 3. Kalau AI panggil tool, kita hantar ke MCP Server
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
       const rawArgs = toolCall.function ? toolCall.function.arguments : toolCall.arguments;
+      
       let args = {};
       try { args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs; } catch (e) {}
 
-      if (functionName === 'toggle_maintenance' && args.status) {
-        const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json, text/event-stream',
-            'Authorization': `Bearer ${env.MCP_SECRET_KEY}`
-          },
-          body: JSON.stringify({
-            jsonrpc: '2.0', id: 1, method: 'tools/call',
-            params: {
-              name: 'toggle_maintenance',
-              arguments: { status: args.status, secret_key: env.MCP_SECRET_KEY }
-            }
-          })
-        });
+      // Masukkan secret_key untuk tool yang memerlukannya
+      args.secret_key = env.MCP_SECRET_KEY;
 
-        const rawText = await mcpRes.text();
-        let mcpData = null;
-        try { mcpData = JSON.parse(rawText); } 
-        catch (e) {
-          const dataLine = rawText.split('\n').find(line => line.startsWith('data: '));
-          if (dataLine) { try { mcpData = JSON.parse(dataLine.replace('data: ', '')); } catch (err) {} }
-        }
+      // Panggil MCP Server
+      const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
+          'Authorization': `Bearer ${env.MCP_SECRET_KEY}`
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'tools/call',
+          params: {
+            name: functionName,
+            arguments: args
+          }
+        })
+      });
 
-        if (!mcpData) reply = `⚠️ Gagal parse respons: ${rawText.substring(0, 100)}...`;
-        else if (mcpData.error) reply = `❌ Ralat MCP: ${mcpData.error.message}`;
-        else if (mcpData.result && mcpData.result.content) reply = `✅ ${mcpData.result.content[0].text}`;
-        else reply = `⚠️ Respons: ${JSON.stringify(mcpData)}`;
+      // Baca respons (JSON atau SSE)
+      const rawText = await mcpRes.text();
+      let mcpData = null;
+      try { mcpData = JSON.parse(rawText); } 
+      catch (e) {
+        const dataLine = rawText.split('\n').find(line => line.startsWith('data: '));
+        if (dataLine) { try { mcpData = JSON.parse(dataLine.replace('data: ', '')); } catch (err) {} }
       }
-    } else if (!reply) {
+
+      if (!mcpData) reply = `⚠️ Gagal parse respons MCP.`;
+      else if (mcpData.error) reply = `❌ Ralat MCP: ${mcpData.error.message}`;
+      else if (mcpData.result && mcpData.result.content) reply = `✅ ${mcpData.result.content[0].text}`;
+      else reply = `⚠️ Respons tidak diketahui: ${JSON.stringify(mcpData)}`;
+    } 
+    // Kalau AI tak panggil tool dan tak jawab apa-apa
+    else if (!reply) {
       reply = "Maaf, saya tidak faham arahan anda.";
     }
 
