@@ -16,12 +16,18 @@ export async function onRequestPost({ request, env }) {
       { type: "function", function: { name: "count_users", description: "Count total users", parameters: { type: "object", properties: {} } } }
     ];
 
-    // UPGRADE: Guna Llama 3.3 70B (Jauh lebih pandai dan patuh arahan)
+    // PROMPT BARU: Lebih mesra & berinformasi
     const aiResponse = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
       messages: [
         { 
           role: 'system', 
-          content: 'You are Lana, a polite AI assistant for HairiHosting. If the user asks casual questions (like "What is your name?", "Hello", "Who are you?"), just reply normally. DO NOT use any tools for casual chat. ONLY use tools if the user explicitly asks to perform administrative tasks like listing sites, counting users, or toggling maintenance.' 
+          content: `You are Lana, the friendly and smart AI assistant for HairiHosting. 
+          
+          GUIDELINES:
+          - If the user asks your name or who you are, introduce yourself politely as Lana, the AI assistant for HairiHosting.
+          - If the user asks about MCP, explain that MCP (Model Context Protocol) is the system that allows you to interact with their database (like listing sites or counting users).
+          - NEVER call a tool unless the user gives a direct command (e.g., "list my sites", "how many users", "turn on maintenance").
+          - If the user just says "Hi" or makes casual conversation, reply warmly and ask how you can help with HairiHosting.`
         },
         { role: 'user', content: userMessage }
       ],
@@ -30,7 +36,6 @@ export async function onRequestPost({ request, env }) {
 
     let reply = aiResponse.response || "";
 
-    // Kalau AI betul-betul panggil tool
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
