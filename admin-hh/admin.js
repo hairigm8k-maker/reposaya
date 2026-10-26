@@ -854,9 +854,7 @@
       
       <div class="card" style="max-width:800px; display:flex; flex-direction:column; height:600px; padding:0; overflow:hidden;">
         <div id="chatHistory" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; background:#0f1115;">
-          <div style="text-align:center; color:var(--fog); font-size:13px; margin-top:20px;">
-            Contoh: "Deploy site baru nama 'Kedai Kek' ke subdomain 'kek'"
-          </div>
+          
         </div>
         
         <div style="padding:16px; border-top:1px solid var(--border); background:var(--card); display:flex; gap:10px;">
