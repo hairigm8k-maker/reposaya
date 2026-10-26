@@ -10,7 +10,12 @@ export async function onRequestPost({ request, env }) {
     const userMessage = body.message;
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
-    const tools = [
+    // --- CHECK KUNCI RAHSIA ---
+    if (!env.MCP_SECRET_KEY) {
+      return json({ ok: false, error: 'System Error: MCP_SECRET_KEY is missing in Cloudflare Pages environment variables.' }, 500);
+    }
+
+    const tools = [ /* ... (sama macam tadi) ... */ 
       {
         type: "function",
         function: {
@@ -18,9 +23,7 @@ export async function onRequestPost({ request, env }) {
           description: "Turn HairiHosting maintenance mode ON or OFF",
           parameters: {
             type: "object",
-            properties: {
-              status: { type: "string", enum: ["on", "off"], description: "Turn maintenance on or off" }
-            },
+            properties: { status: { type: "string", enum: ["on", "off"] } },
             required: ["status"]
           }
         }
@@ -41,11 +44,8 @@ export async function onRequestPost({ request, env }) {
       const toolCall = aiResponse.tool_calls[0];
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
       const rawArgs = toolCall.function ? toolCall.function.arguments : toolCall.arguments;
-      
       let args = {};
-      try {
-        args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
-      } catch (e) {}
+      try { args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs; } catch (e) {}
 
       if (functionName === 'toggle_maintenance' && args.status) {
         const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
@@ -56,50 +56,28 @@ export async function onRequestPost({ request, env }) {
             'Authorization': `Bearer ${env.MCP_SECRET_KEY}`
           },
           body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'tools/call',
+            jsonrpc: '2.0', id: 1, method: 'tools/call',
             params: {
               name: 'toggle_maintenance',
-              arguments: {
-                status: args.status,
-                secret_key: env.MCP_SECRET_KEY
-              }
+              arguments: { status: args.status, secret_key: env.MCP_SECRET_KEY }
             }
           })
         });
 
-        // --- FIX: Baca respons mentah dan handle SSE ---
         const rawText = await mcpRes.text();
         let mcpData = null;
-
-        try {
-          // Cuba parse JSON biasa dulu
-          mcpData = JSON.parse(rawText);
-        } catch (e) {
-          // Kalau gagal, maknanya ia SSE. Cari baris yang mula dengan "data: "
+        try { mcpData = JSON.parse(rawText); } 
+        catch (e) {
           const dataLine = rawText.split('\n').find(line => line.startsWith('data: '));
-          if (dataLine) {
-            try {
-              mcpData = JSON.parse(dataLine.replace('data: ', ''));
-            } catch (err) {}
-          }
+          if (dataLine) { try { mcpData = JSON.parse(dataLine.replace('data: ', '')); } catch (err) {} }
         }
 
-        if (!mcpData) {
-          reply = `⚠️ Gagal parse respons MCP:\n${rawText.substring(0, 100)}...`;
-        } else if (mcpData.error) {
-          reply = `❌ Ralat MCP: ${mcpData.error.message}`;
-        } else if (mcpData.result && mcpData.result.content) {
-          reply = `✅ ${mcpData.result.content[0].text}`;
-        } else {
-          reply = `⚠️ Respons tidak diketahui: ${JSON.stringify(mcpData)}`;
-        }
-      } else {
-        reply += `\n\n[Debug: ${functionName}]`;
+        if (!mcpData) reply = `⚠️ Gagal parse respons: ${rawText.substring(0, 100)}...`;
+        else if (mcpData.error) reply = `❌ Ralat MCP: ${mcpData.error.message}`;
+        else if (mcpData.result && mcpData.result.content) reply = `✅ ${mcpData.result.content[0].text}`;
+        else reply = `⚠️ Respons: ${JSON.stringify(mcpData)}`;
       }
-    } 
-    else if (!reply) {
+    } else if (!reply) {
       reply = "Maaf, saya tidak faham arahan anda.";
     }
 
