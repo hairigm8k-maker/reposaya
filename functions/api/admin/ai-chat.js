@@ -10,7 +10,6 @@ export async function onRequestPost({ request, env }) {
     const userMessage = body.message;
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
-    // 1. Definisikan Tools untuk Llama 3
     const tools = [
       {
         type: "function",
@@ -28,7 +27,6 @@ export async function onRequestPost({ request, env }) {
       }
     ];
 
-    // 2. Panggil Llama 3
     const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages: [
         { role: 'system', content: 'You are a helpful assistant for HairiHosting. Use the provided tools to fulfill the user request.' },
@@ -39,27 +37,23 @@ export async function onRequestPost({ request, env }) {
 
     let reply = aiResponse.response || "";
 
-    // 3. Semak kalau Llama 3 nak guna Tool
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
-      
-      // FIX: Handle kedua-dua format respons (dengan .function atau tanpa .function)
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
       const rawArgs = toolCall.function ? toolCall.function.arguments : toolCall.arguments;
       
       let args = {};
       try {
         args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
-      } catch (e) {
-        console.error("Failed to parse tool arguments:", rawArgs);
-      }
+      } catch (e) {}
 
       if (functionName === 'toggle_maintenance' && args.status) {
-        // Panggil MCP Server
+        // FIX: Tambah header 'Accept' supaya MCP Server bagi kebenaran
         const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json, text/event-stream', // <-- INI KUNCI NYA
             'Authorization': `Bearer ${env.MCP_SECRET_KEY}`
           },
           body: JSON.stringify({
@@ -83,10 +77,9 @@ export async function onRequestPost({ request, env }) {
         } else if (mcpData.result && mcpData.result.content) {
           reply = `✅ ${mcpData.result.content[0].text}`;
         } else {
-          reply = `⚠️ Respons MCP tidak diketahui: ${JSON.stringify(mcpData)}`;
+          reply = `⚠️ Respons MCP: ${JSON.stringify(mcpData)}`;
         }
       } else {
-        // Debug: tunjuk apa AI sebenarnya hantar
         reply += `\n\n[Debug Tool Call: ${functionName} - ${JSON.stringify(args)}]`;
       }
     } 
@@ -96,7 +89,6 @@ export async function onRequestPost({ request, env }) {
 
     return json({ ok: true, reply: reply });
   } catch (err) {
-    // Tangkap error dan pulangkan ke UI supaya senang debug
     return json({ ok: false, error: err.message }, 500);
   }
 }
