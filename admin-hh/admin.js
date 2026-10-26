@@ -117,6 +117,7 @@
         if (page === 'admins') return await this.pageAdmins(main);
         if (page === 'admin-sessions') return await this.pageAdminSessions(main);
     if (page === 'mailsender' && this.pageMailsender) return await this.pageMailsender(main);
+    if (page === 'aichat') return await this.pageAichat(main);
         if (page === 'security-log') return await this.pageSecurityLog(main);
       } catch(e){ main.innerHTML = '<div class="loading" style="color:#ff8a8a">Error: ' + esc(e.message) + '</div>'; }
     }
@@ -887,4 +888,77 @@ AdminApp.resetStudent = async function(id, email) {
   } catch(e) { 
     toast('Error: ' + e.message, 'error'); 
   }
+};
+
+App.pageAichat = async function(main) {
+  main.innerHTML = `
+    <div class="eyebrow">System</div>
+    <h1 class="page-title">AI Assistant</h1>
+    <p class="page-sub">Chat with Llama 3 to manage your platform via MCP</p>
+    
+    <div class="card" style="max-width:800px; display:flex; flex-direction:column; height:600px; padding:0; overflow:hidden;">
+      <div id="chatHistory" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; background:#0f1115;">
+        <div style="text-align:center; color:var(--fog); font-size:13px; margin-top:20px;">
+          Contoh arahan:<br>
+          "Deploy site baru nama 'Kedai Kek' ke subdomain 'kek'. Ini HTML dia: &lt;h1&gt;Hello&lt;/h1&gt;"<br>
+          "Tukar maintenance mode jadi ON"<br>
+          "List semua site aku"
+        </div>
+      </div>
+      
+      <div style="padding:16px; border-top:1px solid var(--border); background:var(--card); display:flex; gap:10px;">
+        <textarea id="chatInput" class="input" style="flex:1; min-height:48px; max-height:120px; resize:none;" placeholder="Taip arahan kat sini..."></textarea>
+        <button class="btn btn-primary" id="btnSendChat" style="width:80px;">Send</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btnSendChat').onclick = function() { App.sendAIChat(); };
+  document.getElementById('chatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); App.sendAIChat(); }
+  });
+};
+
+App.sendAIChat = async function() {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('btnSendChat');
+  const history = document.getElementById('chatHistory');
+  const msg = input.value.trim();
+  
+  if (!msg) return;
+  
+  // Tunjuk mesej user
+  history.innerHTML += `<div style="align-self:flex-end; background:var(--copper); color:#000; padding:10px 14px; border-radius:12px 12px 0 12px; max-width:80%; font-size:14px;">${msg}</div>`;
+  input.value = '';
+  input.disabled = true; btn.disabled = true; btn.textContent = '...';
+  history.scrollTop = history.scrollHeight;
+
+  // Tunjuk loading
+  const loadingId = 'load-' + Date.now();
+  history.innerHTML += `<div id="${loadingId}" style="align-self:flex-start; background:var(--panel); border:1px solid var(--border); padding:10px 14px; border-radius:12px 12px 12px 0; color:var(--fog); font-size:13px; font-style:italic;">Thinking...</div>`;
+  history.scrollTop = history.scrollHeight;
+
+  try {
+    const res = await fetch('/api/admin/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    
+    document.getElementById(loadingId).remove();
+    
+    if (data.ok) {
+      history.innerHTML += `<div style="align-self:flex-start; background:var(--panel); border:1px solid var(--border); padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px; white-space:pre-wrap;">${data.reply}</div>`;
+    } else {
+      history.innerHTML += `<div style="align-self:flex-start; background:rgba(248,113,113,0.1); border:1px solid #f87171; color:#f87171; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;">Error: ${data.error}</div>`;
+    }
+  } catch (e) {
+    document.getElementById(loadingId).remove();
+    history.innerHTML += `<div style="align-self:flex-start; background:rgba(248,113,113,0.1); border:1px solid #f87171; color:#f87171; padding:10px 14px; border-radius:12px 12px 12px 0; max-width:80%; font-size:14px;">Ralat: ${e.message}</div>`;
+  }
+
+  input.disabled = false; btn.disabled = false; btn.textContent = 'Send';
+  input.focus();
+  history.scrollTop = history.scrollHeight;
 };
