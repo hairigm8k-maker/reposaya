@@ -10,12 +10,8 @@ export async function onRequestPost({ request, env }) {
     const userMessage = body.message;
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
-    // 1. Panggil Llama 3 untuk detect niat (Intent)
-    const systemPrompt = `You are an AI assistant for HairiHosting. 
-    Your job is to help the admin manage the platform. 
-    If the user wants to deploy a site, ask for the subdomain, name, and HTML content.
-    If the user wants to turn on/off maintenance, confirm the status.
-    Always be concise.`;
+    // 1. Dapatkan jawapan asas dari Llama 3
+    const systemPrompt = `You are an AI assistant for HairiHosting. Reply briefly to the user's request.`;
     
     const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages: [
@@ -25,11 +21,27 @@ export async function onRequestPost({ request, env }) {
     });
 
     let reply = aiResponse.response;
+    const lowerMsg = userMessage.toLowerCase();
 
-    // Logik mudah: Kalau AI cakap pasal deploy, kita panggil MCP Server
-    // (Untuk sistem yang lebih kompleks, kita guna Function Calling / Tool Calling)
-    if (userMessage.toLowerCase().includes('deploy') || userMessage.toLowerCase().includes('maintenance')) {
-      // Panggil MCP Server kau
+    // 2. Logik MCP (Hantar argument yang betul sahaja)
+    let toolName = '';
+    let toolArgs = { secret_key: env.MCP_SECRET_KEY };
+
+    if (lowerMsg.includes('maintenance')) {
+      toolName = 'toggle_maintenance';
+      // Cari perkataan 'on' atau 'off' dalam ayat user
+      toolArgs.status = (lowerMsg.includes('off') || lowerMsg.includes('tutup')) ? 'off' : 'on';
+    } 
+    else if (lowerMsg.includes('deploy')) {
+      // (Untuk masa ni, kita test maintenance dulu. Deploy kita buat nanti)
+      toolName = 'generate_and_deploy_site';
+      toolArgs.subdomain = 'test-ai-' + Date.now().toString().slice(-4); // Random subdomain
+      toolArgs.name = 'Test AI Site';
+      toolArgs.html = '<h1>Deployed via Admin Chat</h1>';
+    }
+
+    // 3. Panggil MCP Server
+    if (toolName) {
       const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
         method: 'POST',
         headers: {
@@ -41,22 +53,21 @@ export async function onRequestPost({ request, env }) {
           id: 1,
           method: 'tools/call',
           params: {
-            name: userMessage.toLowerCase().includes('maintenance') ? 'toggle_maintenance' : 'generate_and_deploy_site',
-            arguments: {
-              // Ini adalah hardcode untuk demo. Untuk production, guna LLM tool calling untuk extract arguments.
-              status: 'on',
-              subdomain: 'test-ai',
-              name: 'Test AI Site',
-              html: '<h1>Deployed via Admin Chat</h1>',
-              secret_key: env.MCP_SECRET_KEY
-            }
+            name: toolName,
+            arguments: toolArgs
           }
         })
       });
 
       const mcpData = await mcpRes.json();
-      if (mcpData.result && mcpData.result.content) {
-        reply += `\n\n✅ **Action taken:** ${mcpData.result.content[0].text}`;
+
+      // 4. Semak kalau MCP ada bagi ERROR (Zod validation, dll)
+      if (mcpData.error) {
+        reply += `\n\n❌ **MCP Server Error:**\n${mcpData.error.message}`;
+      } else if (mcpData.result && mcpData.result.content) {
+        reply += `\n\n✅ **Action taken:**\n${mcpData.result.content[0].text}`;
+      } else {
+        reply += `\n\n⚠️ **Unknown MCP Response:**\n${JSON.stringify(mcpData)}`;
       }
     }
 
