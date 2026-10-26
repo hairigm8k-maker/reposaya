@@ -10,13 +10,12 @@ export async function onRequestPost({ request, env }) {
     const userMessage = body.message;
     if (!userMessage) return json({ ok: false, error: 'Message required' }, 400);
 
-    // 1. Daftarkan SEMUA tools yang ada dalam MCP Server kau
     const tools = [
       {
         type: "function",
         function: {
           name: "toggle_maintenance",
-          description: "Turn HairiHosting maintenance mode ON or OFF",
+          description: "Turn HairiHosting maintenance mode ON or OFF. Only use if user explicitly asks to turn on/off maintenance.",
           parameters: {
             type: "object",
             properties: { status: { type: "string", enum: ["on", "off"] } },
@@ -28,7 +27,7 @@ export async function onRequestPost({ request, env }) {
         type: "function",
         function: {
           name: "list_sites",
-          description: "List all websites hosted on HairiHosting",
+          description: "List all websites hosted on HairiHosting. Only use if user explicitly asks to see their sites.",
           parameters: { type: "object", properties: {} }
         }
       },
@@ -36,34 +35,18 @@ export async function onRequestPost({ request, env }) {
         type: "function",
         function: {
           name: "count_users",
-          description: "Get the total number of registered users",
+          description: "Get the total number of registered users. Only use if user asks about user count.",
           parameters: { type: "object", properties: {} }
-        }
-      },
-      {
-        type: "function",
-        function: {
-          name: "generate_and_deploy_site",
-          description: "Deploy a brand new HTML site",
-          parameters: {
-            type: "object",
-            properties: {
-              subdomain: { type: "string" },
-              name: { type: "string" },
-              html: { type: "string" }
-            },
-            required: ["subdomain", "name", "html"]
-          }
         }
       }
     ];
 
-    // 2. Panggil Llama 3 dengan semua tools
+    // Prompt ditegaskan supaya AI tak main panggil tool kalau user cuma sembang
     const aiResponse = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fast', {
       messages: [
         { 
           role: 'system', 
-          content: 'You are a helpful AI assistant for HairiHosting. If the user asks a general question, answer normally. If the user asks to manage the platform, use the provided tools. Be concise.' 
+          content: 'You are a helpful AI assistant for HairiHosting. If the user says "Hi", "Hello", or asks a general question, reply normally and DO NOT call any tools. ONLY call a tool if the user EXPLICITLY commands you to do so (e.g., "list my sites", "turn on maintenance").' 
         },
         { role: 'user', content: userMessage }
       ],
@@ -72,19 +55,15 @@ export async function onRequestPost({ request, env }) {
 
     let reply = aiResponse.response || "";
 
-    // 3. Kalau AI panggil tool, kita hantar ke MCP Server
+    // Kalau AI panggil tool
     if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
       const toolCall = aiResponse.tool_calls[0];
       const functionName = toolCall.function ? toolCall.function.name : toolCall.name;
       const rawArgs = toolCall.function ? toolCall.function.arguments : toolCall.arguments;
-      
       let args = {};
       try { args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs; } catch (e) {}
-
-      // Masukkan secret_key untuk tool yang memerlukannya
       args.secret_key = env.MCP_SECRET_KEY;
 
-      // Panggil MCP Server
       const mcpRes = await fetch('https://hairi-mcp.hairigm8k.workers.dev/mcp', {
         method: 'POST',
         headers: {
@@ -93,17 +72,11 @@ export async function onRequestPost({ request, env }) {
           'Authorization': `Bearer ${env.MCP_SECRET_KEY}`
         },
         body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'tools/call',
-          params: {
-            name: functionName,
-            arguments: args
-          }
+          jsonrpc: '2.0', id: 1, method: 'tools/call',
+          params: { name: functionName, arguments: args }
         })
       });
 
-      // Baca respons (JSON atau SSE)
       const rawText = await mcpRes.text();
       let mcpData = null;
       try { mcpData = JSON.parse(rawText); } 
@@ -112,14 +85,28 @@ export async function onRequestPost({ request, env }) {
         if (dataLine) { try { mcpData = JSON.parse(dataLine.replace('data: ', '')); } catch (err) {} }
       }
 
-      if (!mcpData) reply = `⚠️ Gagal parse respons MCP.`;
-      else if (mcpData.error) reply = `❌ Ralat MCP: ${mcpData.error.message}`;
-      else if (mcpData.result && mcpData.result.content) reply = `✅ ${mcpData.result.content[0].text}`;
-      else reply = `⚠️ Respons tidak diketahui: ${JSON.stringify(mcpData)}`;
+      if (!mcpData) {
+        reply = `⚠️ Gagal parse respons MCP.`;
+      } else if (mcpData.error) {
+        reply = `❌ Ralat MCP: ${mcpData.error.message}`;
+      } else if (mcpData.result && mcpData.result.content) {
+        const resultText = mcpData.result.content[0].text;
+        
+        // FORMAT KHASUS UNTUK LIST_SITES (Buang JSON, tukar jadi bullet points)
+        if (functionName === 'list_sites') {
+          try {
+            const sites = JSON.parse(resultText);
+            reply = `Ini senarai website kau:\n\n` + sites.map(s => `• **${s.name}** (\`${s.subdomain}\`) - ${s.status.toUpperCase()}`).join('\n');
+          } catch(e) {
+            reply = `✅ ${resultText}`;
+          }
+        } else {
+          reply = `✅ ${resultText}`;
+        }
+      }
     } 
-    // Kalau AI tak panggil tool dan tak jawab apa-apa
     else if (!reply) {
-      reply = "Maaf, saya tidak faham arahan anda.";
+      reply = "Maaf, saya tidak faham.";
     }
 
     return json({ ok: true, reply: reply });
