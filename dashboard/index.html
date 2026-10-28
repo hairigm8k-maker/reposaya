@@ -176,125 +176,7 @@ body.chat-fullscreen .content{padding:0 !important;max-width:none !important}
 
 </style>
 
-<style id="new-dashboard-theme">
-  :root {
-    --new-bg: #09090b;
-    --new-surface: #111113;
-    --new-border: #27272a;
-    --new-text: #ededed;
-    --new-muted: #a1a1aa;
-    --new-hover: #18181b;
-    --new-accent: #3b82f6;
-  }
 
-  /* OVERRIDE GLOBAL BACKGROUND & TEXT */
-  body, .app-container, #app, .main-content {
-    background-color: var(--new-bg) !important;
-    color: var(--new-text) !important;
-    font-family: 'Inter', -apple-system, sans-serif !important;
-  }
-
-  /* SEMBUNYIKAN BADGE LIVE/DRAFT & KOTAK TEBAL */
-  .badge, .status-badge, [class*="badge"] { display: none !important; }
-  .card { 
-    background: transparent !important; 
-    border: none !important; 
-    border-bottom: 1px solid var(--new-border) !important; 
-    border-radius: 0 !important; 
-    box-shadow: none !important;
-    padding: 16px 0 !important;
-  }
-
-  /* SIDEBAR & ICON HOVER EFFECT (Yang kau nak) */
-  .sb-nav { padding: 12px 8px !important; }
-  .sb-item {
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    padding: 8px 12px !important;
-    border-radius: 6px !important;
-    color: var(--new-muted) !important;
-    transition: all 0.2s ease !important;
-    text-decoration: none !important;
-    margin-bottom: 2px !important;
-  }
-  
-  /* Bila mouse lalu (Hover), background jadi kelabu gelap, text & icon jadi putih */
-  .sb-item:hover {
-    background-color: var(--new-hover) !important;
-    color: var(--new-text) !important;
-  }
-  .sb-item:hover .sb-icon {
-    stroke: var(--new-text) !important;
-    color: var(--new-text) !important;
-  }
-  
-  /* Bila active (tengah buka page tu) */
-  .sb-item.active {
-    background-color: var(--new-hover) !important;
-    color: var(--new-text) !important;
-  }
-  .sb-item.active .sb-icon {
-    stroke: var(--new-text) !important;
-  }
-  
-  .sb-section-title {
-    font-size: 11px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #52525b !important;
-    padding: 16px 12px 8px 12px !important;
-    font-weight: 600 !important;
-  }
-
-  /* TOPBAR & HEADER */
-  header, .topbar, .hh-header {
-    background-color: var(--new-bg) !important;
-    border-bottom: 1px solid var(--new-border) !important;
-  }
-
-  /* BUTANG */
-  .btn-primary, .hh-btn-primary {
-    background-color: var(--new-text) !important;
-    color: var(--new-bg) !important;
-    border-radius: 6px !important;
-    border: none !important;
-  }
-  .btn-outline {
-    background: transparent !important;
-    border: 1px solid var(--new-border) !important;
-    color: var(--new-text) !important;
-  }
-
-  /* INPUT & TEXTAREA */
-  input, textarea, select {
-    background-color: var(--new-bg) !important;
-    border: 1px solid var(--new-border) !important;
-    color: var(--new-text) !important;
-    border-radius: 6px !important;
-  }
-
-  /* ANIMASI ICON SIDEBAR */
-  .sb-icon {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    transform-origin: center !important;
-  }
-  
-  .sb-item:hover .sb-icon {
-    transform: scale(1.2) rotate(-8deg) !important; /* Icon membesar & senget sikit */
-    stroke: var(--new-accent) !important; /* Tukar jadi warna biru */
-    color: var(--new-accent) !important;
-  }
-
-  .sb-label {
-    transition: transform 0.2s ease !important;
-  }
-
-  .sb-item:hover .sb-label {
-    transform: translateX(4px) !important; /* Text bergerak sikit ke kanan */
-    color: var(--new-text) !important;
-  }
-</style>
 </head>
 <body>
 <div class="layout">
@@ -539,6 +421,46 @@ window.copyText=copyText;
     })
     .catch(function(e){ console.error('Session fetch error:', e); });
 })();
+</script>
+
+<script id="force-theme">
+  document.addEventListener('DOMContentLoaded', function() {
+    var style = document.createElement('style');
+    style.innerHTML = `
+      :root {
+        --new-bg: #09090b;
+        --new-surface: #111113;
+        --new-border: #27272a;
+        --new-text: #ededed;
+        --new-muted: #a1a1aa;
+        --new-hover: #18181b;
+        --new-accent: #3b82f6;
+      }
+      body, .app-container, #app, .main-content { background-color: var(--new-bg) !important; color: var(--new-text) !important; font-family: 'Inter', sans-serif !important; }
+      .badge, .status-badge, [class*="badge"] { display: none !important; }
+      .card { background: transparent !important; border: none !important; border-bottom: 1px solid var(--new-border) !important; border-radius: 0 !important; box-shadow: none !important; padding: 16px 0 !important; }
+      
+      .sb-nav { padding: 12px 8px !important; }
+      .sb-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 8px 12px !important; border-radius: 6px !important; color: var(--new-muted) !important; transition: all 0.2s ease !important; text-decoration: none !important; margin-bottom: 2px !important; }
+      
+      /* ANIMASI HOVER */
+      .sb-item:hover { background-color: var(--new-hover) !important; color: var(--new-text) !important; }
+      .sb-item:hover .sb-icon { transform: scale(1.2) rotate(-8deg) !important; stroke: var(--new-accent) !important; color: var(--new-accent) !important; }
+      .sb-item:hover .sb-label { transform: translateX(4px) !important; color: var(--new-text) !important; }
+      
+      .sb-item.active { background-color: var(--new-hover) !important; color: var(--new-text) !important; }
+      .sb-item.active .sb-icon { stroke: var(--new-text) !important; }
+      .sb-icon { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; transform-origin: center !important; }
+      .sb-label { transition: transform 0.2s ease !important; }
+      
+      header, .topbar, .hh-header { background-color: var(--new-bg) !important; border-bottom: 1px solid var(--new-border) !important; }
+      .btn-primary, .hh-btn-primary { background-color: var(--new-text) !important; color: var(--new-bg) !important; border-radius: 6px !important; border: none !important; }
+      .btn-outline { background: transparent !important; border: 1px solid var(--new-border) !important; color: var(--new-text) !important; }
+      input, textarea, select { background-color: var(--new-bg) !important; border: 1px solid var(--new-border) !important; color: var(--new-text) !important; border-radius: 6px !important; }
+    `;
+    document.head.appendChild(style);
+    console.log("Force Theme CSS Injected!");
+  });
 </script>
 </body>
 </html>
