@@ -273,6 +273,27 @@ body.chat-fullscreen .content{padding:0 !important;max-width:none !important}
     color: var(--new-text) !important;
     border-radius: 6px !important;
   }
+
+  /* ANIMASI ICON SIDEBAR */
+  .sb-icon {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    transform-origin: center !important;
+  }
+  
+  .sb-item:hover .sb-icon {
+    transform: scale(1.2) rotate(-8deg) !important; /* Icon membesar & senget sikit */
+    stroke: var(--new-accent) !important; /* Tukar jadi warna biru */
+    color: var(--new-accent) !important;
+  }
+
+  .sb-label {
+    transition: transform 0.2s ease !important;
+  }
+
+  .sb-item:hover .sb-label {
+    transform: translateX(4px) !important; /* Text bergerak sikit ke kanan */
+    color: var(--new-text) !important;
+  }
 </style>
 </head>
 <body>
