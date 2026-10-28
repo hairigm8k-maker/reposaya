@@ -462,5 +462,113 @@ window.copyText=copyText;
     console.log("Force Theme CSS Injected!");
   });
 </script>
+
+<script id="zip-upload-logic">
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cari butang Publish dalam editor
+    const publishBtn = document.querySelector('button[id*="publish"], button[onclick*="Publish"]');
+    if (publishBtn && !document.getElementById('btnUploadZip')) {
+      
+      // Cipta butang Upload ZIP
+      const zipBtn = document.createElement('button');
+      zipBtn.id = 'btnUploadZip';
+      zipBtn.className = 'btn btn-outline';
+      zipBtn.style.marginRight = '8px';
+      zipBtn.innerHTML = '📦 Upload ZIP';
+      
+      // Cipta input file (hidden)
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.zip';
+      fileInput.style.display = 'none';
+      
+      // Masukkan elemen ke dalam DOM
+      publishBtn.parentNode.insertBefore(zipBtn, publishBtn);
+      publishBtn.parentNode.appendChild(fileInput);
+      
+      // Event click
+      zipBtn.onclick = function() { fileInput.click(); };
+      
+      // Event bila fail dipilih
+      fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        zipBtn.innerHTML = '⏳ Processing...';
+        zipBtn.disabled = true;
+        
+        try {
+          if (typeof JSZip === 'undefined') {
+            throw new Error('JSZip library not loaded. Sila pastikan CDN JSZip ada dalam index.html');
+          }
+          
+          const zip = await JSZip.loadAsync(file);
+          let indexHtml = '';
+          let assets = [];
+          
+          // Loop semua fail dalam ZIP
+          const promises = [];
+          zip.forEach((relativePath, zipEntry) => {
+            // Abaikan folder sistem mac
+            if (relativePath.includes('__MACOSX') || relativePath.includes('.DS_Store')) return;
+            
+            if (relativePath.endsWith('index.html')) {
+              promises.push(zipEntry.async('string').then(text => { indexHtml = text; }));
+            } else if (!zipEntry.dir) {
+              // Fail lain (gambar, css, js)
+              promises.push(zipEntry.async('base64').then(b64 => {
+                assets.push({
+                  filename: relativePath.split('/').pop(),
+                  data: b64
+                });
+              }));
+            }
+          });
+          
+          await Promise.all(promises);
+          
+          if (!indexHtml) throw new Error('Fail index.html tidak dijumpai dalam ZIP.');
+          
+          // --- SIMPAN KE DATABASE ---
+          // Di sini kau kena guna API kau yang sedia ada. 
+          // Aku guna contoh fetch ke '/api/sites/update' dan '/api/files/upload'.
+          
+          const siteId = window.currentSiteId || new URLSearchParams(window.location.search).get('id');
+          if (!siteId) throw new Error('Site ID tidak dijumpai.');
+          
+          // 1. Upload assets (Gambar/CSS/JS)
+          for (let asset of assets) {
+            await fetch('/api/files/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                site_id: siteId,
+                filename: asset.filename,
+                data: asset.data
+              })
+            });
+          }
+          
+          // 2. Update HTML site
+          await fetch('/api/sites/' + siteId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ html: indexHtml })
+          });
+          
+          alert('✅ ZIP berjaya di-upload dan di-extract!');
+          location.reload(); // Refresh untuk tunjuk HTML baru
+          
+        } catch (err) {
+          alert('❌ Gagal proses ZIP: ' + err.message);
+        } finally {
+          zipBtn.innerHTML = '📦 Upload ZIP';
+          zipBtn.disabled = false;
+          fileInput.value = ''; // Reset input
+        }
+      };
+    }
+  });
+</script>
 </body>
 </html>
