@@ -53,6 +53,8 @@
             '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
               '<button class="btn btn-ghost btn-sm" onclick="App.go(\'sites\')">← Balik</button>' +
               '<button class="btn btn-ghost btn-sm" onclick="App.openPreview(\'' + site.subdomain + '\')">👁 Preview</button>' +
+              '<button class="btn btn-ghost btn-sm" id="btnUploadZip">📦 Upload ZIP</button>' +
+              '<input type="file" id="zipFileInput" accept=".zip" style="display:none;">' +
               '<button class="btn btn-primary btn-sm" id="saveBtn">💾 Save</button>' +
             '</div>' +
           '</div>' +
@@ -76,6 +78,73 @@
           '</div>';
 
         // Save handler
+        // --- LOGIK UPLOAD ZIP ---
+        var btnUploadZip = document.getElementById('btnUploadZip');
+        var zipFileInput = document.getElementById('zipFileInput');
+        
+        if (btnUploadZip && zipFileInput) {
+          btnUploadZip.onclick = function() { zipFileInput.click(); };
+          
+          zipFileInput.onchange = async function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            
+            btnUploadZip.innerHTML = '⏳ Processing...';
+            btnUploadZip.disabled = true;
+            
+            try {
+              if (typeof JSZip === 'undefined') throw new Error('JSZip library tak jumpa.');
+              
+              var zip = await JSZip.loadAsync(file);
+              var indexHtml = '';
+              var assets = [];
+              var promises = [];
+              
+              zip.forEach(function(relativePath, zipEntry) {
+                if (relativePath.includes('__MACOSX') || relativePath.includes('.DS_Store')) return;
+                
+                if (relativePath.endsWith('index.html')) {
+                  promises.push(zipEntry.async('string').then(function(text) { indexHtml = text; }));
+                } else if (!zipEntry.dir) {
+                  promises.push(zipEntry.async('base64').then(function(b64) {
+                    assets.push({ filename: relativePath.split('/').pop(), data: b64 });
+                  }));
+                }
+              });
+              
+              await Promise.all(promises);
+              if (!indexHtml) throw new Error('index.html tak jumpa dalam ZIP.');
+              
+              // Upload Assets (Gambar/CSS/JS)
+              for (var i=0; i<assets.length; i++) {
+                await fetch('/api/files/upload', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ site_id: siteId, filename: assets[i].filename, data: assets[i].data })
+                });
+              }
+              
+              // Update HTML Site
+              await fetch('/api/sites/' + siteId, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ html: indexHtml })
+              });
+              
+              alert('✅ ZIP berjaya di-extract dan disimpan!');
+              App.pageEditor(siteId); // Reload page
+              
+            } catch (err) {
+              alert('❌ Gagal: ' + err.message);
+            } finally {
+              btnUploadZip.innerHTML = '📦 Upload ZIP';
+              btnUploadZip.disabled = false;
+              zipFileInput.value = '';
+            }
+          };
+        }
+        // --- TAMAT LOGIK ZIP ---
+
         var saveBtn = document.getElementById('saveBtn');
         saveBtn.onclick = async function() {
           saveBtn.disabled = true;
