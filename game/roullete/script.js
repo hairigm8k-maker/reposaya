@@ -1,5 +1,5 @@
 // =========================================================
-// ROULETTE KASINO (RM) - HAIRIAHOSTING GAME SCRIPT
+// ROULETTE KASINO 3D (RM) - HAIRIAHOSTING GAME SCRIPT
 // =========================================================
 
 let bankValue = 100;
@@ -14,8 +14,11 @@ let betMode = 'add'; // 'add' or 'remove' (for mobile touch toggle)
 
 // Red numbers in European Roulette
 const numRed = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-// European wheel order (0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26)
-const wheelnumbersAC = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+// Authentic European wheel sequence (0, 32, 15, 19 ... 26)
+const WHEEL_NUMBERS = [
+  0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10,
+  5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+];
 const chipValues = [1, 5, 10, 50, 100];
 
 // Format numbers to Malaysian Ringgit (RM)
@@ -52,83 +55,448 @@ function updateBalances() {
 // INITIALIZATION
 // ---------------------------------------------------------
 function initGame() {
-  buildWheel();
+  init3DRouletteWheel();
   buildBettingBoard();
   buildChipDeck();
   updateBalances();
 }
 
-// ---------------------------------------------------------
-// WHEEL BUILDER
-// ---------------------------------------------------------
-let wheelEl = null;
-let ballTrackEl = null;
+// =========================================================
+// 3D ROULETTE ENGINE (THREE.JS REALISTIC WEBGL)
+// =========================================================
+let scene, camera, renderer;
+let rotorGroup, bowlGroup, ballMesh, ballShadowMesh;
+let is3DReady = false;
+let animId = null;
 
-function buildWheel() {
-  const mount = document.getElementById('wheelContainer');
-  if (!mount) return;
-  mount.innerHTML = '';
+let rotorVelocity = 0.005; // Gentle idle spin
+let isBallSpinning = false;
+let spinStartTime = 0;
+let spinDuration = 9.5; // Seconds
+let targetPocketNumber = 0;
+let targetPocketAngle = 0;
+let ballAngle = 0;
+let ballRadius = 3.55;
+let ballY = 0.52;
+let ballVelocity = 0;
+let onSpinCompleteCallback = null;
 
-  wheelEl = document.createElement('div');
-  wheelEl.setAttribute('class', 'wheel');
+// High-resolution procedural texture for roulette wheel disc (2048x2048)
+function generateRotorCanvasTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2048;
+  canvas.height = 2048;
+  const ctx = canvas.getContext('2d');
+  const cx = 1024, cy = 1024;
+  const step = (2 * Math.PI) / 37;
 
-  const outerRim = document.createElement('div');
-  outerRim.setAttribute('class', 'outerRim');
-  wheelEl.append(outerRim);
+  // 1. Mahogany background ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, 1024, 0, Math.PI * 2);
+  ctx.fillStyle = '#220e06';
+  ctx.fill();
 
-  const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-  for (let i = 0; i < numbers.length; i++) {
-    const a = i + 1;
-    const spanClass = (numbers[i] < 10) ? 'single' : 'double';
-    const sect = document.createElement('div');
-    sect.setAttribute('id', 'sect' + a);
-    sect.setAttribute('class', 'sect');
+  // 2. Brass outer border
+  ctx.beginPath();
+  ctx.arc(cx, cy, 990, 0, Math.PI * 2);
+  ctx.strokeStyle = '#d4af37';
+  ctx.lineWidth = 14;
+  ctx.stroke();
 
-    const span = document.createElement('span');
-    span.setAttribute('class', spanClass);
-    span.innerText = numbers[i];
-    sect.append(span);
+  // 3. Pockets ring: from radius 970 down to 680
+  const rOuter = 970;
+  const rInner = 680;
 
-    const block = document.createElement('div');
-    block.setAttribute('class', 'block');
-    sect.append(block);
-    wheelEl.append(sect);
+  for (let i = 0; i < 37; i++) {
+    const num = WHEEL_NUMBERS[i];
+    const startAngle = i * step - Math.PI / 2 - step / 2;
+    const endAngle = startAngle + step;
+    const midAngle = (startAngle + endAngle) / 2;
+
+    // Pocket color
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOuter, startAngle, endAngle);
+    ctx.arc(cx, cy, rInner, endAngle, startAngle, true);
+    ctx.closePath();
+
+    if (num === 0) {
+      ctx.fillStyle = '#059669'; // Emerald green
+    } else if (numRed.includes(num)) {
+      ctx.fillStyle = '#dc2626'; // Luxury crimson red
+    } else {
+      ctx.fillStyle = '#18181b'; // Obsidian black
+    }
+    ctx.fill();
+
+    // Chrome metal fret separator
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(startAngle) * rInner, cy + Math.sin(startAngle) * rInner);
+    ctx.lineTo(cx + Math.cos(startAngle) * rOuter, cy + Math.sin(startAngle) * rOuter);
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Number text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(midAngle + Math.PI / 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 58px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 8;
+    ctx.fillText(num.toString(), 0, -(rInner + (rOuter - rInner) * 0.52));
+    ctx.restore();
   }
 
-  const pocketsRim = document.createElement('div');
-  pocketsRim.setAttribute('class', 'pocketsRim');
-  wheelEl.append(pocketsRim);
+  // 4. Inner brass separator ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
+  ctx.strokeStyle = '#eab308';
+  ctx.lineWidth = 12;
+  ctx.stroke();
 
-  ballTrackEl = document.createElement('div');
-  ballTrackEl.setAttribute('class', 'ballTrack');
-  const ball = document.createElement('div');
-  ball.setAttribute('class', 'ball');
-  ballTrackEl.append(ball);
-  wheelEl.append(ballTrackEl);
+  // 5. Ball pocket rest basin (dark slate metal)
+  ctx.beginPath();
+  ctx.arc(cx, cy, rInner - 6, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 460, 0, Math.PI * 2, true);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
 
-  const pockets = document.createElement('div');
-  pockets.setAttribute('class', 'pockets');
-  wheelEl.append(pockets);
+  // Grooves between pockets
+  for (let i = 0; i < 37; i++) {
+    const startAngle = i * step - Math.PI / 2 - step / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(startAngle) * 460, cy + Math.sin(startAngle) * 460);
+    ctx.lineTo(cx + Math.cos(startAngle) * (rInner - 6), cy + Math.sin(startAngle) * (rInner - 6));
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
 
-  const cone = document.createElement('div');
-  cone.setAttribute('class', 'cone');
-  wheelEl.append(cone);
+  // 6. Center brass cone radial gradient
+  const grad = ctx.createRadialGradient(cx, cy, 30, cx, cy, 460);
+  grad.addColorStop(0, '#fef08a');
+  grad.addColorStop(0.3, '#eab308');
+  grad.addColorStop(0.8, '#854d0e');
+  grad.addColorStop(1, '#3b1c06');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 460, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
 
-  const turret = document.createElement('div');
-  turret.setAttribute('class', 'turret');
-  wheelEl.append(turret);
+  return canvas;
+}
 
-  const turretHandle = document.createElement('div');
-  turretHandle.setAttribute('class', 'turretHandle');
-  const thendOne = document.createElement('div');
-  thendOne.setAttribute('class', 'thendOne');
-  turretHandle.append(thendOne);
-  const thendTwo = document.createElement('div');
-  thendTwo.setAttribute('class', 'thendTwo');
-  turretHandle.append(thendTwo);
-  wheelEl.append(turretHandle);
+function init3DRouletteWheel() {
+  const container = document.getElementById('wheelContainer');
+  if (!container) return;
+  container.innerHTML = '';
 
-  mount.append(wheelEl);
+  if (typeof THREE === 'undefined') {
+    console.warn('Three.js not loaded, loading dynamically...');
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload = () => init3DRouletteWheel();
+    document.head.appendChild(script);
+    return;
+  }
+
+  const width = container.clientWidth || 340;
+  const height = container.clientHeight || 340;
+
+  // Scene
+  scene = new THREE.Scene();
+
+  // Camera: Angled 3D casino eye view
+  camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+  camera.position.set(0, 9.2, 7.8);
+  camera.lookAt(0, -0.35, 0);
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  // Lights
+  const ambientLight = new THREE.AmbientLight(0xfffaed, 0.75);
+  scene.add(ambientLight);
+
+  const mainLight = new THREE.DirectionalLight(0xffffff, 0.85);
+  mainLight.position.set(6, 14, 8);
+  mainLight.castShadow = true;
+  scene.add(mainLight);
+
+  const goldGlowLight = new THREE.PointLight(0xffd700, 0.6, 12);
+  goldGlowLight.position.set(0, 4, 0);
+  scene.add(goldGlowLight);
+
+  // 1. Stationary Outer Bowl Assembly
+  bowlGroup = new THREE.Group();
+
+  // Outer polished mahogany wood rim
+  const woodMat = new THREE.MeshStandardMaterial({
+    color: 0x3b1609,
+    roughness: 0.35,
+    metalness: 0.15
+  });
+  const woodRim = new THREE.Mesh(new THREE.TorusGeometry(3.95, 0.32, 24, 64), woodMat);
+  woodRim.rotation.x = Math.PI / 2;
+  woodRim.position.y = 0.55;
+  bowlGroup.add(woodRim);
+
+  // Gold bezel rim
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37,
+    metalness: 0.85,
+    roughness: 0.2
+  });
+  const goldBezel = new THREE.Mesh(new THREE.TorusGeometry(3.68, 0.08, 16, 64), goldMat);
+  goldBezel.rotation.x = Math.PI / 2;
+  goldBezel.position.y = 0.60;
+  bowlGroup.add(goldBezel);
+
+  // Ball runway slope (interior wall)
+  const runwayMat = new THREE.MeshStandardMaterial({
+    color: 0x0a140f,
+    roughness: 0.3,
+    metalness: 0.2
+  });
+  const runwayMesh = new THREE.Mesh(new THREE.CylinderGeometry(3.65, 3.12, 0.5, 64, 1, true), runwayMat);
+  runwayMesh.position.y = 0.35;
+  bowlGroup.add(runwayMesh);
+
+  // 8 Diamond Deflectors (brass studs around the slope)
+  const deflectorGeo = new THREE.OctahedronGeometry(0.11);
+  for (let i = 0; i < 8; i++) {
+    const angle = (i * Math.PI * 2) / 8;
+    const deflector = new THREE.Mesh(deflectorGeo, goldMat);
+    deflector.position.set(3.38 * Math.cos(angle), 0.34, 3.38 * Math.sin(angle));
+    deflector.rotation.y = angle;
+    deflector.scale.set(0.7, 1.4, 0.7);
+    bowlGroup.add(deflector);
+  }
+
+  scene.add(bowlGroup);
+
+  // 2. Rotating Rotor Assembly
+  rotorGroup = new THREE.Group();
+
+  // Rotor Cylinder Disc
+  const rotorCanvas = generateRotorCanvasTexture();
+  const rotorTexture = new THREE.CanvasTexture(rotorCanvas);
+  rotorTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+  const rotorTopMat = new THREE.MeshStandardMaterial({
+    map: rotorTexture,
+    roughness: 0.4,
+    metalness: 0.2
+  });
+  const rotorSideMat = new THREE.MeshStandardMaterial({
+    color: 0xb8860b,
+    metalness: 0.8,
+    roughness: 0.25
+  });
+
+  const rotorMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(3.08, 3.08, 0.35, 64),
+    [rotorSideMat, rotorTopMat, rotorSideMat]
+  );
+  rotorMesh.position.y = 0.05;
+  rotorGroup.add(rotorMesh);
+
+  // 3D Brass Center Turret
+  const turretBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.25, 0.72, 0.65, 32),
+    goldMat
+  );
+  turretBase.position.y = 0.42;
+  rotorGroup.add(turretBase);
+
+  const turretFinial = new THREE.Mesh(
+    new THREE.SphereGeometry(0.24, 24, 24),
+    goldMat
+  );
+  turretFinial.position.y = 0.82;
+  rotorGroup.add(turretFinial);
+
+  // 4 Cross Handles
+  const handleBar1 = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 16), goldMat);
+  handleBar1.rotation.z = Math.PI / 2;
+  handleBar1.position.y = 0.72;
+  rotorGroup.add(handleBar1);
+
+  const handleBar2 = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 16), goldMat);
+  handleBar2.rotation.x = Math.PI / 2;
+  handleBar2.position.y = 0.72;
+  rotorGroup.add(handleBar2);
+
+  // Small golden handle knobs
+  const knobGeo = new THREE.SphereGeometry(0.08, 16, 16);
+  [
+    [0.75, 0.72, 0], [-0.75, 0.72, 0],
+    [0, 0.72, 0.75], [0, 0.72, -0.75]
+  ].forEach(pos => {
+    const knob = new THREE.Mesh(knobGeo, goldMat);
+    knob.position.set(...pos);
+    rotorGroup.add(knob);
+  });
+
+  scene.add(rotorGroup);
+
+  // 3. The 3D Ivory Ball
+  const ballMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.12,
+    metalness: 0.05
+  });
+  ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), ballMat);
+  ballMesh.castShadow = true;
+
+  // Ball contact shadow
+  const shadowMat = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    transparent: true,
+    opacity: 0.45
+  });
+  ballShadowMesh = new THREE.Mesh(new THREE.CircleGeometry(0.11, 16), shadowMat);
+  ballShadowMesh.rotation.x = -Math.PI / 2;
+
+  // Initial resting state inside pocket 0
+  attachBallToPocket(0);
+
+  is3DReady = true;
+
+  // Resize handler
+  window.addEventListener('resize', onWindowResize);
+
+  // Start Render Loop
+  if (!animId) {
+    animId = requestAnimationFrame(render3DLoop);
+  }
+}
+
+function onWindowResize() {
+  const container = document.getElementById('wheelContainer');
+  if (!container || !renderer || !camera) return;
+  const w = container.clientWidth || 340;
+  const h = container.clientHeight || 340;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+
+// Attach the ball firmly inside a specific numbered pocket ("Duduk Betul Dalam Bakul")
+function attachBallToPocket(num) {
+  const idx = WHEEL_NUMBERS.indexOf(num);
+  if (idx < 0) return;
+
+  const step = (2 * Math.PI) / 37;
+  const pocketAngle = -Math.PI / 2 + idx * step;
+  const rPocket = 2.40;
+
+  // Detach from scene if needed and add as child of rotating rotor
+  if (ballMesh.parent !== rotorGroup) {
+    rotorGroup.add(ballMesh);
+    rotorGroup.add(ballShadowMesh);
+  }
+
+  ballMesh.position.set(rPocket * Math.cos(pocketAngle), 0.12, rPocket * Math.sin(pocketAngle));
+  ballShadowMesh.position.set(rPocket * Math.cos(pocketAngle), 0.04, rPocket * Math.sin(pocketAngle));
+}
+
+// ---------------------------------------------------------
+// 3D ANIMATION LOOP
+// ---------------------------------------------------------
+function render3DLoop(timestamp) {
+  animId = requestAnimationFrame(render3DLoop);
+
+  if (!is3DReady) return;
+
+  // Spin the rotor
+  rotorGroup.rotation.y += rotorVelocity;
+
+  if (isBallSpinning) {
+    const elapsed = (performance.now() - spinStartTime) / 1000;
+    const t = Math.min(elapsed / spinDuration, 1.0);
+
+    // Ball physics over 4 stages:
+    if (elapsed < 3.8) {
+      // Stage 1: High speed roll on upper outer rim
+      ballAngle += ballVelocity;
+      ballVelocity *= 0.997;
+      ballRadius = 3.55;
+      ballY = 0.52;
+      ballMesh.position.set(ballRadius * Math.cos(ballAngle), ballY, ballRadius * Math.sin(ballAngle));
+    } else if (elapsed < 7.0) {
+      // Stage 2: Loses momentum, descends the slope and hits diamonds
+      const p = (elapsed - 3.8) / 3.2;
+      ballAngle += ballVelocity;
+      ballVelocity *= 0.992;
+      ballRadius = 3.55 - p * (3.55 - 2.45);
+      const baseY = 0.52 - p * (0.52 - 0.16);
+      // Deflector bounce perturbation
+      const bounce = Math.abs(Math.sin((elapsed - 3.8) * 16)) * 0.09 * (1 - p);
+      ballY = baseY + bounce;
+      ballMesh.position.set(ballRadius * Math.cos(ballAngle), ballY, ballRadius * Math.sin(ballAngle));
+    } else if (elapsed < 8.6) {
+      // Stage 3: Reaches pocket ring, rattles across frets
+      const p = (elapsed - 7.0) / 1.6;
+      ballRadius = 2.40;
+      ballVelocity *= 0.97;
+      ballAngle += ballVelocity;
+      const rattle = Math.abs(Math.sin(p * Math.PI * 6)) * 0.06 * (1 - p);
+      ballY = 0.12 + rattle;
+      ballMesh.position.set(ballRadius * Math.cos(ballAngle), ballY, ballRadius * Math.sin(ballAngle));
+    } else {
+      // Stage 4: Sinks and locks directly into target pocket ("Duduk Betul Dalam Bakul")
+      isBallSpinning = false;
+      attachBallToPocket(targetPocketNumber);
+
+      if (onSpinCompleteCallback) {
+        onSpinCompleteCallback();
+        onSpinCompleteCallback = null;
+      }
+    }
+
+    // Shadow follows ball position when in scene
+    if (ballMesh.parent === scene) {
+      ballShadowMesh.position.set(ballMesh.position.x, 0.04, ballMesh.position.z);
+    }
+  } else {
+    // Idle rotor friction decay
+    rotorVelocity = Math.max(0.003, rotorVelocity * 0.996);
+  }
+
+  renderer.render(scene, camera);
+}
+
+// Trigger the realistic 3D roulette ball launch
+function launch3DBall(winningNumber, onFinish) {
+  targetPocketNumber = winningNumber;
+  onSpinCompleteCallback = onFinish;
+
+  // Detach ball from rotor and place on outer rim
+  if (ballMesh.parent !== scene) {
+    scene.add(ballMesh);
+    scene.add(ballShadowMesh);
+  }
+
+  // Spin rotor fast clockwise
+  rotorVelocity = 0.085;
+
+  // Launch ball in opposite direction (counter-clockwise) at high speed
+  ballVelocity = -0.24;
+  ballAngle = Math.random() * Math.PI * 2;
+  ballRadius = 3.55;
+  ballY = 0.52;
+
+  spinStartTime = performance.now();
+  isBallSpinning = true;
 }
 
 // ---------------------------------------------------------
@@ -345,7 +713,6 @@ function setBet(e, n, o, t) {
   currentBet += currentWager;
   updateBalances();
 
-  // If already bet on this cell, increment
   for (let i = 0; i < bet.length; i++) {
     if (bet[i].numbers === n && bet[i].type === o) {
       bet[i].amt += currentWager;
@@ -355,14 +722,12 @@ function setBet(e, n, o, t) {
     }
   }
 
-  // Create new bet
   bet.push({ amt: currentWager, type: o, odds: t, numbers: n });
 
   n.split(',').map(Number).forEach(num => {
     if (!numbersBet.includes(num)) numbersBet.push(num);
   });
 
-  // Render chip visual on cell
   if (!e.querySelector('.placed-chip-badge')) {
     const chipColour = (currentWager < 5) ? 'c-1' : ((currentWager < 10) ? 'c-5' : ((currentWager < 50) ? 'c-10' : ((currentWager < 100) ? 'c-50' : 'c-100')));
     const chipBadge = document.createElement('div');
@@ -415,7 +780,7 @@ function clearCurrentBets() {
 }
 
 // ---------------------------------------------------------
-// SPIN TRIGGER & ANIMATION
+// SPIN TRIGGER & 3D LAUNCH
 // ---------------------------------------------------------
 function triggerSpin() {
   if (isSpinning || currentBet <= 0) return;
@@ -427,18 +792,18 @@ function triggerSpin() {
 
   if (spinBtn) {
     spinBtn.className = 'master-spin-btn spinning-state';
-    spinTxt.innerText = 'RODA SEDANG BERPUSING...';
+    spinTxt.innerText = 'RODA 3D SEDANG BERPUSING...';
   }
   if (statusBadge) {
     statusBadge.className = 'status-badge spinning';
-    statusBadge.innerText = 'Sedang Berpusing 🎰';
+    statusBadge.innerText = 'Roda 3D Berpusing 🎰';
   }
 
   // European roulette 0 through 36
   const winningSpin = Math.floor(Math.random() * 37);
-  spinWheelAnimation(winningSpin);
 
-  setTimeout(function () {
+  // Launch the 3D physics-based simulation
+  launch3DBall(winningSpin, function () {
     let winValue = 0;
     let betTotal = 0;
 
@@ -467,51 +832,13 @@ function triggerSpin() {
 
     if (statusBadge) {
       statusBadge.className = 'status-badge waiting';
-      statusBadge.innerText = 'Sedia Untuk Bertaruh';
+      statusBadge.innerText = `Bola di Bakul [${winningSpin}]`;
     }
 
     if (bankValue <= 0) {
       setTimeout(showBankruptModal, 1500);
     }
-  }, 10000);
-}
-
-function spinWheelAnimation(winningSpin) {
-  let degree = 0;
-  for (let i = 0; i < wheelnumbersAC.length; i++) {
-    if (wheelnumbersAC[i] === winningSpin) {
-      degree = (i * 9.73) + 362;
-      break;
-    }
-  }
-
-  wheelEl.style.animation = 'wheelRotate 5s linear infinite';
-  ballTrackEl.style.animation = 'ballRotate 1s linear infinite';
-
-  setTimeout(() => {
-    ballTrackEl.style.animation = 'ballRotate 2s linear infinite';
-    let style = document.getElementById('ballStopKeyframe');
-    if (!style) {
-      style = document.createElement('style');
-      style.id = 'ballStopKeyframe';
-      document.head.appendChild(style);
-    }
-    style.innerText = `@keyframes ballStop { from { transform: rotate(0deg); } to { transform: rotate(-${degree}deg); } }`;
-  }, 2000);
-
-  setTimeout(() => {
-    ballTrackEl.style.animation = 'ballStop 3s linear';
-  }, 6000);
-
-  setTimeout(() => {
-    ballTrackEl.style.transform = `rotate(-${degree}deg)`;
-  }, 9000);
-
-  setTimeout(() => {
-    wheelEl.style.animation = '';
-    const style = document.getElementById('ballStopKeyframe');
-    if (style) style.remove();
-  }, 10000);
+  });
 }
 
 // ---------------------------------------------------------

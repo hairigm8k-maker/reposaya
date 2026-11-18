@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Roulette Kasino (RM) · HairiHosting</title>
+  <title>Roulette Kasino 3D (RM) · HairiHosting</title>
   <link rel="icon" type="image/png" href="/favicon.png">
   
-  <!-- Fallback absolute and relative links -->
-  <link rel="stylesheet" href="/game/roullete/style.css">
-  <link rel="stylesheet" href="style.css">
+  <!-- Three.js 3D WebGL Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
 /* =========================================================
-   ROULETTE KASINO (RM) - EMBEDDED STYLESHEET
+   ROULETTE KASINO 3D (RM) - EMBEDDED STYLESHEET
    ========================================================= */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -79,6 +78,17 @@ html, body {
   border-radius: 4px;
   font-weight: 800;
   margin-left: 4px;
+}
+
+.badge-3d {
+  background: linear-gradient(135deg, #ffd700 0%, #ca8a04 100%);
+  color: #000;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 900;
+  margin-left: 2px;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
 .hud-nav-links {
@@ -177,13 +187,13 @@ html, body {
 @media (min-width: 1024px) {
   .casino-layout {
     display: grid;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: 380px 1fr;
     align-items: start;
     gap: 24px;
   }
 }
 
-/* WHEEL STAGE CARD */
+/* WHEEL STAGE CARD (3D REALISTIC) */
 .wheel-stage-card {
   background: radial-gradient(circle at top, #151922 0%, #0c0e14 100%);
   border: 2px solid #282f42;
@@ -202,7 +212,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -242,33 +252,44 @@ html, body {
   to { box-shadow: 0 0 15px rgba(234, 179, 8, 0.8); }
 }
 
+/* 3D Wheel Viewport Container */
 .wheel-outer-box {
-  width: 320px;
-  height: 320px;
+  width: 100%;
+  max-width: 360px;
+  height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px 0 20px;
-  background: radial-gradient(circle, rgba(13, 71, 42, 0.3) 0%, rgba(0, 0, 0, 0.6) 70%);
+  margin: 6px auto 18px;
+  background: radial-gradient(circle, rgba(13, 71, 42, 0.35) 0%, rgba(0, 0, 0, 0.85) 75%);
   border-radius: 50%;
-  border: 3px solid rgba(212, 175, 55, 0.25);
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 8px 25px rgba(0,0,0,0.7);
+  border: 4px solid #d4af37;
+  box-shadow: inset 0 0 45px rgba(0,0,0,0.9), 0 12px 35px rgba(0,0,0,0.8);
   position: relative;
+  overflow: hidden;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 390px) {
   .wheel-outer-box {
-    width: 280px;
-    height: 280px;
-    transform: scale(0.88);
-    transform-origin: center center;
+    max-width: 290px;
+    height: 290px;
   }
 }
 
 .wheel-mount-point {
+  width: 100%;
+  height: 100%;
   position: relative;
-  width: 312px;
-  height: 312px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-mount-point canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  outline: none;
 }
 
 /* History Box */
@@ -766,199 +787,6 @@ html, body {
 .placed-chip-badge.c-50 { background: #f97316; color: #fff; }
 .placed-chip-badge.c-100 { background: #ffd700; color: #000; border-color: #fff; }
 
-/* ROULETTE WHEEL */
-@keyframes wheelRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(359deg); }
-}
-
-@keyframes ballRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-359deg); }
-}
-
-.wheel {
-  height: 312px;
-  width: 312px;
-  position: relative;
-  margin: 0 auto;
-}
-
-.ballTrack {
-  width: 212px;
-  height: 207px;
-  position: absolute;
-  left: 47.5px;
-  top: 50px;
-  border-radius: 100%;
-  z-index: 2;
-}
-
-.ball {
-  background-color: #fff;
-  width: 16px;
-  height: 16px;
-  border-radius: 100%;
-  position: relative;
-  left: 109px;
-  top: -8px;
-  box-shadow: 0 0 8px rgba(255,255,255,0.9);
-}
-
-.turret {
-  border-radius: 100%;
-  background: radial-gradient(circle at 30% 30%, #f3c620, #1a1608);
-  width: 45px;
-  height: 45px;
-  position: absolute;
-  top: 133px;
-  left: 134px;
-  z-index: 1;
-}
-
-.turretHandle {
-  background: radial-gradient(circle at 44%, #f3c620, #6a570f);
-  width: 87px;
-  height: 14px;
-  position: absolute;
-  left: 113px;
-  top: 148px;
-}
-
-.thendOne, .thendTwo {
-  border-radius: 100%;
-  background: radial-gradient(circle at 30% 30%, #f3c620, #1a1608);
-  width: 25px;
-  height: 25px;
-  position: absolute;
-}
-
-.thendOne { top: -6px; left: -20px; }
-.thendTwo { top: -6px; left: 83px; }
-
-.outerRim {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 290px;
-  height: 290px;
-  border-radius: 100%;
-  box-shadow: 0px 0px 14px rgba(0,0,0,0.7);
-  border: 10px solid #d4af37;
-}
-
-.block {
-  transition: all 1s;
-  position: absolute;
-  width: 290px;
-  height: 290px;
-  border-radius: 100%;
-  clip: rect(0px, 145px, 290px, 0px);
-}
-
-.sect {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 290px;
-  height: 290px;
-  border-radius: 100%;
-  clip: rect(0px, 290px, 290px, 145px);
-}
-
-.double, .single {
-  position: absolute;
-  z-index: 1;
-  color: #fff;
-  font-size: 14px;
-  transform: rotate(3deg);
-  font-weight: 800;
-}
-
-.double { left: 148px; margin-top: 4.5px; }
-.single { left: 152px; margin-top: 4.5px; }
-
-#sect1 .block { background-color: #016D29; transform: rotate(9.73deg); }
-
-#sect2 .block, #sect4 .block, #sect6 .block, #sect8 .block, #sect10 .block, #sect12 .block, #sect14 .block, #sect16 .block, #sect18 .block, #sect20 .block, #sect22 .block, #sect24 .block, #sect26 .block, #sect28 .block, #sect30 .block, #sect32 .block, #sect34 .block, #sect36 .block {
-  background-color: #E0080B;
-  transform: rotate(9.73deg);
-}
-
-#sect3 .block, #sect5 .block, #sect7 .block, #sect9 .block, #sect11 .block, #sect13 .block, #sect15 .block, #sect17 .block, #sect19 .block, #sect21 .block, #sect23 .block, #sect25 .block, #sect27 .block, #sect29 .block, #sect31 .block, #sect33 .block, #sect35 .block, #sect37 .block {
-  background-color: #000;
-  transform: rotate(9.73deg);
-}
-
-#sect2 { transform: rotate(9.73deg); }
-#sect3 { transform: rotate(19.46deg); }
-#sect4 { transform: rotate(29.19deg); }
-#sect5 { transform: rotate(38.92deg); }
-#sect6 { transform: rotate(48.65deg); }
-#sect7 { transform: rotate(58.38deg); }
-#sect8 { transform: rotate(68.11deg); }
-#sect9 { transform: rotate(77.84deg); }
-#sect10 { transform: rotate(87.57deg); }
-#sect11 { transform: rotate(97.3deg); }
-#sect12 { transform: rotate(107.03deg); }
-#sect13 { transform: rotate(116.76deg); }
-#sect14 { transform: rotate(126.49deg); }
-#sect15 { transform: rotate(136.22deg); }
-#sect16 { transform: rotate(145.95deg); }
-#sect17 { transform: rotate(155.68deg); }
-#sect18 { transform: rotate(165.41deg); }
-#sect19 { transform: rotate(175.14deg); }
-#sect20 { transform: rotate(184.87deg); }
-#sect21 { transform: rotate(194.6deg); }
-#sect22 { transform: rotate(204.33deg); }
-#sect23 { transform: rotate(214.06deg); }
-#sect24 { transform: rotate(223.79deg); }
-#sect25 { transform: rotate(233.52deg); }
-#sect26 { transform: rotate(243.25deg); }
-#sect27 { transform: rotate(252.98deg); }
-#sect28 { transform: rotate(262.71deg); }
-#sect29 { transform: rotate(272.44deg); }
-#sect30 { transform: rotate(282.17deg); }
-#sect31 { transform: rotate(291.9deg); }
-#sect32 { transform: rotate(301.63deg); }
-#sect33 { transform: rotate(311.36deg); }
-#sect34 { transform: rotate(321.09deg); }
-#sect35 { transform: rotate(330.82deg); }
-#sect36 { transform: rotate(340.55deg); }
-#sect37 { transform: rotate(350.28deg); }
-
-.pockets {
-  position: absolute;
-  top: 37px;
-  left: 37px;
-  width: 235px;
-  height: 235px;
-  background-color: #000;
-  border-radius: 100%;
-  opacity: .5;
-}
-
-.pocketsRim {
-  position: absolute;
-  top: 34px;
-  left: 34px;
-  width: 235px;
-  height: 235px;
-  border-radius: 100%;
-  border: 3px solid silver;
-}
-
-.cone {
-  position: absolute;
-  top: 62px;
-  left: 61px;
-  height: 180px;
-  width: 180px;
-  border: 3px solid #9f9a9a;
-  border-radius: 100%;
-  background: radial-gradient(circle at 100px 100px, #892c10, #000);
-}
-
 /* RESULT POPUP */
 .round-result-popup {
   position: fixed;
@@ -1147,7 +975,7 @@ html, body {
     <div class="hud-left">
       <div class="hud-brand">
         <span class="hud-logo-icon">🎰</span>
-        <span class="hud-logo-text">ROULETTE <span class="badge-curr">RM</span></span>
+        <span class="hud-logo-text">ROULETTE <span class="badge-curr">RM</span><span class="badge-3d">3D</span></span>
       </div>
       <nav class="hud-nav-links">
         <a href="/dashboard/" class="hud-nav-item">← Dashboard</a>
@@ -1172,10 +1000,10 @@ html, body {
   <main class="casino-main">
     <div class="casino-layout">
 
-      <!-- Left / Top Column: Wheel Stage & History -->
+      <!-- Left / Top Column: 3D Wheel Stage & History -->
       <section class="wheel-stage-card">
         <div class="stage-header">
-          <span class="stage-title">Roda Kasino Eropah (0 - 36)</span>
+          <span class="stage-title">Roda 3D Eropah (0 - 36)</span>
           <div id="wheelStatusBadge" class="status-badge waiting">Sedia Untuk Bertaruh</div>
         </div>
 
@@ -1314,6 +1142,5 @@ html, body {
   <div id="roundResultOverlay" class="round-result-popup" style="display: none;"></div>
 
   <script src="/game/roullete/script.js" defer></script>
-  <script src="script.js" defer></script>
 </body>
 </html>
