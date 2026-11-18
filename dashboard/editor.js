@@ -73,7 +73,7 @@
           '</div>' +
 
           '<div style="margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;">' +
-            '<div style="font-size:14px;color:var(--fog);margin-bottom:12px;">Selepas siap, klik Publish untuk site jadi LIVE.</div>' +
+            '<div style="font-size:14px;color:var(--fog);margin-bottom:12px;">Once done, click Publish to go LIVE.</div>' +
             '<button class="btn btn-primary btn-sm" id="publishBtn" style="background:#4ade80;color:#000;">🚀 Publish Site</button>' +
           '</div>';
 
@@ -113,9 +113,9 @@
               });
               
               await Promise.all(promises);
-              if (!indexHtml) throw new Error('index.html tak jumpa dalam ZIP.');
+              if (!indexHtml) throw new Error('index.html not found in ZIP.');
               
-              // Upload Assets (Gambar/CSS/JS)
+              // Upload Assets (Images/CSS/JS)
               for (var i=0; i<assets.length; i++) {
                 await fetch('/api/files/upload', {
                   method: 'POST',
@@ -124,18 +124,18 @@
                 });
               }
               
-              // Update HTML Site
+              // Update Site HTML
               await fetch('/api/sites/' + siteId, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ html: indexHtml })
               });
               
-              alert('✅ ZIP berjaya di-extract dan disimpan!');
+              alert('✅ ZIP successfully extracted and saved!');
               App.pageEditor(siteId); // Reload page
               
             } catch (err) {
-              alert('❌ Gagal: ' + err.message);
+              alert('❌ Failed: ' + err.message);
             } finally {
               btnUploadZip.innerHTML = '📦 Upload ZIP';
               btnUploadZip.disabled = false;
@@ -164,7 +164,7 @@
             if (d.ok) {
               if (window.toast) window.toast('Saved!', 'success');
             } else {
-              if (window.toast) window.toast(d.error || 'Gagal save', 'error');
+              if (window.toast) window.toast(d.error || 'Failed to save', 'error');
             }
           } catch (e) {
             if (window.toast) window.toast('Error: ' + e.message, 'error');
@@ -176,7 +176,7 @@
         // Publish handler
         var publishBtn = document.getElementById('publishBtn');
         publishBtn.onclick = async function() {
-          if (!confirm('Publish site? Site akan LIVE dan accessible.')) return;
+          if (!confirm('Publish site? The site will be LIVE and accessible.')) return;
           publishBtn.disabled = true;
           publishBtn.innerHTML = '<span class="spinner"></span> Publishing...';
 
