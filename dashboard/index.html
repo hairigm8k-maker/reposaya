@@ -499,23 +499,23 @@ window.copyText=copyText;
         
         try {
           if (typeof JSZip === 'undefined') {
-            throw new Error('JSZip library not loaded. Sila pastikan CDN JSZip ada dalam index.html');
+            throw new Error('JSZip library not loaded. Please make sure the JSZip CDN is included in index.html');
           }
           
           const zip = await JSZip.loadAsync(file);
           let indexHtml = '';
           let assets = [];
           
-          // Loop semua fail dalam ZIP
+          // Loop all files in ZIP
           const promises = [];
           zip.forEach((relativePath, zipEntry) => {
-            // Abaikan folder sistem mac
+            // Ignore Mac system folder
             if (relativePath.includes('__MACOSX') || relativePath.includes('.DS_Store')) return;
             
             if (relativePath.endsWith('index.html')) {
               promises.push(zipEntry.async('string').then(text => { indexHtml = text; }));
             } else if (!zipEntry.dir) {
-              // Fail lain (gambar, css, js)
+              // Other files (images, css, js)
               promises.push(zipEntry.async('base64').then(b64 => {
                 assets.push({
                   filename: relativePath.split('/').pop(),
@@ -527,16 +527,13 @@ window.copyText=copyText;
           
           await Promise.all(promises);
           
-          if (!indexHtml) throw new Error('Fail index.html tidak dijumpai dalam ZIP.');
+          if (!indexHtml) throw new Error('index.html file not found in the ZIP.');
           
-          // --- SIMPAN KE DATABASE ---
-          // Di sini kau kena guna API kau yang sedia ada. 
-          // Aku guna contoh fetch ke '/api/sites/update' dan '/api/files/upload'.
-          
+          // Save to database
           const siteId = window.currentSiteId || new URLSearchParams(window.location.search).get('id');
-          if (!siteId) throw new Error('Site ID tidak dijumpai.');
+          if (!siteId) throw new Error('Site ID not found.');
           
-          // 1. Upload assets (Gambar/CSS/JS)
+          // 1. Upload assets
           for (let asset of assets) {
             await fetch('/api/files/upload', {
               method: 'POST',
@@ -549,18 +546,18 @@ window.copyText=copyText;
             });
           }
           
-          // 2. Update HTML site
+          // 2. Update site HTML
           await fetch('/api/sites/' + siteId, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ html: indexHtml })
           });
           
-          alert('✅ ZIP berjaya di-upload dan di-extract!');
-          location.reload(); // Refresh untuk tunjuk HTML baru
+          alert('✅ ZIP successfully uploaded and extracted!');
+          location.reload(); // Refresh to show new HTML
           
         } catch (err) {
-          alert('❌ Gagal proses ZIP: ' + err.message);
+          alert('❌ Failed to process ZIP: ' + err.message);
         } finally {
           zipBtn.innerHTML = '📦 Upload ZIP';
           zipBtn.disabled = false;

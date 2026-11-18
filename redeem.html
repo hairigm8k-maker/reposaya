@@ -61,7 +61,7 @@ var code=codeEl.value.trim().toUpperCase(),tok=tokenEl.value.trim();
 if(!code){showAlert('Enter class code','error');return}
 if(!tok){showAlert('Enter your token','error');return}
 var tsTok=document.querySelector('[name="cf-turnstile-response"]')?.value||'';
-if(!tsTok){showAlert('Tunggu captcha selesai','error');return}
+if(!tsTok){showAlert('Please complete the captcha','error');return}
 btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Joining...';
 try{
 var r=await fetch('/api/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({class_code:code,token:tok,turnstile_token:document.querySelector('[name="cf-turnstile-response"]')?.value||''})});
@@ -92,8 +92,8 @@ else{showAlert(d.error||'Failed','error');btn.disabled=false;btn.textContent='Jo
     <div style="width:48px; height:48px; background:rgba(74,222,128,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
     </div>
-    <h2 style="color:#fff; font-family:'Playfair Display', serif; font-size:24px; margin-bottom:8px;">Akaun Berjaya Dibuat!</h2>
-    <p style="color:#9194a1; font-size:14px; margin-bottom:24px; line-height:1.5;">Sila simpan maklumat ini. Anda perlu menggunakannya untuk login pada masa akan datang.</p>
+    <h2 style="color:#fff; font-family:'Playfair Display', serif; font-size:24px; margin-bottom:8px;">Account Created Successfully!</h2>
+    <p style="color:#9194a1; font-size:14px; margin-bottom:24px; line-height:1.5;">Please save this information. You will need it to log in in the future.</p>
     
     <div style="background:#08080a; border:1px solid #2a2d36; border-radius:8px; padding:16px; text-align:left; margin-bottom:24px;">
       <div style="margin-bottom:12px;">
@@ -106,7 +106,7 @@ else{showAlert(d.error||'Failed','error');btn.disabled=false;btn.textContent='Jo
       </div>
     </div>
     
-    <button onclick="proceedToDashboard()" style="width:100%; background:#cc9166; color:#08080a; border:none; padding:14px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer;">Saya Dah Simpan, Teruskan</button>
+    <button onclick="proceedToDashboard()" style="width:100%; background:#cc9166; color:#08080a; border:none; padding:14px; border-radius:8px; font-weight:bold; font-size:15px; cursor:pointer;">I Have Saved It, Continue</button>
   </div>
 </div>
 
