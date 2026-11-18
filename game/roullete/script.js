@@ -1,981 +1,685 @@
+// =========================================================
+// ROULETTE KASINO (RM) - HAIRIAHOSTING GAME SCRIPT
+// =========================================================
+
 let bankValue = 100;
 let currentBet = 0;
 let wager = 5;
-let lastWager = 0;
 let bet = [];
 let numbersBet = [];
-let previousNumbers = [];
 
 let currentPlayer = null;
+let isSpinning = false;
+let betMode = 'add'; // 'add' or 'remove' (for mobile touch toggle)
 
-let numRed = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-let wheelnumbersAC = [0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33, 16, 24, 5, 10, 23, 8, 30, 11, 36, 13, 27, 6, 34, 17, 25, 2, 21, 4, 19, 15, 32];
+// Red numbers in European Roulette
+const numRed = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+// European wheel order (0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26)
+const wheelnumbersAC = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+const chipValues = [1, 5, 10, 50, 100];
 
-function formatRM(val){
-	return 'RM ' + Number(val || 0).toLocaleString("en-GB");
+// Format numbers to Malaysian Ringgit (RM)
+function formatRM(val) {
+  return 'RM ' + Number(val || 0).toLocaleString('en-GB');
 }
 
-function updateBalances(){
-	let bSpan = document.getElementById('bankSpan');
-	let betSpan = document.getElementById('betSpan');
-	let hudBal = document.getElementById('hudPlayerBalance');
-	if(bSpan) bSpan.innerText = formatRM(bankValue);
-	if(betSpan) betSpan.innerText = formatRM(currentBet);
-	if(hudBal) hudBal.innerText = formatRM(bankValue);
+// Sync HUD and Dashboard displays
+function updateBalances() {
+  const bSpan = document.getElementById('bankSpan');
+  const betSpan = document.getElementById('betSpan');
+  const hudBal = document.getElementById('hudPlayerBalance');
+  const spinBtn = document.getElementById('masterSpinBtn');
+  const spinTxt = document.getElementById('masterSpinText');
+
+  if (bSpan) bSpan.innerText = formatRM(bankValue);
+  if (betSpan) betSpan.innerText = formatRM(currentBet);
+  if (hudBal) hudBal.innerText = formatRM(bankValue);
+
+  if (spinBtn && spinTxt && !isSpinning) {
+    if (currentBet > 0) {
+      spinBtn.classList.remove('disabled');
+      spinBtn.classList.add('ready-to-spin');
+      spinTxt.innerText = `PUSING (TARUHAN: ${formatRM(currentBet)})`;
+    } else {
+      spinBtn.classList.add('disabled');
+      spinBtn.classList.remove('ready-to-spin');
+      spinTxt.innerText = 'PASANG TARUHAN DAHULU';
+    }
+  }
 }
 
-// Build game DOM container
-let container = document.createElement('div');
-container.setAttribute('id', 'container');
-document.body.append(container);
-
-startGame();
-
-let wheel = document.getElementsByClassName('wheel')[0];
-let ballTrack = document.getElementsByClassName('ballTrack')[0];
-
-function resetGame(){
-	bankValue = 100;
-	currentBet = 0;
-	wager = 5;
-	bet = [];
-	numbersBet = [];
-	previousNumbers = [];
-	let bBoard = document.getElementById('betting_board');
-	let notif = document.getElementById('notification');
-	if(bBoard) bBoard.remove();
-	if(notif) notif.remove();
-	buildBettingBoard();
-	updateBalances();
-	syncBalanceToDB(bankValue);
+// ---------------------------------------------------------
+// INITIALIZATION
+// ---------------------------------------------------------
+function initGame() {
+  buildWheel();
+  buildBettingBoard();
+  buildChipDeck();
+  updateBalances();
 }
 
-function startGame(){
-	buildWheel();
-	buildBettingBoard();
-	updateBalances();
+// ---------------------------------------------------------
+// WHEEL BUILDER
+// ---------------------------------------------------------
+let wheelEl = null;
+let ballTrackEl = null;
+
+function buildWheel() {
+  const mount = document.getElementById('wheelContainer');
+  if (!mount) return;
+  mount.innerHTML = '';
+
+  wheelEl = document.createElement('div');
+  wheelEl.setAttribute('class', 'wheel');
+
+  const outerRim = document.createElement('div');
+  outerRim.setAttribute('class', 'outerRim');
+  wheelEl.append(outerRim);
+
+  const numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+  for (let i = 0; i < numbers.length; i++) {
+    const a = i + 1;
+    const spanClass = (numbers[i] < 10) ? 'single' : 'double';
+    const sect = document.createElement('div');
+    sect.setAttribute('id', 'sect' + a);
+    sect.setAttribute('class', 'sect');
+
+    const span = document.createElement('span');
+    span.setAttribute('class', spanClass);
+    span.innerText = numbers[i];
+    sect.append(span);
+
+    const block = document.createElement('div');
+    block.setAttribute('class', 'block');
+    sect.append(block);
+    wheelEl.append(sect);
+  }
+
+  const pocketsRim = document.createElement('div');
+  pocketsRim.setAttribute('class', 'pocketsRim');
+  wheelEl.append(pocketsRim);
+
+  ballTrackEl = document.createElement('div');
+  ballTrackEl.setAttribute('class', 'ballTrack');
+  const ball = document.createElement('div');
+  ball.setAttribute('class', 'ball');
+  ballTrackEl.append(ball);
+  wheelEl.append(ballTrackEl);
+
+  const pockets = document.createElement('div');
+  pockets.setAttribute('class', 'pockets');
+  wheelEl.append(pockets);
+
+  const cone = document.createElement('div');
+  cone.setAttribute('class', 'cone');
+  wheelEl.append(cone);
+
+  const turret = document.createElement('div');
+  turret.setAttribute('class', 'turret');
+  wheelEl.append(turret);
+
+  const turretHandle = document.createElement('div');
+  turretHandle.setAttribute('class', 'turretHandle');
+  const thendOne = document.createElement('div');
+  thendOne.setAttribute('class', 'thendOne');
+  turretHandle.append(thendOne);
+  const thendTwo = document.createElement('div');
+  thendTwo.setAttribute('class', 'thendTwo');
+  turretHandle.append(thendTwo);
+  wheelEl.append(turretHandle);
+
+  mount.append(wheelEl);
 }
 
-function gameOver(){
-	let notification = document.createElement('div');
-	notification.setAttribute('id', 'notification');
-	let nSpan = document.createElement('span');
-	nSpan.setAttribute('class', 'nSpan');
-	nSpan.innerText = 'Bankrupt (Baki RM 0)';
-	notification.append(nSpan);
+// ---------------------------------------------------------
+// CHIP DECK BUILDER
+// ---------------------------------------------------------
+function buildChipDeck() {
+  const mount = document.getElementById('chipDeckMount');
+  if (!mount) return;
+  mount.innerHTML = '';
 
-	let nBtn = document.createElement('div');
-	nBtn.setAttribute('class', 'nBtn');
-	nBtn.innerText = 'Main Semula (RM 100)';	
-	nBtn.onclick = function(){
-		resetGame();
-	};
-	notification.append(nBtn);
-	container.prepend(notification);
+  chipValues.forEach((val) => {
+    const token = document.createElement('div');
+    token.className = `chip-token c-${val} ${val === wager ? 'selected' : ''}`;
+    token.innerHTML = `<span class="chip-lbl-rm">RM</span><span class="chip-lbl-val">${val}</span>`;
+    token.onclick = function () {
+      if (isSpinning) return;
+      document.querySelectorAll('.chip-token').forEach(t => t.classList.remove('selected'));
+      token.classList.add('selected');
+      wager = val;
+      const disp = document.getElementById('activeWagerDisplay');
+      if (disp) disp.innerHTML = `Cip Aktif: <strong>${formatRM(wager)}</strong>`;
+    };
+    mount.append(token);
+  });
 }
 
-function buildWheel(){
-	let wheel = document.createElement('div');
-	wheel.setAttribute('class', 'wheel');
+// ---------------------------------------------------------
+// BET MODE TOGGLE (ADD / REMOVE)
+// ---------------------------------------------------------
+function toggleBetMode() {
+  if (isSpinning) return;
+  const btn = document.getElementById('btnBetMode');
+  const lbl = document.getElementById('betModeLabel');
 
-	let outerRim = document.createElement('div');
-	outerRim.setAttribute('class', 'outerRim');
-	wheel.append(outerRim);
-
-	let numbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-	for(i = 0; i < numbers.length; i++){
-		let a = i + 1;
-		let spanClass = (numbers[i] < 10)? 'single' : 'double';
-		let sect = document.createElement('div');
-		sect.setAttribute('id', 'sect'+a);
-		sect.setAttribute('class', 'sect');
-		let span = document.createElement('span');
-		span.setAttribute('class', spanClass);
-		span.innerText = numbers[i];
-		sect.append(span);
-		let block = document.createElement('div');
-		block.setAttribute('class', 'block');
-		sect.append(block);
-		wheel.append(sect);
-	}
-
-	let pocketsRim = document.createElement('div');
-	pocketsRim.setAttribute('class', 'pocketsRim');
-	wheel.append(pocketsRim);
-
-	let ballTrack = document.createElement('div');
-	ballTrack.setAttribute('class', 'ballTrack');
-	let ball = document.createElement('div');
-	ball.setAttribute('class', 'ball');
-	ballTrack.append(ball);
-	wheel.append(ballTrack);
-
-	let pockets = document.createElement('div');
-	pockets.setAttribute('class', 'pockets');
-	wheel.append(pockets);
-
-	let cone = document.createElement('div');
-	cone.setAttribute('class', 'cone');
-	wheel.append(cone);
-
-	let turret = document.createElement('div');
-	turret.setAttribute('class', 'turret');
-	wheel.append(turret);
-
-	let turretHandle = document.createElement('div');
-	turretHandle.setAttribute('class', 'turretHandle');
-	let thendOne = document.createElement('div');
-	thendOne.setAttribute('class', 'thendOne');
-	turretHandle.append(thendOne);
-	let thendTwo = document.createElement('div');
-	thendTwo.setAttribute('class', 'thendTwo');
-	turretHandle.append(thendTwo);
-	wheel.append(turretHandle);
-
-	container.append(wheel);
+  if (betMode === 'add') {
+    betMode = 'remove';
+    btn.className = 'btn-mode-toggle mode-remove';
+    btn.querySelector('.mode-icon').innerText = '➖';
+    lbl.innerText = 'Mod: Batal';
+  } else {
+    betMode = 'add';
+    btn.className = 'btn-mode-toggle mode-add';
+    btn.querySelector('.mode-icon').innerText = '➕';
+    lbl.innerText = 'Mod: Pasang';
+  }
 }
 
-function buildBettingBoard(){
-	let bettingBoard = document.createElement('div');
-	bettingBoard.setAttribute('id', 'betting_board');
-
-	let wl = document.createElement('div');
-	wl.setAttribute('class', 'winning_lines');
-
-	var wlttb = document.createElement('div');
-	wlttb.setAttribute('id', 'wlttb_top');
-	wlttb.onclick = function(){
-		setBet(this, '0,1,2,3', 'top_line', 6);
-	};
-	wlttb.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '0,1,2,3', 'top_line', 6);
-	};
-	wl.append(wlttb);
-
-	for(i = 1; i < 37; i++){
-		let j = i;
-		var wlttb = document.createElement('div');
-		wlttb.setAttribute('id', 'wlttb_'+j);
-		wlttb.onclick = function(){
-			setBet(this, ''+j+'', 'street', 11);
-		};
-		wlttb.oncontextmenu = function(e){
-			e.preventDefault();
-			removeBet(this, ''+j+'', 'street', 11);
-		};
-		wl.append(wlttb);
-	}
-	bettingBoard.append(wl);
-
-	let bbt = document.createElement('table');
-	bbt.setAttribute('class', 'bbtable');
-	let btr = document.createElement('tr');
-	let btd = document.createElement('td');
-	btd.setAttribute('class', 'val');
-	btd.setAttribute('rows', '4');
-	btd.innerText = '0';
-	btd.onclick = function(){
-		setBet(this, '0', 'inside_whole', 35);
-	};
-	btd.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '0', 'inside_whole', 35);
-	};
-	btr.append(btd);
-
-	var c = 1;
-	for(i = 0; i < 12; i++){
-		for(j = 0; j < 3; j++){
-			let k = c++;
-			btd = document.createElement('td');
-			btd.setAttribute('class', 'val');
-			btd.style.backgroundColor = (numRed.includes(k))? 'red' : 'black';
-			btd.innerText = k;
-			btd.onclick = function(){
-				setBet(this, ''+k+'', 'inside_whole', 35);
-			};
-			btd.oncontextmenu = function(e){
-				e.preventDefault();
-				removeBet(this, ''+k+'', 'inside_whole', 35);
-			};
-			btr.append(btd);
-		}
-	}
-	bbt.append(btr);
-	bettingBoard.append(bbt);
-
-	let wlbtm = document.createElement('div');
-	wlbtm.setAttribute('class', 'winning_lines');
-	wlbtm.style.cssText = 'top: 153px;';
-	for(i = 1; i < 37; i++){
-		let j = i;
-		var wlttb = document.createElement('div');
-		wlttb.setAttribute('id', 'wlbtm_'+j);
-		wlttb.onclick = function(){
-			setBet(this, ''+j+'', 'street', 11);
-		};
-		wlttb.oncontextmenu = function(e){
-			e.preventDefault();
-			removeBet(this, ''+j+'', 'street', 11);
-		};
-		wlbtm.append(wlttb);
-	}
-	bettingBoard.append(wlbtm);
-
-	let wl_vl = document.createElement('div');
-	wl_vl.setAttribute('class', 'winning_lines');
-	wl_vl.style.cssText = 'top: 0px; left: 0px;';
-	for(i = 1; i < 37; i++){
-		let j = i;
-		var wlttb = document.createElement('div');
-		wlttb.setAttribute('id', 'wl_vl_'+j);
-		wlttb.onclick = function(){
-			setBet(this, ''+j+','+(j+1)+'', 'split', 17);
-		};
-		wlttb.oncontextmenu = function(e){
-			e.preventDefault();
-			removeBet(this, ''+j+','+(j+1)+'', 'split', 17);
-		};
-		wl_vl.append(wlttb);
-	}
-	bettingBoard.append(wl_vl);
-
-	let wl_hl = document.createElement('div');
-	wl_hl.setAttribute('class', 'winning_lines');
-	wl_hl.style.cssText = 'top: 0px; left: 0px;';
-	for(i = 1; i < 34; i++){
-		let j = i;
-		var wlttb = document.createElement('div');
-		wlttb.setAttribute('id', 'wl_hl_'+j);
-		wlttb.onclick = function(){
-			setBet(this, ''+j+','+(j+3)+'', 'split', 17);
-		};
-		wlttb.oncontextmenu = function(e){
-			e.preventDefault();
-			removeBet(this, ''+j+','+(j+3)+'', 'split', 17);
-		};
-		wl_hl.append(wlttb);
-	}
-	bettingBoard.append(wl_hl);
-
-	let wl_c = document.createElement('div');
-	wl_c.setAttribute('class', 'winning_lines');
-	wl_c.style.cssText = 'top: 0px; left: 0px;';
-	for(i = 1; i < 34; i++){
-		let j = i;
-		var wlttb = document.createElement('div');
-		wlttb.setAttribute('id', 'wl_c_'+j);
-		wlttb.onclick = function(){
-			setBet(this, ''+j+','+(j+1)+','+(j+3)+','+(j+4)+'', 'corner', 8);
-		};
-		wlttb.oncontextmenu = function(e){
-			e.preventDefault();
-			removeBet(this, ''+j+','+(j+1)+','+(j+3)+','+(j+4)+'', 'corner', 8);
-		};
-		wl_c.append(wlttb);
-	}
-	bettingBoard.append(wl_c);
-
-	let bbt1 = document.createElement('table');
-	bbt1.setAttribute('class', 'bbtable');
-	let btr1 = document.createElement('tr');
-	let btd1 = document.createElement('td');
-	btd1.setAttribute('class', 'val');
-	btd1.innerText = '1st 12';
-	btd1.onclick = function(){
-		setBet(this, '1,2,3,4,5,6,7,8,9,10,11,12', 'outside_dozen', 2);
-	};
-	btd1.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '1,2,3,4,5,6,7,8,9,10,11,12', 'outside_dozen', 2);
-	};
-	btr1.append(btd1);
-
-	btd1 = document.createElement('td');
-	btd1.setAttribute('class', 'val');
-	btd1.innerText = '2nd 12';
-	btd1.onclick = function(){
-		setBet(this, '13,14,15,16,17,18,19,20,21,22,23,24', 'outside_dozen', 2);
-	};
-	btd1.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '13,14,15,16,17,18,19,20,21,22,23,24', 'outside_dozen', 2);
-	};
-	btr1.append(btd1);
-
-	btd1 = document.createElement('td');
-	btd1.setAttribute('class', 'val');
-	btd1.innerText = '3rd 12';
-	btd1.onclick = function(){
-		setBet(this, '25,26,27,28,29,30,31,32,33,34,35,36', 'outside_dozen', 2);
-	};
-	btd1.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '25,26,27,28,29,30,31,32,33,34,35,36', 'outside_dozen', 2);
-	};
-	btr1.append(btd1);
-
-	bbt1.append(btr1);
-	bettingBoard.append(bbt1);
-
-	let bbt2 = document.createElement('table');
-	bbt2.setAttribute('class', 'bbtable');
-	let btr2 = document.createElement('tr');
-	let btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val');
-	btd2.innerText = '1 to 18';
-	btd2.onclick = function(){
-		setBet(this, '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val');
-	btd2.innerText = 'EVEN';
-	btd2.onclick = function(){
-		setBet(this, '2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val redNum');
-	btd2.innerText = 'RED';
-	btd2.onclick = function(){
-		setBet(this, '1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val blackNum');
-	btd2.innerText = 'BLACK';
-	btd2.onclick = function(){
-		setBet(this, '2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val');
-	btd2.innerText = 'ODD';
-	btd2.onclick = function(){
-		setBet(this, '1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	btd2 = document.createElement('td');
-	btd2.setAttribute('class', 'val');
-	btd2.innerText = '19 to 36';
-	btd2.onclick = function(){
-		setBet(this, '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36', 'outside_oerb', 1);
-	};
-	btd2.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36', 'outside_oerb', 1);
-	};
-	btr2.append(btd2);
-
-	bbt2.append(btr2);
-	bettingBoard.append(bbt2);
-
-	let bbt3 = document.createElement('table');
-	bbt3.setAttribute('class', 'bbtable');
-	let btr3 = document.createElement('tr');
-	let btd3 = document.createElement('td');
-	btd3.setAttribute('class', 'val');
-	btd3.innerText = '2 to 1';
-	btd3.onclick = function(){
-		setBet(this, '3,6,9,12,15,18,21,24,27,30,33,36', 'outside_column', 2);
-	};
-	btd3.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '3,6,9,12,15,18,21,24,27,30,33,36', 'outside_column', 2);
-	};
-	btr3.append(btd3);
-
-	btd3 = document.createElement('td');
-	btd3.setAttribute('class', 'val');
-	btd3.innerText = '2 to 1';
-	btd3.onclick = function(){
-		setBet(this, '2,5,8,11,14,17,20,23,26,29,32,35', 'outside_column', 2);
-	};
-	btd3.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '2,5,8,11,14,17,20,23,26,29,32,35', 'outside_column', 2);
-	};
-	btr3.append(btd3);
-
-	btd3 = document.createElement('td');
-	btd3.setAttribute('class', 'val');
-	btd3.innerText = '2 to 1';
-	btd3.onclick = function(){
-		setBet(this, '1,4,7,10,13,16,19,22,25,28,31,34', 'outside_column', 2);
-	};
-	btd3.oncontextmenu = function(e){
-		e.preventDefault();
-		removeBet(this, '1,4,7,10,13,16,19,22,25,28,31,34', 'outside_column', 2);
-	};
-	btr3.append(btd3);
-
-	bbt3.append(btr3);
-	bettingBoard.append(bbt3);
-
-	let otoBoard = document.createElement('div');
-	otoBoard.setAttribute('class', 'otoBoard');
-	let otoBlocks = ['RED', 'BLACK', 'EVEN', 'ODD'];
-	for(i = 0; i < 4; i++){
-		let d = i;
-		var colourClass = (otoBlocks[i] == 'RED')? ' redNum' : ((otoBlocks[i] == 'BLACK')? ' blackNum' : '');
-		var otoBlock = document.createElement('div');
-		otoBlock.setAttribute('class', 'oto_block' + colourClass);
-		otoBlock.onclick = function(){
-			num = (d == 0)? '2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36' : ((d == 1)? '1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36' : ((d == 2)? '2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35' : '1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35'));
-			setBet(this, num, 'outside_oerb', 1);
-		};
-		otoBlock.oncontextmenu = function(e){
-			num = (d == 0)? '2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36' : ((d == 1)? '1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36' : ((d == 2)? '2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35' : '1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35'));
-			e.preventDefault();
-			removeBet(this, num, 'outside_oerb', 1);
-		};
-		otoBlock.innerText = otoBlocks[i];
-		otoBoard.append(otoBlock);
-	}
-	bettingBoard.append(otoBoard);
-
-	let chipDeck = document.createElement('div');
-	chipDeck.setAttribute('class', 'chipDeck');
-	let chipValues = [1, 5, 10, 100, 'clear'];
-	for(i = 0; i < chipValues.length; i++){
-		let cvi = i;
-		let chipColour = (i == 0)? 'red' : ((i == 1)? 'blue cdChipActive' : ((i == 2)? 'orange' : ((i == 3)? 'gold' : 'clearBet')));
-		let chip = document.createElement('div');
-		chip.setAttribute('class', 'cdChip ' + chipColour);
-		chip.onclick = function(){
-			if(cvi !== 4){
-				let cdChipActive = document.getElementsByClassName('cdChipActive');
-				for(i = 0; i < cdChipActive.length; i++){
-					cdChipActive[i].classList.remove('cdChipActive');
-				}
-				let curClass = this.getAttribute('class');
-				if(!curClass.includes('cdChipActive')){
-					this.setAttribute('class', curClass + ' cdChipActive');
-				}
-				wager = parseInt(chip.childNodes[0].innerText);
-			}else{
-				bankValue = bankValue + currentBet;
-				currentBet = 0;
-				updateBalances();
-				clearBet();
-				removeChips();
-				syncBalanceToDB(bankValue);
-			}
-		};
-		let chipSpan = document.createElement('span');
-		chipSpan.setAttribute('class', 'cdChipSpan');
-		chipSpan.innerText = chipValues[i];
-		chip.append(chipSpan);
-		chipDeck.append(chip);
-	}
-	bettingBoard.append(chipDeck);
-
-	let bankContainer = document.createElement('div');
-	bankContainer.setAttribute('class', 'bankContainer');
-
-	let bank = document.createElement('div');
-	bank.setAttribute('class', 'bank');
-	let bankSpan = document.createElement('span');
-	bankSpan.setAttribute('id', 'bankSpan');
-	bankSpan.innerText = formatRM(bankValue);
-	bank.append(bankSpan);
-	bankContainer.append(bank);
-
-	let betDiv = document.createElement('div');
-	betDiv.setAttribute('class', 'bet');
-	let betSpan = document.createElement('span');
-	betSpan.setAttribute('id', 'betSpan');
-	betSpan.innerText = formatRM(currentBet);
-	betDiv.append(betSpan);
-	bankContainer.append(betDiv);	
-	bettingBoard.append(bankContainer);
-
-	let pnBlock = document.createElement('div');
-	pnBlock.setAttribute('class', 'pnBlock');
-	let pnContent = document.createElement('div');
-	pnContent.setAttribute('id', 'pnContent');
-	pnContent.onwheel = function(e){
-		e.preventDefault();
-		pnContent.scrollLeft += e.deltaY;
-	};
-	pnBlock.append(pnContent);	
-	bettingBoard.append(pnBlock);
-	
-	container.append(bettingBoard);
+function handleCellInteraction(el, numbers, type, odds) {
+  if (isSpinning) return;
+  if (betMode === 'remove') {
+    removeBet(el, numbers, type, odds);
+  } else {
+    setBet(el, numbers, type, odds);
+  }
 }
 
-function clearBet(){
-	bet = [];
-	numbersBet = [];
+// ---------------------------------------------------------
+// AUTHENTIC 3-ROW BETTING BOARD BUILDER
+// ---------------------------------------------------------
+function buildBettingBoard() {
+  const mount = document.getElementById('boardCanvas');
+  if (!mount) return;
+  mount.innerHTML = '';
+
+  const tableWrapper = document.createElement('div');
+  tableWrapper.className = 'casino-table-grid';
+
+  const table = document.createElement('table');
+  table.className = 'roulette-table';
+
+  // Row 1 (Top Numbers): 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 + Column 1
+  const tr1 = document.createElement('tr');
+
+  // Zero (0) spans all 3 number rows
+  const td0 = document.createElement('td');
+  td0.setAttribute('rowspan', '3');
+  td0.className = 'cell-num cell-zero';
+  td0.innerHTML = '<span class="cell-label">0</span>';
+  td0.onclick = function () { handleCellInteraction(this, '0', 'inside_whole', 35); };
+  td0.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, '0', 'inside_whole', 35); };
+  tr1.append(td0);
+
+  const row1Nums = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36];
+  row1Nums.forEach(num => {
+    const td = document.createElement('td');
+    td.className = `cell-num ${numRed.includes(num) ? 'cell-red' : 'cell-black'}`;
+    td.innerHTML = `<span class="cell-label">${num}</span>`;
+    td.onclick = function () { handleCellInteraction(this, '' + num, 'inside_whole', 35); };
+    td.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, '' + num, 'inside_whole', 35); };
+    tr1.append(td);
+  });
+
+  const tdCol1 = document.createElement('td');
+  tdCol1.className = 'cell-outside cell-col';
+  tdCol1.innerHTML = '<span class="cell-label">2:1</span>';
+  tdCol1.onclick = function () { handleCellInteraction(this, row1Nums.join(','), 'outside_column', 2); };
+  tdCol1.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, row1Nums.join(','), 'outside_column', 2); };
+  tr1.append(tdCol1);
+  table.append(tr1);
+
+  // Row 2 (Middle Numbers): 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 + Column 2
+  const tr2 = document.createElement('tr');
+  const row2Nums = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35];
+  row2Nums.forEach(num => {
+    const td = document.createElement('td');
+    td.className = `cell-num ${numRed.includes(num) ? 'cell-red' : 'cell-black'}`;
+    td.innerHTML = `<span class="cell-label">${num}</span>`;
+    td.onclick = function () { handleCellInteraction(this, '' + num, 'inside_whole', 35); };
+    td.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, '' + num, 'inside_whole', 35); };
+    tr2.append(td);
+  });
+
+  const tdCol2 = document.createElement('td');
+  tdCol2.className = 'cell-outside cell-col';
+  tdCol2.innerHTML = '<span class="cell-label">2:1</span>';
+  tdCol2.onclick = function () { handleCellInteraction(this, row2Nums.join(','), 'outside_column', 2); };
+  tdCol2.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, row2Nums.join(','), 'outside_column', 2); };
+  tr2.append(tdCol2);
+  table.append(tr2);
+
+  // Row 3 (Bottom Numbers): 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 + Column 3
+  const tr3 = document.createElement('tr');
+  const row3Nums = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34];
+  row3Nums.forEach(num => {
+    const td = document.createElement('td');
+    td.className = `cell-num ${numRed.includes(num) ? 'cell-red' : 'cell-black'}`;
+    td.innerHTML = `<span class="cell-label">${num}</span>`;
+    td.onclick = function () { handleCellInteraction(this, '' + num, 'inside_whole', 35); };
+    td.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, '' + num, 'inside_whole', 35); };
+    tr3.append(td);
+  });
+
+  const tdCol3 = document.createElement('td');
+  tdCol3.className = 'cell-outside cell-col';
+  tdCol3.innerHTML = '<span class="cell-label">2:1</span>';
+  tdCol3.onclick = function () { handleCellInteraction(this, row3Nums.join(','), 'outside_column', 2); };
+  tdCol3.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, row3Nums.join(','), 'outside_column', 2); };
+  tr3.append(tdCol3);
+  table.append(tr3);
+
+  // Row 4: Dozen Bets (1st 12, 2nd 12, 3rd 12)
+  const tr4 = document.createElement('tr');
+  const tdSpacer4 = document.createElement('td');
+  tdSpacer4.className = 'cell-empty';
+  tr4.append(tdSpacer4);
+
+  const dozens = [
+    { label: '1st 12', nums: '1,2,3,4,5,6,7,8,9,10,11,12' },
+    { label: '2nd 12', nums: '13,14,15,16,17,18,19,20,21,22,23,24' },
+    { label: '3rd 12', nums: '25,26,27,28,29,30,31,32,33,34,35,36' }
+  ];
+  dozens.forEach(d => {
+    const td = document.createElement('td');
+    td.setAttribute('colspan', '4');
+    td.className = 'cell-outside cell-dozen';
+    td.innerHTML = `<span class="cell-label">${d.label}</span>`;
+    td.onclick = function () { handleCellInteraction(this, d.nums, 'outside_dozen', 2); };
+    td.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, d.nums, 'outside_dozen', 2); };
+    tr4.append(td);
+  });
+
+  const tdEndSpacer4 = document.createElement('td');
+  tdEndSpacer4.className = 'cell-empty';
+  tr4.append(tdEndSpacer4);
+  table.append(tr4);
+
+  // Row 5: Outside Bets (1-18, EVEN, RED, BLACK, ODD, 19-36)
+  const tr5 = document.createElement('tr');
+  const tdSpacer5 = document.createElement('td');
+  tdSpacer5.className = 'cell-empty';
+  tr5.append(tdSpacer5);
+
+  const outsideBets = [
+    { label: '1 to 18', nums: '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18', cls: '' },
+    { label: 'EVEN', nums: '2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36', cls: '' },
+    { label: 'RED', nums: numRed.join(','), cls: 'cell-red-bet' },
+    { label: 'BLACK', nums: '2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35', cls: 'cell-black-bet' },
+    { label: 'ODD', nums: '1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35', cls: '' },
+    { label: '19 to 36', nums: '19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36', cls: '' }
+  ];
+
+  outsideBets.forEach(ob => {
+    const td = document.createElement('td');
+    td.setAttribute('colspan', '2');
+    td.className = `cell-outside cell-evens ${ob.cls}`;
+    td.innerHTML = `<span class="cell-label">${ob.label}</span>`;
+    td.onclick = function () { handleCellInteraction(this, ob.nums, 'outside_oerb', 1); };
+    td.oncontextmenu = function (e) { e.preventDefault(); removeBet(this, ob.nums, 'outside_oerb', 1); };
+    tr5.append(td);
+  });
+
+  const tdEndSpacer5 = document.createElement('td');
+  tdEndSpacer5.className = 'cell-empty';
+  tr5.append(tdEndSpacer5);
+  table.append(tr5);
+
+  tableWrapper.append(table);
+  mount.append(tableWrapper);
 }
 
-function setBet(e, n, o, t){
-	lastWager = wager;
-	wager = (bankValue < wager)? bankValue : wager;
-	if(wager > 0){
-		if(!container.querySelector('.spinBtn')){
-			let spinBtn = document.createElement('div');
-			spinBtn.setAttribute('class', 'spinBtn');
-			spinBtn.innerText = 'spin';
-			spinBtn.onclick = function(){
-				this.remove();
-				spin();
-			};
-			container.append(spinBtn);
-		}
-		bankValue = bankValue - wager;
-		currentBet = currentBet + wager;
-		updateBalances();
+// ---------------------------------------------------------
+// BET PLACEMENT & REMOVAL
+// ---------------------------------------------------------
+function setBet(e, n, o, t) {
+  if (isSpinning) return;
+  const currentWager = (bankValue < wager) ? bankValue : wager;
 
-		for(i = 0; i < bet.length; i++){
-			if(bet[i].numbers == n && bet[i].type == o){
-				bet[i].amt = bet[i].amt + wager;
-				let chipVal = bet[i].amt;
-				e.querySelector('.chipSpan').innerText = chipVal;
-				return;
-			}
-		}
+  if (currentWager <= 0) {
+    if (bankValue <= 0) showBankruptModal();
+    return;
+  }
 
-		var obj = {
-			amt: wager,
-			type: o,
-			odds: t,
-			numbers: n
-		};
-		bet.push(obj);
-		
-		let numArray = n.split(',').map(Number);
-		for(i = 0; i < numArray.length; i++){
-			if(!numbersBet.includes(numArray[i])){
-				numbersBet.push(numArray[i]);
-			}
-		}
+  bankValue -= currentWager;
+  currentBet += currentWager;
+  updateBalances();
 
-		if(!e.querySelector('.chip')){
-			let chipColour = (wager < 5)? 'red' : ((wager < 10)? 'blue' : ((wager < 100)? 'orange' : 'gold'));
-			let chip = document.createElement('div');
-			chip.setAttribute('class', 'chip ' + chipColour);
-			let chipSpan = document.createElement('span');
-			chipSpan.setAttribute('class', 'chipSpan');
-			chipSpan.innerText = wager;
-			chip.append(chipSpan);
-			e.append(chip);
-		}
-	}
+  // If already bet on this cell, increment
+  for (let i = 0; i < bet.length; i++) {
+    if (bet[i].numbers === n && bet[i].type === o) {
+      bet[i].amt += currentWager;
+      const chipBadge = e.querySelector('.placed-chip-badge');
+      if (chipBadge) chipBadge.innerText = bet[i].amt;
+      return;
+    }
+  }
+
+  // Create new bet
+  bet.push({ amt: currentWager, type: o, odds: t, numbers: n });
+
+  n.split(',').map(Number).forEach(num => {
+    if (!numbersBet.includes(num)) numbersBet.push(num);
+  });
+
+  // Render chip visual on cell
+  if (!e.querySelector('.placed-chip-badge')) {
+    const chipColour = (currentWager < 5) ? 'c-1' : ((currentWager < 10) ? 'c-5' : ((currentWager < 50) ? 'c-10' : ((currentWager < 100) ? 'c-50' : 'c-100')));
+    const chipBadge = document.createElement('div');
+    chipBadge.className = `placed-chip-badge ${chipColour}`;
+    chipBadge.innerText = currentWager;
+    e.append(chipBadge);
+  }
 }
 
-function spin(){
-	var winningSpin = Math.floor(Math.random() * 36);
-	spinWheel(winningSpin);
-	setTimeout(function(){
-		if(numbersBet.includes(winningSpin)){
-			let winValue = 0;
-			let betTotal = 0;
-			for(i = 0; i < bet.length; i++){
-				var numArray = bet[i].numbers.split(',').map(Number);
-				if(numArray.includes(winningSpin)){
-					bankValue = (bankValue + (bet[i].odds * bet[i].amt) + bet[i].amt);
-					winValue = winValue + (bet[i].odds * bet[i].amt);
-					betTotal = betTotal + bet[i].amt;
-				}
-			}
-			win(winningSpin, winValue, betTotal);
-		}
+function removeBet(e, n, o, t) {
+  if (isSpinning) return;
 
-		currentBet = 0;
-		updateBalances();
-		syncBalanceToDB(bankValue);
-		
-		let pnClass = (numRed.includes(winningSpin))? 'pnRed' : ((winningSpin == 0)? 'pnGreen' : 'pnBlack');
-		let pnContent = document.getElementById('pnContent');
-		let pnSpan = document.createElement('span');
-		pnSpan.setAttribute('class', pnClass);
-		pnSpan.innerText = winningSpin;
-		pnContent.append(pnSpan);
-		pnContent.scrollLeft = pnContent.scrollWidth;
+  for (let i = 0; i < bet.length; i++) {
+    if (bet[i].numbers === n && bet[i].type === o) {
+      const chipDeduct = (bet[i].amt > wager) ? wager : bet[i].amt;
+      bet[i].amt -= chipDeduct;
+      bankValue += chipDeduct;
+      currentBet -= chipDeduct;
+      updateBalances();
 
-		bet = [];
-		numbersBet = [];
-		removeChips();
-		wager = lastWager;
-		if(bankValue == 0 && currentBet == 0){
-			gameOver();
-		}
-	}, 10000);
+      if (bet[i].amt <= 0) {
+        const c = e.querySelector('.placed-chip-badge');
+        if (c) c.remove();
+        bet.splice(i, 1);
+
+        numbersBet = [];
+        bet.forEach(b => {
+          b.numbers.split(',').map(Number).forEach(nm => {
+            if (!numbersBet.includes(nm)) numbersBet.push(nm);
+          });
+        });
+      } else {
+        const chipBadge = e.querySelector('.placed-chip-badge');
+        if (chipBadge) chipBadge.innerText = bet[i].amt;
+      }
+      return;
+    }
+  }
 }
 
-function win(winningSpin, winValue, betTotal){
-	if(winValue > 0){
-		let notification = document.createElement('div');
-		notification.setAttribute('id', 'notification');
-		let nSpan = document.createElement('div');
-		nSpan.setAttribute('class', 'nSpan');
-		let nsnumber = document.createElement('span');
-		nsnumber.setAttribute('class', 'nsnumber');
-		nsnumber.style.cssText = (numRed.includes(winningSpin))? 'color:red' : 'color:black';
-		nsnumber.innerText = winningSpin;
-		nSpan.append(nsnumber);
-		let nsTxt = document.createElement('span');
-		nsTxt.innerText = ' Menang!';
-		nSpan.append(nsTxt);
-		let nsWin = document.createElement('div');
-		nsWin.setAttribute('class', 'nsWin');
-		let nsWinBlock = document.createElement('div');
-		nsWinBlock.setAttribute('class', 'nsWinBlock');
-		nsWinBlock.innerText = 'Taruhan: ' + formatRM(betTotal);
-		nSpan.append(nsWinBlock);
-		nsWin.append(nsWinBlock);
-		nsWinBlock = document.createElement('div');
-		nsWinBlock.setAttribute('class', 'nsWinBlock');
-		nsWinBlock.innerText = 'Untung: ' + formatRM(winValue);
-		nSpan.append(nsWinBlock);
-		nsWin.append(nsWinBlock);
-		nsWinBlock = document.createElement('div');
-		nsWinBlock.setAttribute('class', 'nsWinBlock');
-		nsWinBlock.innerText = 'Bayaran: ' + formatRM(winValue + betTotal);
-		nSpan.append(nsWinBlock);
-		nsWin.append(nsWinBlock);
-		nSpan.append(nsWin);
-		notification.append(nSpan);
-		container.prepend(notification);
-		setTimeout(function(){
-			notification.style.cssText = 'opacity:0';
-		}, 3000);
-		setTimeout(function(){
-			notification.remove();
-		}, 4000);
-	}
+function clearCurrentBets() {
+  if (isSpinning || currentBet === 0) return;
+  bankValue += currentBet;
+  currentBet = 0;
+  bet = [];
+  numbersBet = [];
+  document.querySelectorAll('.placed-chip-badge').forEach(c => c.remove());
+  updateBalances();
+  syncBalanceToDB(bankValue);
 }
 
-function removeBet(e, n, o, t){
-	wager = (wager == 0)? 100 : wager;
-	for(i = 0; i < bet.length; i++){
-		if(bet[i].numbers == n && bet[i].type == o){
-			if(bet[i].amt != 0){
-				wager = (bet[i].amt > wager)? wager : bet[i].amt;
-				bet[i].amt = bet[i].amt - wager;
-				bankValue = bankValue + wager;
-				currentBet = currentBet - wager;
-				updateBalances();
-				syncBalanceToDB(bankValue);
-				let chipVal = bet[i].amt;
-				if(chipVal == 0){
-					e.querySelector('.chip').remove();
-					bet.splice(i, 1);
-					let clearNumber = true;
-					let numClear = n.split(',').map(Number);
-					for(k = 0; k < numClear.length; k++){
-						for(j = 0; j < bet.length; j++){
-							if(bet[j].numbers.includes(numClear[k])){
-								clearNumber = false;
-							}
-						}
-						if(clearNumber){
-							numbersBet.splice(numbersBet.indexOf(numClear[k]), 1);
-						}
-					}
-				}else{
-					e.querySelector('.chipSpan').innerText = chipVal;
-				}
-			}
-		}
-	}
+// ---------------------------------------------------------
+// SPIN TRIGGER & ANIMATION
+// ---------------------------------------------------------
+function triggerSpin() {
+  if (isSpinning || currentBet <= 0) return;
 
-	if(currentBet == 0 && container.querySelector('.spinBtn')){
-		document.getElementsByClassName('spinBtn')[0].remove();
-	}
+  isSpinning = true;
+  const spinBtn = document.getElementById('masterSpinBtn');
+  const spinTxt = document.getElementById('masterSpinText');
+  const statusBadge = document.getElementById('wheelStatusBadge');
+
+  if (spinBtn) {
+    spinBtn.className = 'master-spin-btn spinning-state';
+    spinTxt.innerText = 'RODA SEDANG BERPUSING...';
+  }
+  if (statusBadge) {
+    statusBadge.className = 'status-badge spinning';
+    statusBadge.innerText = 'Sedang Berpusing 🎰';
+  }
+
+  // European roulette 0 through 36
+  const winningSpin = Math.floor(Math.random() * 37);
+  spinWheelAnimation(winningSpin);
+
+  setTimeout(function () {
+    let winValue = 0;
+    let betTotal = 0;
+
+    if (numbersBet.includes(winningSpin)) {
+      for (let i = 0; i < bet.length; i++) {
+        const numArray = bet[i].numbers.split(',').map(Number);
+        if (numArray.includes(winningSpin)) {
+          bankValue += (bet[i].odds * bet[i].amt) + bet[i].amt;
+          winValue += (bet[i].odds * bet[i].amt);
+          betTotal += bet[i].amt;
+        }
+      }
+    }
+
+    showRoundResult(winningSpin, winValue, betTotal);
+    addNumberToHistory(winningSpin);
+
+    currentBet = 0;
+    bet = [];
+    numbersBet = [];
+    document.querySelectorAll('.placed-chip-badge').forEach(c => c.remove());
+    isSpinning = false;
+
+    updateBalances();
+    syncBalanceToDB(bankValue);
+
+    if (statusBadge) {
+      statusBadge.className = 'status-badge waiting';
+      statusBadge.innerText = 'Sedia Untuk Bertaruh';
+    }
+
+    if (bankValue <= 0) {
+      setTimeout(showBankruptModal, 1500);
+    }
+  }, 10000);
 }
 
-function spinWheel(winningSpin){
-	for(i = 0; i < wheelnumbersAC.length; i++){
-		if(wheelnumbersAC[i] == winningSpin){
-			var degree = (i * 9.73) + 362;
-		}
-	}
-	wheel.style.cssText = 'animation: wheelRotate 5s linear infinite;';
-	ballTrack.style.cssText = 'animation: ballRotate 1s linear infinite;';
+function spinWheelAnimation(winningSpin) {
+  let degree = 0;
+  for (let i = 0; i < wheelnumbersAC.length; i++) {
+    if (wheelnumbersAC[i] === winningSpin) {
+      degree = (i * 9.73) + 362;
+      break;
+    }
+  }
 
-	setTimeout(function(){
-		ballTrack.style.cssText = 'animation: ballRotate 2s linear infinite;';
-		style = document.createElement('style');
-		style.type = 'text/css';
-		style.innerText = '@keyframes ballStop {from {transform: rotate(0deg);}to{transform: rotate(-'+degree+'deg);}}';
-		document.head.appendChild(style);
-	}, 2000);
-	setTimeout(function(){
-		ballTrack.style.cssText = 'animation: ballStop 3s linear;';
-	}, 6000);
-	setTimeout(function(){
-		ballTrack.style.cssText = 'transform: rotate(-'+degree+'deg);';
-	}, 9000);
-	setTimeout(function(){
-		wheel.style.cssText = '';
-		style.remove();
-	}, 10000);
+  wheelEl.style.animation = 'wheelRotate 5s linear infinite';
+  ballTrackEl.style.animation = 'ballRotate 1s linear infinite';
+
+  setTimeout(() => {
+    ballTrackEl.style.animation = 'ballRotate 2s linear infinite';
+    let style = document.getElementById('ballStopKeyframe');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'ballStopKeyframe';
+      document.head.appendChild(style);
+    }
+    style.innerText = `@keyframes ballStop { from { transform: rotate(0deg); } to { transform: rotate(-${degree}deg); } }`;
+  }, 2000);
+
+  setTimeout(() => {
+    ballTrackEl.style.animation = 'ballStop 3s linear';
+  }, 6000);
+
+  setTimeout(() => {
+    ballTrackEl.style.transform = `rotate(-${degree}deg)`;
+  }, 9000);
+
+  setTimeout(() => {
+    wheelEl.style.animation = '';
+    const style = document.getElementById('ballStopKeyframe');
+    if (style) style.remove();
+  }, 10000);
 }
 
-function removeChips(){
-	var chips = document.getElementsByClassName('chip');
-	if(chips.length > 0){
-		for(i = 0; i < chips.length; i++){
-			chips[i].remove();
-		}
-		removeChips();
-	}
+// ---------------------------------------------------------
+// NOTIFICATIONS & HISTORY
+// ---------------------------------------------------------
+function addNumberToHistory(num) {
+  const strip = document.getElementById('pnContent');
+  if (!strip) return;
+
+  const colorCls = (num === 0) ? 'green' : (numRed.includes(num) ? 'red' : 'black');
+  const item = document.createElement('div');
+  item.className = `history-item ${colorCls}`;
+  item.innerText = num;
+  strip.prepend(item);
 }
 
-// ============================================
-// DATABASE & MODAL LOGIK
-// ============================================
+function showRoundResult(winNum, winVal, betTotal) {
+  const popup = document.getElementById('roundResultOverlay');
+  if (!popup) return;
 
-function showPlayerModal(){
-	let m = document.getElementById('loginModal');
-	if(m) m.style.display = 'flex';
+  const colorName = (winNum === 0) ? 'HIJAU' : (numRed.includes(winNum) ? 'MERAH' : 'HITAM');
+  const colorBg = (winNum === 0) ? '#16a34a' : (numRed.includes(winNum) ? '#dc2626' : '#27272a');
+
+  if (winVal > 0) {
+    popup.innerHTML = `
+      <div class="popup-title" style="color: #4ade80;">🎉 TAHNIAH, ANDA MENANG!</div>
+      <div class="popup-num-badge" style="background: ${colorBg};">Nombor ${winNum} (${colorName})</div>
+      <div class="popup-payout">Untung: <strong>+${formatRM(winVal)}</strong> | Pulangan: <strong>${formatRM(winVal + betTotal)}</strong></div>
+    `;
+  } else {
+    popup.innerHTML = `
+      <div class="popup-title" style="color: #cbd5e1;">Roda Berhenti Pada:</div>
+      <div class="popup-num-badge" style="background: ${colorBg};">Nombor ${winNum} (${colorName})</div>
+      <div style="font-size: 14px; color: #94a3b8;">Tiada taruhan menang pusingan ini. Cuba lagi!</div>
+    `;
+  }
+
+  popup.style.display = 'block';
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 4000);
 }
 
-function hidePlayerModal(){
-	let m = document.getElementById('loginModal');
-	if(m) m.style.display = 'none';
+function showBankruptModal() {
+  const modal = document.getElementById('bankruptModal');
+  if (modal) modal.style.display = 'flex';
 }
 
-function setPlayerSession(player){
-	currentPlayer = player;
-	localStorage.setItem('roulette_player', JSON.stringify(player));
-	bankValue = Number(player.balance != null ? player.balance : 100);
-
-	let hudName = document.getElementById('hudPlayerName');
-	let hudBal = document.getElementById('hudPlayerBalance');
-	if(hudName) hudName.innerText = player.name || 'Pemain';
-	if(hudBal) hudBal.innerText = formatRM(bankValue);
-
-	updateBalances();
-	hidePlayerModal();
+function claimBankruptcyBonus() {
+  bankValue = 100;
+  const modal = document.getElementById('bankruptModal');
+  if (modal) modal.style.display = 'none';
+  updateBalances();
+  syncBalanceToDB(bankValue);
 }
 
-async function syncBalanceToDB(newBal){
-	if(!currentPlayer || !currentPlayer.id) return;
-	currentPlayer.balance = newBal;
-	localStorage.setItem('roulette_player', JSON.stringify(currentPlayer));
-
-	try {
-		await fetch('/api/game/roulette', {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: currentPlayer.id, balance: newBal })
-		});
-	} catch (e) {
-		console.log('Sync balance warning:', e);
-	}
+// ---------------------------------------------------------
+// DATABASE & MODAL LOGIC
+// ---------------------------------------------------------
+function showPlayerModal() {
+  const m = document.getElementById('loginModal');
+  if (m) m.style.display = 'flex';
 }
 
-async function handlePlayerSubmit(e){
-	e.preventDefault();
-	let nameInput = document.getElementById('playerNameInput');
-	let statusEl = document.getElementById('modalStatus');
-	let btn = document.getElementById('btnSubmitPlayer');
-	let name = (nameInput.value || '').trim();
-
-	if(!name) return;
-
-	btn.disabled = true;
-	btn.innerText = 'Menghubungkan ke Database...';
-	statusEl.className = 'modal-status';
-	statusEl.innerText = '';
-
-	try {
-		let res = await fetch('/api/game/roulette', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name: name })
-		});
-		let data = await res.json();
-		if(data.ok && data.player){
-			statusEl.className = 'modal-status success';
-			statusEl.innerText = '✓ Selamat datang ' + data.player.name + '! Baki RM ' + data.player.balance + ' dimuatkan.';
-			setTimeout(function(){
-				setPlayerSession(data.player);
-			}, 600);
-		} else {
-			throw new Error(data.error || 'Gagal menyimpan ke database');
-		}
-	} catch (err) {
-		// Fallback offline / network glitch
-		statusEl.className = 'modal-status';
-		statusEl.innerText = 'Pangkalan data mod siap sedia: ' + err.message;
-		let fallbackPlayer = { id: Date.now(), name: name, balance: 100 };
-		setTimeout(function(){
-			setPlayerSession(fallbackPlayer);
-		}, 800);
-	} finally {
-		btn.disabled = false;
-		btn.innerText = 'MULA MAIN (TERIMA RM 100)';
-	}
+function hidePlayerModal() {
+  const m = document.getElementById('loginModal');
+  if (m) m.style.display = 'none';
 }
 
-// Auto-check authentication and player profile on load
-(async function initPlayerOnLoad(){
-	let localData = null;
-	try {
-		localData = JSON.parse(localStorage.getItem('roulette_player'));
-	} catch (e) {}
+function setPlayerSession(player) {
+  currentPlayer = player;
+  localStorage.setItem('roulette_player', JSON.stringify(player));
+  bankValue = Number(player.balance != null ? player.balance : 100);
 
-	try {
-		let url = (localData && localData.name)? '/api/game/roulette?name=' + encodeURIComponent(localData.name) : '/api/game/roulette';
-		let res = await fetch(url);
-		let data = await res.json();
-		if(data.ok && data.player){
-			setPlayerSession(data.player);
-			return;
-		}
-	} catch (err) {
-		console.log('Database init check note:', err);
-	}
+  const hudName = document.getElementById('hudPlayerName');
+  const hudBal = document.getElementById('hudPlayerBalance');
+  if (hudName) hudName.innerText = player.name || 'Pemain';
+  if (hudBal) hudBal.innerText = formatRM(bankValue);
 
-	if(localData && localData.name){
-		setPlayerSession(localData);
-	} else {
-		showPlayerModal();
-	}
-})();
-
-
-// ============================================
-// DATABASE & MODAL LOGIK
-// ============================================
-
-function showPlayerModal(){
-	let m = document.getElementById('loginModal');
-	if(m) m.style.display = 'flex';
+  updateBalances();
+  hidePlayerModal();
 }
 
-function hidePlayerModal(){
-	let m = document.getElementById('loginModal');
-	if(m) m.style.display = 'none';
+async function syncBalanceToDB(newBal) {
+  if (!currentPlayer || !currentPlayer.id) return;
+  currentPlayer.balance = newBal;
+  localStorage.setItem('roulette_player', JSON.stringify(currentPlayer));
+
+  try {
+    await fetch('/api/game/roulette', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: currentPlayer.id, balance: newBal })
+    });
+  } catch (e) {
+    console.log('Sync balance warning:', e);
+  }
 }
 
-function setPlayerSession(player){
-	currentPlayer = player;
-	localStorage.setItem('roulette_player', JSON.stringify(player));
-	bankValue = Number(player.balance != null ? player.balance : 100);
+async function handlePlayerSubmit(e) {
+  e.preventDefault();
+  const nameInput = document.getElementById('playerNameInput');
+  const statusEl = document.getElementById('modalStatus');
+  const btn = document.getElementById('btnSubmitPlayer');
+  const name = (nameInput.value || '').trim();
 
-	let hudName = document.getElementById('hudPlayerName');
-	let hudBal = document.getElementById('hudPlayerBalance');
-	if(hudName) hudName.innerText = player.name || 'Pemain';
-	if(hudBal) hudBal.innerText = formatRM(bankValue);
+  if (!name) return;
 
-	updateBalances();
-	hidePlayerModal();
+  btn.disabled = true;
+  btn.innerText = 'Menghubungkan ke Pangkalan Data...';
+  statusEl.className = 'modal-status';
+  statusEl.innerText = '';
+
+  try {
+    const res = await fetch('/api/game/roulette', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
+    });
+    const data = await res.json();
+    if (data.ok && data.player) {
+      statusEl.className = 'modal-status success';
+      statusEl.innerText = `✓ Selamat datang ${data.player.name}! Baki ${formatRM(data.player.balance)} dimuatkan.`;
+      setTimeout(() => {
+        setPlayerSession(data.player);
+      }, 500);
+    } else {
+      throw new Error(data.error || 'Gagal menyimpan rekod pemain');
+    }
+  } catch (err) {
+    statusEl.className = 'modal-status';
+    statusEl.innerText = `Mod kendiri: ${err.message}`;
+    const fallbackPlayer = { id: Date.now(), name: name, balance: 100 };
+    setTimeout(() => {
+      setPlayerSession(fallbackPlayer);
+    }, 600);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'MULA MAIN (TERIMA RM 100)';
+  }
 }
 
-async function syncBalanceToDB(newBal){
-	if(!currentPlayer || !currentPlayer.id) return;
-	currentPlayer.balance = newBal;
-	localStorage.setItem('roulette_player', JSON.stringify(currentPlayer));
+// Auto-check on load
+(async function initPlayerOnLoad() {
+  initGame();
 
-	try {
-		await fetch('/api/game/roulette', {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: currentPlayer.id, balance: newBal })
-		});
-	} catch (e) {
-		console.log('Sync balance warning:', e);
-	}
-}
+  let localData = null;
+  try {
+    localData = JSON.parse(localStorage.getItem('roulette_player'));
+  } catch (e) {}
 
-async function handlePlayerSubmit(e){
-	e.preventDefault();
-	let nameInput = document.getElementById('playerNameInput');
-	let statusEl = document.getElementById('modalStatus');
-	let btn = document.getElementById('btnSubmitPlayer');
-	let name = (nameInput.value || '').trim();
+  try {
+    const url = (localData && localData.name)
+      ? '/api/game/roulette?name=' + encodeURIComponent(localData.name)
+      : '/api/game/roulette';
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.ok && data.player) {
+      setPlayerSession(data.player);
+      return;
+    }
+  } catch (err) {
+    console.log('Database init note:', err);
+  }
 
-	if(!name) return;
-
-	btn.disabled = true;
-	btn.innerText = 'Menghubungkan ke Database...';
-	statusEl.className = 'modal-status';
-	statusEl.innerText = '';
-
-	try {
-		let res = await fetch('/api/game/roulette', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name: name })
-		});
-		let data = await res.json();
-		if(data.ok && data.player){
-			statusEl.className = 'modal-status success';
-			statusEl.innerText = '✓ Selamat datang ' + data.player.name + '! Baki RM ' + data.player.balance + ' dimuatkan.';
-			setTimeout(function(){
-				setPlayerSession(data.player);
-			}, 600);
-		} else {
-			throw new Error(data.error || 'Gagal menyimpan ke database');
-		}
-	} catch (err) {
-		// Fallback offline / network glitch
-		statusEl.className = 'modal-status';
-		statusEl.innerText = 'Pangkalan data mod siap sedia: ' + err.message;
-		let fallbackPlayer = { id: Date.now(), name: name, balance: 100 };
-		setTimeout(function(){
-			setPlayerSession(fallbackPlayer);
-		}, 800);
-	} finally {
-		btn.disabled = false;
-		btn.innerText = 'MULA MAIN (TERIMA RM 100)';
-	}
-}
-
-// Auto-check authentication and player profile on load
-(async function initPlayerOnLoad(){
-	let localData = null;
-	try {
-		localData = JSON.parse(localStorage.getItem('roulette_player'));
-	} catch (e) {}
-
-	try {
-		let url = (localData && localData.name)? '/api/game/roulette?name=' + encodeURIComponent(localData.name) : '/api/game/roulette';
-		let res = await fetch(url);
-		let data = await res.json();
-		if(data.ok && data.player){
-			setPlayerSession(data.player);
-			return;
-		}
-	} catch (err) {
-		console.log('Database init check note:', err);
-	}
-
-	if(localData && localData.name){
-		setPlayerSession(localData);
-	} else {
-		showPlayerModal();
-	}
+  if (localData && localData.name) {
+    setPlayerSession(localData);
+  } else {
+    showPlayerModal();
+  }
 })();
