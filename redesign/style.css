@@ -1,0 +1,1180 @@
+/* ==========================================================================
+   Duolingo Design System — Playful classroom mascot on pure white paper
+   Tokens, Typography, Components & Surfaces from Design MD
+   ========================================================================== */
+
+:root {
+  /* Colors */
+  --color-eager-green: #58cc02;
+  --color-eager-green-depth: #46a302;
+  --color-storybook-green: #d7ffb8;
+  --color-storybook-green-dark: #237500;
+  --color-spark-blue: #1cb0f6;
+  --color-spark-blue-depth: #1899d6;
+  --color-fresh-leaf: #a5ed6e;
+  --color-night-ink: #000437;
+  --color-paper-white: #ffffff;
+  --color-charcoal: #4b4b4b;
+  --color-pencil-gray: #777777;
+  --color-faded-gray: #afafaf;
+  --color-border-subtle: #e5e5e5;
+  --color-card-bg: #ffffff;
+
+  /* Typography */
+  --font-display: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Scale */
+  --text-caption: 13px;
+  --text-nav-label: 15px;
+  --text-body: 17px;
+  --text-subheading: 20px;
+  --text-heading-sm: 28px;
+  --text-heading: 42px;
+  --text-display: 54px;
+
+  /* Spacing */
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+
+  /* Border Radius */
+  --radius-pill: 9999px;
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --radius-tag: 12px;
+
+  /* Container */
+  --page-max-width: 1140px;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  background-color: var(--color-paper-white);
+  color: var(--color-charcoal);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  background-color: var(--color-paper-white);
+  color: var(--color-pencil-gray);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--color-spark-blue);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==========================================================================
+   Sticker Buttons (Duolingo 3D Chunky Style)
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.053em;
+  padding: 14px 28px;
+  border-radius: var(--radius-btn);
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+  user-select: none;
+  text-decoration: none !important;
+}
+
+/* Primary CTA - Eager Green */
+.btn-primary {
+  background-color: var(--color-eager-green);
+  color: var(--color-paper-white) !important;
+  box-shadow: 0 4px 0 var(--color-eager-green-depth);
+}
+
+.btn-primary:hover {
+  background-color: #61e002;
+}
+
+.btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--color-eager-green-depth);
+}
+
+/* Secondary Action - Spark Blue */
+.btn-blue {
+  background-color: var(--color-spark-blue);
+  color: var(--color-paper-white) !important;
+  box-shadow: 0 4px 0 var(--color-spark-blue-depth);
+}
+
+.btn-blue:hover {
+  background-color: #2dc4ff;
+}
+
+.btn-blue:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--color-spark-blue-depth);
+}
+
+/* Outlined CTA - Ghost button with 2px border */
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-spark-blue) !important;
+  border: 2px solid var(--color-faded-gray);
+  box-shadow: 0 3px 0 var(--color-faded-gray);
+}
+
+.btn-outline:hover {
+  background-color: #f7f9fa;
+  border-color: #9c9c9c;
+}
+
+.btn-outline:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--color-faded-gray);
+}
+
+/* Small Button Variant */
+.btn-sm {
+  padding: 9px 18px;
+  font-size: 13px;
+  border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Sticker Pill Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: var(--color-storybook-green);
+  color: var(--color-storybook-green-dark);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-pill);
+  border: 2px solid #bceaa0;
+  margin-bottom: 16px;
+}
+
+.badge-pill.blue {
+  background-color: #ddf4ff;
+  color: #0860c7;
+  border-color: #bce6ff;
+}
+
+/* ==========================================================================
+   Navigation Bar
+   ========================================================================== */
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--color-paper-white);
+  border-bottom: 2px solid var(--color-border-subtle);
+  transition: all 0.2s ease;
+}
+
+.top-nav-inner {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--color-charcoal);
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+}
+
+.nav-link {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.053em;
+  color: var(--color-pencil-gray);
+  padding: 6px 10px;
+  border-radius: var(--radius-btn);
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.nav-link:hover {
+  color: var(--color-eager-green);
+  text-decoration: none;
+  background-color: #f7faf5;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Language selector button */
+.lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 2px solid var(--color-faded-gray);
+  border-radius: var(--radius-btn);
+  background: transparent;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--color-charcoal);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lang-pill:hover {
+  border-color: var(--color-spark-blue);
+  color: var(--color-spark-blue);
+}
+
+/* Promo Marquee Strip */
+.promo-strip {
+  background-color: var(--color-storybook-green);
+  border-bottom: 2px solid #bdeba1;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-storybook-green-dark);
+  letter-spacing: 0.02em;
+}
+
+.promo-strip a {
+  color: #1a6800;
+  text-decoration: underline;
+  margin-left: 6px;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.hero-section {
+  padding: 70px 24px 80px;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.5vw, 52px);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--color-charcoal);
+  letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+
+.hero-headline span.highlight {
+  color: var(--color-eager-green);
+  position: relative;
+  display: inline-block;
+}
+
+.hero-sub {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-pencil-gray);
+  margin-bottom: 32px;
+  max-width: 520px;
+}
+
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.hero-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-pencil-gray);
+}
+
+.hero-guarantee span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-media {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+}
+
+.hero-main-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.08));
+  animation: gentleFloat 4s ease-in-out infinite alternate;
+}
+
+.hero-sticker-badge {
+  position: absolute;
+  top: -15px;
+  right: -10px;
+  width: 100px;
+  height: auto;
+  transform: rotate(12deg);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+  animation: wiggle 5s ease-in-out infinite;
+}
+
+@keyframes gentleFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-12px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(12deg) scale(1); }
+  50% { transform: rotate(18deg) scale(1.05); }
+}
+
+/* ==========================================================================
+   Trust / Credibility Bar
+   ========================================================================== */
+
+.trust-bar {
+  border-top: 2px solid var(--color-border-subtle);
+  border-bottom: 2px solid var(--color-border-subtle);
+  background-color: #fafbfc;
+  padding: 32px 24px;
+}
+
+.trust-inner {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px;
+}
+
+.trust-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--color-eager-green);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.trust-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.trust-desc {
+  font-size: 12.5px;
+  color: var(--color-pencil-gray);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   Content Sections (Duolingo Alternating Rhythm)
+   ========================================================================== */
+
+.story-section {
+  padding: 96px 24px;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 64px;
+}
+
+.story-section.reverse {
+  direction: rtl;
+}
+
+.story-section.reverse > * {
+  direction: ltr;
+}
+
+.story-heading {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.8vw, 44px);
+  font-weight: 900;
+  line-height: 1.18;
+  color: var(--color-eager-green);
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+
+.story-sub {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--color-pencil-gray);
+  margin-bottom: 28px;
+}
+
+/* Feature Check List */
+.feature-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  line-height: 1.4;
+}
+
+.feature-icon-check {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background-color: var(--color-eager-green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 0 var(--color-eager-green-depth);
+  margin-top: 1px;
+}
+
+.feature-icon-check svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 3;
+}
+
+.story-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-illustration {
+  max-width: 420px;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.06));
+}
+
+/* ==========================================================================
+   Pricing Section (Duolingo Sticker Card)
+   ========================================================================== */
+
+.pricing-section {
+  padding: 96px 24px;
+  background-color: #fafbfc;
+  border-top: 2px solid var(--color-border-subtle);
+  border-bottom: 2px solid var(--color-border-subtle);
+  text-align: center;
+}
+
+.pricing-header {
+  max-width: 680px;
+  margin: 0 auto 56px;
+}
+
+.pricing-card-wrap {
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.duo-pricing-card {
+  background-color: var(--color-paper-white);
+  border: 2px solid var(--color-eager-green);
+  border-radius: 24px;
+  padding: 44px 36px 40px;
+  box-shadow: 0 8px 0 #46a302, 0 16px 36px rgba(88, 204, 2, 0.12);
+  text-align: left;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.pricing-badge-popular {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ff9600;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 18px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 3px 0 #cc7800;
+}
+
+.pricing-card-head {
+  text-align: center;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+.pricing-plan-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--color-charcoal);
+  margin-bottom: 6px;
+}
+
+.pricing-price-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.pricing-currency {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-charcoal);
+}
+
+.pricing-amount {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--color-eager-green);
+  line-height: 1;
+}
+
+.pricing-period {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-pencil-gray);
+}
+
+.pricing-tagline {
+  font-size: 15px;
+  color: var(--color-pencil-gray);
+  font-weight: 600;
+}
+
+.pricing-features-title {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-charcoal);
+  margin-bottom: 16px;
+}
+
+.pricing-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+  margin-bottom: 32px;
+}
+
+.pricing-feat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-charcoal);
+}
+
+.pricing-feat-item svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-eager-green);
+  flex-shrink: 0;
+}
+
+.google-trust-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 12px;
+  background-color: #f8fafc;
+  border-radius: var(--radius-btn);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-pencil-gray);
+}
+
+.google-trust-badge img {
+  height: 20px;
+  width: auto;
+}
+
+/* ==========================================================================
+   Video Showcase Section
+   ========================================================================== */
+
+.video-section {
+  padding: 96px 24px;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.video-container {
+  max-width: 840px;
+  margin: 40px auto 0;
+  border: 3px solid var(--color-charcoal);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 0 var(--color-charcoal), 0 20px 40px rgba(0, 0, 0, 0.1);
+  background-color: #000;
+  position: relative;
+}
+
+.video-container video,
+.video-container iframe {
+  width: 100%;
+  height: auto;
+  min-height: 440px;
+  display: block;
+}
+
+/* ==========================================================================
+   Testimonials / Reviews
+   ========================================================================== */
+
+.testimonials-section {
+  padding: 96px 24px;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.testimonials-grid {
+  max-width: var(--page-max-width);
+  margin: 48px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  text-align: left;
+}
+
+.review-card {
+  background-color: #ffffff;
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 0 var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.review-card:hover {
+  border-color: var(--color-spark-blue);
+  transform: translateY(-4px);
+}
+
+.review-stars {
+  color: #ffc107;
+  display: flex;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.review-stars svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.review-text {
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--color-charcoal);
+  font-weight: 600;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--color-eager-green);
+  object-fit: cover;
+  background-color: var(--color-storybook-green);
+}
+
+.author-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--color-charcoal);
+}
+
+.author-role {
+  font-size: 13px;
+  color: var(--color-pencil-gray);
+}
+
+/* ==========================================================================
+   FAQ Section (Accordion)
+   ========================================================================== */
+
+.faq-section {
+  padding: 96px 24px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.faq-list {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faq-item {
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 16px;
+  background-color: #ffffff;
+  overflow: hidden;
+  box-shadow: 0 3px 0 var(--color-border-subtle);
+  transition: border-color 0.15s ease;
+}
+
+.faq-item:hover {
+  border-color: var(--color-spark-blue);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 20px 24px;
+  background: transparent;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-charcoal);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.faq-item.active .faq-icon {
+  transform: rotate(180deg);
+  background-color: var(--color-storybook-green);
+  color: var(--color-storybook-green-dark);
+}
+
+.faq-answer {
+  display: none;
+  padding: 0 24px 22px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-pencil-gray);
+  border-top: 1px dashed var(--color-border-subtle);
+  padding-top: 16px;
+}
+
+.faq-item.active .faq-answer {
+  display: block;
+}
+
+/* ==========================================================================
+   Feedback & Contact Form Section
+   ========================================================================== */
+
+.contact-section {
+  padding: 96px 24px;
+  background-color: #fafbfc;
+  border-top: 2px solid var(--color-border-subtle);
+}
+
+.contact-box {
+  max-width: 620px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 6px 0 var(--color-border-subtle);
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-charcoal);
+  margin-bottom: 8px;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--color-faded-gray);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--color-charcoal);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background-color: #fafbfc;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--color-spark-blue);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.15);
+}
+
+/* ==========================================================================
+   Footer Band (Duolingo Eager Green Full Bleed)
+   ========================================================================== */
+
+.site-footer {
+  background-color: var(--color-eager-green);
+  color: var(--color-paper-white);
+  padding: 64px 24px 48px;
+  border-top: 4px solid var(--color-eager-green-depth);
+}
+
+.footer-inner {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.footer-brand-logo {
+  height: 40px;
+  width: auto;
+  margin-bottom: 16px;
+  filter: brightness(0) invert(1);
+}
+
+.footer-brand-desc {
+  font-size: 15px;
+  color: var(--color-storybook-green);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.footer-col-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+.footer-nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-nav-link {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-storybook-green);
+  transition: color 0.15s;
+}
+
+.footer-nav-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.footer-social-row {
+  display: flex;
+  gap: 12px;
+}
+
+.footer-social-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.footer-social-btn:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.footer-social-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.footer-bottom {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: var(--color-storybook-green);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Floating WhatsApp Sticker Button */
+.wa-float-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #25d366;
+  color: #ffffff !important;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 0 #1da851, 0 10px 24px rgba(37, 211, 102, 0.35);
+  text-decoration: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wa-float-btn:hover {
+  background-color: #2bf074;
+}
+
+.wa-float-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1da851;
+}
+
+.wa-float-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 960px) {
+  .hero-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 48px 20px;
+    gap: 36px;
+  }
+
+  .hero-content {
+    align-items: center;
+  }
+
+  .hero-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-cta-group {
+    justify-content: center;
+  }
+
+  .story-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 64px 20px;
+    gap: 36px;
+  }
+
+  .story-section.reverse {
+    direction: ltr;
+  }
+
+  .feature-list {
+    align-items: flex-start;
+    text-align: left;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .trust-inner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .nav-links {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .pricing-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>HairiHosting — Fast, Simple Subdomain Hosting for Static Websites</title>
+  <meta name="description" content="Deploy HTML, CSS, JS websites to your own subdomain (*.hairiamri.buzz) in seconds. Deploy via web dashboard or CLI tool. Free SSL, global CDN, and built-in analytics.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Google Fonts: Nunito (Chunky Duolingo Friendly Rounded Typeface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Specific CLI Terminal Box Style (Duolingo Style: thick borders, paper background) */
+    .terminal-box {
+      background-color: #000437; /* Night Ink */
+      color: #ffffff;
+      border: 3px solid #000437;
+      border-radius: 20px;
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 8px 0 #00021c, 0 16px 32px rgba(0, 4, 55, 0.15);
+      position: relative;
+    }
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .term-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .term-dot.red { background: #ff5f56; }
+    .term-dot.yellow { background: #ffbd2e; }
+    .term-dot.green { background: #58cc02; }
+    .terminal-title {
+      font-size: 12px;
+      color: #afafaf;
+      margin-left: auto;
+      font-weight: 700;
+    }
+    .cmd-line {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .cmd-prompt {
+      color: #58cc02;
+      user-select: none;
+    }
+    .cmd-text {
+      color: #1cb0f6;
+    }
+    .cmd-output {
+      color: #d7ffb8;
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+    .code-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: #f0f2f5;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #d0d7de;
+      color: #000437;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Strip -->
+  <div class="promo-strip">
+    <span data-i18n="promoText">⚡ DEPLOY YOUR HTML SITE TO SUBDOMAIN IN SECONDS. ZERO COMPLEX SETUP.</span>
+    <a href="/redeem.html" data-i18n="promoLink">GET STARTED FREE</a>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <a href="#home" class="brand-wrap">
+        <img src="/assets/logoUtama/logoUtama.png" alt="HairiHosting" class="brand-logo">
+        <span class="brand-title">HairiHosting</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+          <li><a href="#how-it-works" class="nav-link" data-i18n="navHowItWorks">How It Works</a></li>
+          <li><a href="#cli" class="nav-link" data-i18n="navCli">CLI Tool</a></li>
+          <li><a href="/cli-docs/" class="nav-link">CLI Docs</a></li>
+          <li><a href="#faq" class="nav-link" data-i18n="navFaq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button type="button" class="lang-pill" id="langToggleBtn">🌐 EN / BM</button>
+        <a href="/" class="btn btn-outline btn-sm" data-i18n="navSignIn">Sign In</a>
+        <a href="/redeem.html" class="btn btn-primary btn-sm" data-i18n="navGetStarted">Join / Redeem</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section (Duolingo Friendly Mascot Style) -->
+  <section class="hero-section" id="home">
+    <div class="hero-content">
+      <div class="badge-pill" data-i18n="heroBadge">Instant Subdomain Hosting</div>
+      <h1 class="hero-headline" data-i18n="heroTitle">
+        Deploy Static Websites To <span class="highlight">Your Subdomain</span> In Seconds!
+      </h1>
+      <p class="hero-sub" data-i18n="heroSub">
+        Host HTML, CSS, JavaScript, and assets instantly on your own <strong>yoursite.hairiamri.buzz</strong> subdomain. Deploy through our interactive web editor or directly from your terminal using our fast CLI tool.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="/redeem.html" class="btn btn-primary" data-i18n="heroBtnGetStarted">
+          Deploy Your First Site
+        </a>
+        <a href="/cli-docs/" class="btn btn-outline" data-i18n="heroBtnDocs">
+          View CLI Documentation
+        </a>
+      </div>
+
+      <div class="hero-guarantee">
+        <span>⚡ 1-Command CLI Deploy</span>
+        <span>•</span>
+        <span>🔒 Free Automatic SSL</span>
+        <span>•</span>
+        <span>📦 ZIP Drag &amp; Drop</span>
+      </div>
+    </div>
+
+    <div class="hero-media">
+      <div class="terminal-box" style="width: 100%; max-width: 480px;">
+        <div class="terminal-header">
+          <span class="term-dot red"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+          <span class="terminal-title">bash · Termux / Mac / Linux / Win</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">$</span>
+          <span class="cmd-text">npm install -g hh-cli-deploy</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">$</span>
+          <span class="cmd-text">hh login hh_live_xxxxxxxx</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">$</span>
+          <span class="cmd-text">hh deploy ./my-website</span>
+        </div>
+        <div class="cmd-output">
+          🚀 Uploading 12 files...<br>
+          ✅ Site LIVE at https://my-portfolio.hairiamri.buzz
+        </div>
+        <img src="/assets/sticker.png" alt="Fast" class="hero-sticker-badge" style="width: 80px; top: -12px; right: -12px;">
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Metrics / Credibility Strip -->
+  <section class="trust-bar">
+    <div class="trust-inner">
+      <div class="trust-item">
+        <div class="trust-num" data-i18n="metric1Num">&lt; 2s</div>
+        <div class="trust-label" data-i18n="metric1Title">Deploy Speed</div>
+        <div class="trust-desc" data-i18n="metric1Desc">Instant global propagation</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-num" data-i18n="metric2Num">Cloudflare</div>
+        <div class="trust-label" data-i18n="metric2Title">Edge Network</div>
+        <div class="trust-desc" data-i18n="metric2Desc">Ultra low-latency delivery</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-num" data-i18n="metric3Num">100% Free</div>
+        <div class="trust-label" data-i18n="metric3Title">SSL HTTPS</div>
+        <div class="trust-desc" data-i18n="metric3Desc">Auto-provisioned on every site</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-num" data-i18n="metric4Num">2 Ways</div>
+        <div class="trust-label" data-i18n="metric4Title">Web &amp; CLI</div>
+        <div class="trust-desc" data-i18n="metric4Desc">Deploy in browser or terminal</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature 1: Subdomain Architecture (Story Section 1) -->
+  <section class="story-section" id="features">
+    <div class="story-content">
+      <div class="badge-pill blue" data-i18n="feat1Badge">Subdomain Freedom</div>
+      <h2 class="story-heading" data-i18n="feat1Title">
+        Your Own Clean Subdomain <span class="highlight">*.hairiamri.buzz</span>
+      </h2>
+      <p class="story-sub" data-i18n="feat1Sub">
+        Pick any available subdomain name for your projects. Perfect for portfolios, student class projects, client landing pages, documentation, and web experiments.
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat1Point1">Instant subdomain creation (e.g. <code>danial.hairiamri.buzz</code>)</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat1Point2">Automatic SSL certificate (HTTPS) active out-of-the-box</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat1Point3">Sub-50ms loading times served from global edge nodes</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat1Point4">Built-in visitor analytics &amp; pageview statistics</span>
+        </li>
+      </ul>
+
+      <a href="/dashboard/" class="btn btn-blue" data-i18n="feat1Btn">
+        Open Dashboard
+      </a>
+    </div>
+
+    <div class="story-media">
+      <img src="/assets/featureImg2/featureImg2.png" alt="Subdomain Hosting" class="story-illustration">
+    </div>
+  </section>
+
+  <!-- Feature 2: Browser Dashboard Editor (Story Section 2 - Reverse) -->
+  <section class="story-section reverse" id="how-it-works">
+    <div class="story-content">
+      <div class="badge-pill" data-i18n="feat2Badge">Browser Dashboard</div>
+      <h2 class="story-heading" data-i18n="feat2Title">
+        Code In Browser or <span class="highlight">Upload A ZIP File</span>
+      </h2>
+      <p class="story-sub" data-i18n="feat2Sub">
+        No CLI? No problem! The HairiHosting Dashboard gives you a complete web-based IDE with real-time preview, asset manager, and 1-click ZIP extraction.
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat2Point1"><strong>Built-in Tab Editor:</strong> Edit HTML, CSS, and JS with syntax highlighting</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat2Point2"><strong>Drag &amp; Drop ZIP Upload:</strong> Automatically unpacks your HTML &amp; image assets</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat2Point3"><strong>Export Site:</strong> Download your entire project as a ZIP anytime</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="feat2Point4"><strong>Live Switch:</strong> Toggle between Draft and LIVE status with one click</span>
+        </li>
+      </ul>
+
+      <a href="/" class="btn btn-primary" data-i18n="feat2Btn">
+        Launch Web Editor
+      </a>
+    </div>
+
+    <div class="story-media">
+      <img src="/assets/featureImg1/featureImg1.png" alt="Web Editor" class="story-illustration">
+    </div>
+  </section>
+
+  <!-- Feature 3: The CLI Experience (hh-cli-deploy) -->
+  <section class="story-section" id="cli">
+    <div class="story-content">
+      <div class="badge-pill blue" data-i18n="cliBadge">Developer Tooling</div>
+      <h2 class="story-heading" data-i18n="cliTitle">
+        Deploy From Terminal with <span class="highlight">hh-cli-deploy</span>
+      </h2>
+      <p class="story-sub" data-i18n="cliSub">
+        Built for developers, students, and power users. Works on Termux (Android phone), macOS, Linux, and Windows PowerShell. Deploy in just one command: <span class="code-badge">hh deploy</span>.
+      </p>
+
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="cliPoint1"><code>hh login &lt;key&gt;</code> — authenticate with your dashboard API key</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="cliPoint2"><code>hh deploy ./dist</code> — deploys local folder directly to your subdomain</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="cliPoint3"><code>hh list</code> &amp; <code>hh whoami</code> — inspect deployments and active account</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span data-i18n="cliPoint4">Perfect for GitHub Actions, GitLab CI, and automated build scripts</span>
+        </li>
+      </ul>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="/cli-docs/" class="btn btn-blue" data-i18n="cliBtnDocs">
+          Read Full CLI Documentation →
+        </a>
+      </div>
+    </div>
+
+    <div class="story-media">
+      <div class="terminal-box" style="width: 100%; max-width: 480px;">
+        <div class="terminal-header">
+          <span class="term-dot red"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+          <span class="terminal-title">npm global package</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">#</span>
+          <span style="color:#afafaf;">Install via npm or Termux:</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">&gt;</span>
+          <span class="cmd-text">npm install -g hh-cli-deploy</span>
+        </div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">&gt;</span>
+          <span class="cmd-text">hh --version</span>
+        </div>
+        <div class="cmd-output">1.0.4</div>
+        <div class="cmd-line">
+          <span class="cmd-prompt">&gt;</span>
+          <span class="cmd-text">hh deploy .</span>
+        </div>
+        <div class="cmd-output">
+          🚀 Reading files in current directory...<br>
+          📦 Uploading 8 assets (HTML/CSS/PNG)<br>
+          ✨ Done in 1.4s! Site is LIVE.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Steps: 3 Steps to Deploy -->
+  <section class="pricing-section">
+    <div class="pricing-header">
+      <div class="badge-pill" data-i18n="stepsBadge">Simple 3-Step Flow</div>
+      <h2 class="story-heading" style="margin-bottom: 12px;" data-i18n="stepsTitle">How Subdomain Hosting Works</h2>
+      <p class="story-sub" style="margin-bottom: 0;" data-i18n="stepsSub">
+        Getting your static website online has never been this straightforward.
+      </p>
+    </div>
+
+    <div style="max-width: var(--page-max-width); margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: left;">
+      <div class="review-card" style="box-shadow: 0 6px 0 var(--color-border-subtle);">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--color-storybook-green); color: var(--color-storybook-green-dark); font-weight: 900; font-size: 20px; display:flex; align-items:center; justify-content:center; margin-bottom: 16px;">1</div>
+        <h3 style="font-size: 20px; font-weight: 800; color: var(--color-charcoal); margin-bottom: 8px;" data-i18n="step1Title">Create or Redeem Account</h3>
+        <p style="font-size: 15px; color: var(--color-pencil-gray); line-height: 1.5;" data-i18n="step1Desc">
+          Sign in or redeem your class access token on the redeem page to unlock your subdomain quota.
+        </p>
+      </div>
+
+      <div class="review-card" style="box-shadow: 0 6px 0 var(--color-border-subtle);">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #ddf4ff; color: #0860c7; font-weight: 900; font-size: 20px; display:flex; align-items:center; justify-content:center; margin-bottom: 16px;">2</div>
+        <h3 style="font-size: 20px; font-weight: 800; color: var(--color-charcoal); margin-bottom: 8px;" data-i18n="step2Title">Pick Subdomain Name</h3>
+        <p style="font-size: 15px; color: var(--color-pencil-gray); line-height: 1.5;" data-i18n="step2Desc">
+          Choose a unique subdomain like <code>myportfolio.hairiamri.buzz</code> and create your site slot.
+        </p>
+      </div>
+
+      <div class="review-card" style="box-shadow: 0 6px 0 var(--color-border-subtle);">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: #ffe4b5; color: #9c6500; font-weight: 900; font-size: 20px; display:flex; align-items:center; justify-content:center; margin-bottom: 16px;">3</div>
+        <h3 style="font-size: 20px; font-weight: 800; color: var(--color-charcoal); margin-bottom: 8px;" data-i18n="step3Title">Deploy &amp; Share</h3>
+        <p style="font-size: 15px; color: var(--color-pencil-gray); line-height: 1.5;" data-i18n="step3Desc">
+          Upload your files in the dashboard or run <code>hh deploy</code> from your terminal. Your site is live worldwide instantly!
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section" id="reviews">
+    <div class="badge-pill blue" data-i18n="reviewsBadge">Community Feedback</div>
+    <h2 class="story-heading" data-i18n="reviewsTitle">Built for Builders &amp; Creators</h2>
+    <p class="story-sub" style="max-width: 600px; margin: 0 auto;" data-i18n="reviewsSub">
+      See why creators and developers love using HairiHosting for rapid web deployment.
+    </p>
+
+    <div class="testimonials-grid">
+      <div class="review-card">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <p class="review-text">
+          "The CLI is a game-changer. I run Termux on my Android tablet and with <code>hh deploy</code> my HTML updates are live immediately on my subdomain!"
+        </p>
+        <div class="review-author">
+          <img src="/assets/avatarHafiz/avatarHafiz.png" alt="Hafiz" class="author-avatar">
+          <div>
+            <div class="author-name">Hafiz Rahman</div>
+            <div class="author-role">Web Developer &amp; Student</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <p class="review-text">
+          "Having automated SSL and instant subdomain provisioning saves so much time compared to configuring Nginx or cPanel servers manually."
+        </p>
+        <div class="review-author">
+          <img src="/assets/avatarHairi/avatarHairi.png" alt="Hairi" class="author-avatar">
+          <div>
+            <div class="author-name">Hairi Amri</div>
+            <div class="author-role">Platform Lead &amp; Designer</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </div>
+        <p class="review-text">
+          "The ZIP upload feature in the dashboard is super convenient for my students. They build their websites and drop the ZIP right into the editor."
+        </p>
+        <div class="review-author">
+          <img src="/assets/avatarZhang/avatarZhang.png" alt="Zhang" class="author-avatar">
+          <div>
+            <div class="author-name">Zhang Wei</div>
+            <div class="author-role">Tech Instructor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (Accordion) -->
+  <section class="faq-section" id="faq">
+    <div style="text-align: center;">
+      <div class="badge-pill" data-i18n="faqBadge">Common Questions</div>
+      <h2 class="story-heading" data-i18n="faqTitle">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item active">
+        <button type="button" class="faq-question">
+          <span data-i18n="faqQ1">What kind of websites can I host on HairiHosting?</span>
+          <span class="faq-icon">↓</span>
+        </button>
+        <div class="faq-answer" data-i18n="faqA1">
+          HairiHosting hosts static websites composed of HTML, CSS, client-side JavaScript, and media assets (images, fonts, SVGs). It's ideal for personal portfolios, landing pages, documentation, and Single-Page Applications (SPAs).
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span data-i18n="faqQ2">What is my website address format?</span>
+          <span class="faq-icon">↓</span>
+        </button>
+        <div class="faq-answer" data-i18n="faqA2">
+          Your website is served directly on your chosen subdomain: <code>https://yourname.hairiamri.buzz</code>. SSL certificate is automatically generated and managed for you.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span data-i18n="faqQ3">Can I deploy using the CLI from Termux on Android?</span>
+          <span class="faq-icon">↓</span>
+        </button>
+        <div class="faq-answer" data-i18n="faqA3">
+          Yes! Install Node.js in Termux (<code>pkg install nodejs</code>), run <code>npm install -g hh-cli-deploy</code>, log in with your API key, and you can deploy straight from your phone or tablet.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span data-i18n="faqQ4">How do I upload a whole folder of files?</span>
+          <span class="faq-icon">↓</span>
+        </button>
+        <div class="faq-answer" data-i18n="faqA4">
+          You can either compress your folder into a <code>.zip</code> file and click "Upload ZIP" in the dashboard editor, or run <code>hh deploy ./folder</code> from your terminal.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button type="button" class="faq-question">
+          <span data-i18n="faqQ5">How do I get an account or token?</span>
+          <span class="faq-icon">↓</span>
+        </button>
+        <div class="faq-answer" data-i18n="faqA5">
+          You can sign in with your email credentials, request an invite token from the administrator, or use the Redeem page if you have a class access code.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Box (Duolingo Style Chunky Card) -->
+  <section class="contact-section">
+    <div class="contact-box" style="text-align: center;">
+      <div class="badge-pill" data-i18n="ctaBadge">Ready to Host?</div>
+      <h2 class="story-heading" style="font-size: 34px; margin-bottom: 12px;" data-i18n="ctaTitle">
+        Start Deploying To Your Subdomain Today
+      </h2>
+      <p class="story-sub" style="font-size: 16px; margin-bottom: 28px;" data-i18n="ctaSub">
+        Join hundreds of users hosting fast, secured static sites on HairiHosting.
+      </p>
+
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="/redeem.html" class="btn btn-primary" data-i18n="ctaBtnRedeem">
+          Redeem Access Code
+        </a>
+        <a href="/" class="btn btn-outline" data-i18n="ctaBtnLogin">
+          Sign In to Dashboard
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (Full Bleed Duolingo Eager Green #58cc02) -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <img src="/assets/logoUtama/logoUtama-white.png" alt="HairiHosting" class="footer-brand-logo">
+        <p class="footer-brand-desc">
+          Fast, simple subdomain static hosting platform powered by Cloudflare edge and lightweight CLI tooling.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Platform</h4>
+        <ul class="footer-nav-list">
+          <li><a href="#features" class="footer-nav-link">Subdomain Features</a></li>
+          <li><a href="#how-it-works" class="footer-nav-link">Web IDE &amp; ZIP Upload</a></li>
+          <li><a href="#cli" class="footer-nav-link">CLI Deploy Tool</a></li>
+          <li><a href="/cli-docs/" class="footer-nav-link">CLI Documentation</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Account &amp; Access</h4>
+        <ul class="footer-nav-list">
+          <li><a href="/" class="footer-nav-link">Dashboard Login</a></li>
+          <li><a href="/redeem.html" class="footer-nav-link">Redeem Token</a></li>
+          <li><a href="/forgot-password.html" class="footer-nav-link">Forgot Password</a></li>
+          <li><a href="/terma.html" class="footer-nav-link">Terms of Service</a></li>
+          <li><a href="/privacy.html" class="footer-nav-link">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="footer-col-title">Connect</h4>
+        <p style="font-size: 14px; margin-bottom: 16px; color: var(--color-storybook-green);">
+          Need support or an access token?
+        </p>
+        <div class="footer-social-row">
+          <a href="https://wa.me/60172131814" target="_blank" aria-label="WhatsApp" class="footer-social-btn">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          </a>
+          <a href="https://www.facebook.com/share/1B1gC444z6/" target="_blank" aria-label="Facebook" class="footer-social-btn">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@user2680064874301?_r=1&_t=ZS-9AAY6xxC9hN" target="_blank" aria-label="TikTok" class="footer-social-btn">
+            <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 HairiHosting. All rights reserved.</div>
+      <div>Designed with Duolingo-inspired playful simplicity.</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
